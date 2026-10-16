@@ -58,4 +58,4 @@ Import the zip as a new question (the figure is new, so this is not a field-by-f
 
 ## Screen
 
-(filled in after the screen)
+Screened 2026-10-16 (figure plus stem only, no code, no web). Opus: correct, 6, after 64 minutes and 112k tokens. It proved the ends must be 2 and 5 by the distance-2 ball count, derived 9 and 12 next to 5, fixed 3 and 8, and split on the one free vertex among positions 4 to 7 to get the three classes. It read 30 edges (a phantom 6-13) and flagged the discrepancy; the answer did not depend on it. Sonnet: no answer, cut off at the 64k output token ceiling. Tally Opus 1/1, Sonnet 0/1.
