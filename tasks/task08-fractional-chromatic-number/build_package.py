@@ -1,144 +1,125 @@
-import json, zipfile, pathlib, textwrap, subprocess, sys
-from fractions import Fraction as F
+import json, zipfile, pathlib, textwrap, subprocess, sys, math
 HERE = pathlib.Path(__file__).parent
-SLUG = "fractional-chromatic-number-twenty-vertices"
-question = r"""The figure shows a planar graph $G$ with $20$ vertices, labelled $1$ to $20$, and $40$ edges. Every vertex has degree $4$. An independent set of $G$ is a set of vertices no two of which are joined by an edge. A fractional colouring of $G$ gives each independent set $I$ a weight $x_I \ge 0$ in such a way that, for every vertex $v$, the weights of the independent sets that contain $v$ add up to at least $1$. The weight of the fractional colouring is $\sum_I x_I$, and the fractional chromatic number $\chi_f(G)$ is the smallest weight of a fractional colouring of $G$.
+SLUG = "crack-growth-closure-two-load-ratios"
+question = r"""The figure shows fatigue crack growth data for long cracks in a metal injection moulded Ti-6Al-7Nb alloy: the crack growth rate $da/dN$ against the stress intensity factor range $\Delta K$ on logarithmic axes, measured at the load ratios $R = 0.1$ and $R = 0.7$. The dashed lines are the Paris-law fits to the straight parts of the two data sets. The difference between the two data sets is caused by crack closure. Assume that the crack-opening stress intensity factor $K_{op}$ is the same fixed fraction of $K_{max}$ at every load ratio at which closure occurs, that closure is absent when $K_{min} \ge K_{op}$, and that the growth rate depends only on the effective range $\Delta K_{eff} = K_{max} - \max(K_{op}, K_{min})$.
 
-Find $\chi_f(G)$. Give the exact value as a fraction in lowest terms."""
-final_answer = "35/11"
-variants = [r"$35/11$", r"$\frac{35}{11}$", r"$\chi_f(G) = 35/11$", "3.1818"]
-EDGES = [(1, 2), (1, 3), (1, 5), (1, 6), (2, 4), (2, 6), (2, 9), (3, 4), (3, 11), (3, 15), (4, 17), (4, 20), (5, 6), (5, 7), (5, 8), (6, 10), (7, 8), (7, 11), (7, 12), (8, 12), (8, 18), (9, 10), (9, 16), (9, 17), (10, 16), (10, 18), (11, 12), (11, 13), (12, 13), (13, 14), (13, 18), (14, 15), (14, 18), (14, 19), (15, 19), (15, 20), (16, 17), (16, 19), (17, 20), (19, 20)]
-SEVEN = [[2, 3, 5, 10, 12, 14, 17], [2, 3, 5, 10, 12, 14, 20], [2, 3, 5, 10, 12, 17, 19], [2, 3, 5, 10, 13, 17, 19], [2, 3, 5, 12, 14, 16, 20], [2, 3, 5, 12, 16, 18, 20], [2, 3, 5, 12, 17, 18, 19], [2, 3, 7, 10, 13, 17, 19], [2, 3, 8, 10, 13, 17, 19]]
-COLOURING = [([1, 7, 10, 13, 15, 17], F(5, 11)), ([1, 8, 10, 13, 17, 19], F(2, 11)), ([1, 8, 10, 11, 14, 20], F(2, 11)), ([1, 4, 9, 11, 15, 18], F(2, 11)), ([2, 3, 5, 12, 17, 18, 19], F(2, 11)), ([2, 3, 5, 12, 16, 18, 20], F(2, 11)), ([2, 3, 5, 12, 14, 16, 20], F(4, 11)), ([2, 3, 7, 10, 13, 17, 19], F(2, 11)), ([2, 5, 12, 15, 16, 18], F(1, 11)), ([3, 6, 7, 9, 18, 19], F(1, 11)), ([4, 5, 9, 12, 18, 19], F(2, 11)), ([6, 8, 9, 11, 14, 20], F(2, 11)), ([6, 8, 11, 14, 16, 20], F(1, 11)), ([4, 6, 8, 9, 11, 19], F(2, 11)), ([4, 6, 8, 9, 11, 14], F(2, 11)), ([4, 6, 7, 15, 16, 18], F(1, 11)), ([4, 6, 7, 13, 15, 16], F(2, 11))]
-LETTERS = "ABCDEFGHIJKLMNOPQ"
-def tex_set(S): return "$\\{" + ",".join(map(str, S)) + "\\}$"
-def tex_frac(x): return f"$\\tfrac{{{x.numerator}}}{{{x.denominator}}}$" if x.denominator != 1 else f"${x.numerator}$"
-edges_tex = ", ".join(f"${u}\\,{v}$" for u, v in EDGES)
-seven_tex = ", ".join(tex_set(S) for S in SEVEN)
-colouring_tex = "; ".join(f"${L}$ = {tex_set(S)} with weight {tex_frac(x)}" for L, (S, x) in zip(LETTERS, COLOURING))
-cover_parts = []
-for v in range(1, 21):
-    idx = [L for L, (S, x) in zip(LETTERS, COLOURING) if v in S]
-    tot = sum(x for S, x in COLOURING if v in S); assert tot == 1
-    cover_parts.append(f"${v}$: ${', '.join(idx)}$")
-cover_tex = "; ".join(cover_parts)
-solution = r"""Step 1: Read the graph off the figure.
-The edges are """ + edges_tex + r""". Every vertex has degree $4$. The triangles are $1\,2\,6$, $1\,5\,6$, $4\,17\,20$, $5\,7\,8$, $7\,8\,12$, $7\,11\,12$, $9\,10\,16$, $9\,16\,17$, $11\,12\,13$, $13\,14\,18$, $14\,15\,19$ and $15\,19\,20$, and there is no $K_4$, so the clique number is $\omega(G) = 3$. The graph has $2455$ non-empty independent sets, $212$ of them maximal (they are listed in the verification notes). The largest have seven vertices, so the independence number is $\alpha(G) = 7$, and the nine independent sets of size $7$ are """ + seven_tex + r""". Each of them contains the vertices $2$ and $3$ and exactly one of $17$ and $20$.
+A wide plate of the same material carries a constant-amplitude cyclic stress with $\sigma_{max} = 400$ MPa at $R = 0.4$. A surface pore is treated as an edge crack of initial length $a_0 = 0.20$ mm, with the geometry factor $Y = 1.12$ taken as constant, so that $K = Y \sigma \sqrt{\pi a}$. The plate fails when $K_{max}$ reaches the fracture toughness $K_{IC} = 55$ MPa$\sqrt{\mathrm{m}}$. Use the Paris fits for the whole of the crack growth and ignore the deviation of the data near the threshold.
 
-Step 2: The bounds that come first, and why they do not settle the question.
-A fractional colouring $x$ satisfies $\sum_{I \ni v} x_I \ge 1$ for every vertex $v$. Summing over the three vertices of a triangle, and using that an independent set contains at most one of them, gives $\sum_I x_I \ge 3 = \omega(G)$. Summing over all twenty vertices gives $\sum_I |I|\, x_I \ge 20$, and since $|I| \le 7$ this is $\sum_I x_I \ge 20/7 = n/\alpha(G)$. For a vertex-transitive graph the bound $n/\alpha$ is exact, but $G$ is only regular: its automorphism group is trivial (vertex $3$ lies in no triangle and vertex $7$ in three, for instance), so the identity $\chi_f(G) = n/\alpha(G)$ is not available. The same summation over the nineteen vertices other than $2$ gives more, because every independent set of $G - 2$ has at most six vertices (the nine sets of size $7$ all contain $2$): $\chi_f(G) \ge \chi_f(G - 2) \ge 19/6$, and the same holds for $G - 3$. From above, the colour classes $\{1,4,7,9,13,15\}$, $\{2,3,5,10,12,14,17\}$, $\{6,8,11,16,20\}$, $\{18,19\}$ form a proper $4$-colouring, which is a fractional colouring of weight $4$. So far $19/6 \le \chi_f(G) \le 4$.
+Find the number of cycles from $a_0$ to failure. Give the answer to three significant figures."""
+# numbers
+C = 1.0e-12; m = 3; Y = 1.12; a0 = 0.20e-3; smax = 400.0; R = 0.4; KIC = 55.0; k = 0.55
+ds = smax * (1 - R); ac = (KIC / (Y * smax)) ** 2 / math.pi
+U04 = (1 - k) / (1 - R); Ceff = C * U04 ** 3
+A = Y * ds * math.sqrt(math.pi); pref = 2.0 / (Ceff * A ** 3); N = pref * (a0 ** -0.5 - ac ** -0.5)
+Nfree = 2.0 / (C * A ** 3) * (a0 ** -0.5 - ac ** -0.5)
+dK0 = Y * ds * math.sqrt(math.pi * a0); dKc = Y * ds * math.sqrt(math.pi * ac)
+final_answer = r"$2.47 \times 10^{6}$ cycles"
+variants = ["2.47e6 cycles", "2470000 cycles", r"$2.47 \times 10^6$", "2.47 million cycles", "2.47E+06"]
+solution = rf"""Step 1: Read the two Paris fits from the figure.
+Both dashed lines have the same slope. The fit to the $R = 0.7$ data passes through the grid intersections $da/dN = 10^{{-9}}$ m/cycle at $\Delta K = 10$ MPa$\sqrt{{\mathrm{{m}}}}$ and $da/dN = 10^{{-6}}$ m/cycle at $\Delta K = 100$ MPa$\sqrt{{\mathrm{{m}}}}$, so its exponent is $m = \log(10^{{3}})/\log(10) = 3$ and its coefficient is $C = 10^{{-9}}/10^{{3}} = 1.0 \times 10^{{-12}}$ m/cycle per (MPa$\sqrt{{\mathrm{{m}}}}$)$^{{3}}$. The fit to the $R = 0.1$ data is the same line displaced to the right by a factor of $2$: it passes through $10^{{-9}}$ m/cycle at $\Delta K = 20$ and $10^{{-6}}$ m/cycle at $\Delta K = 200$ MPa$\sqrt{{\mathrm{{m}}}}$, and the two thresholds ($\approx 2.5$ and $\approx 5$ MPa$\sqrt{{\mathrm{{m}}}}$) are displaced by the same factor.
 
-Step 3: Lower bound $35/11$ from a fractional clique.
-Let $L = \{2, 3, 4, 17, 20\}$. Give each vertex of $L$ the weight $w_v = 1/11$ and each of the other fifteen vertices the weight $w_v = 2/11$. The total is $5/11 + 30/11 = 35/11$. For an independent set $I$ the weight is $w(I) = \sum_{v \in I} w_v = (2|I| - |I \cap L|)/11$, and the claim is that $w(I) \le 1$ for every independent set. If $|I| \le 5$ then $w(I) \le 10/11$. If $|I| = 6$ then $w(I) \le 1$ exactly when $I$ meets $L$, and every independent set of six vertices does meet $L$: the fifteen vertices outside $L$ induce a subgraph with independence number $5$ (the enumeration in the verification notes lists all $179$ independent sets of size $6$, each containing a vertex of $L$; $72$ of them contain exactly one and have weight exactly $1$). If $|I| = 7$ then $I$ is one of the nine sets of Step 1, each of which contains $2$, $3$ and one of $17$, $20$, so $|I \cap L| = 3$ and $w(I) = (14 - 3)/11 = 1$. Now let $x$ be any fractional colouring. Then
-$$\sum_I x_I \;\ge\; \sum_I x_I\, w(I) \;=\; \sum_v w_v \sum_{I \ni v} x_I \;\ge\; \sum_v w_v \;=\; \frac{35}{11}.$$
-So $\chi_f(G) \ge 35/11$, which is strictly more than the bound $19/6$ of Step 2.
+Step 2: Infer the closure level.
+Write $K_{{op}} = k\,K_{{max}}$. A load ratio with $K_{{min}} \ge K_{{op}}$ has $\Delta K_{{eff}} = \Delta K$. The data set to the left (faster growth at a given $\Delta K$) is the one in which the whole range is effective, so the $R = 0.7$ curve is the closure-free curve, $da/dN = C\,\Delta K_{{eff}}^{{3}}$, and $k < 0.7$. At $R = 0.1$, $\Delta K = 0.9\,K_{{max}}$ and $\Delta K_{{eff}} = (1 - k)\,K_{{max}}$, so $\Delta K_{{eff}} = U_{{0.1}}\,\Delta K$ with $U_{{0.1}} = (1-k)/0.9$. Equal growth rates occur at equal $\Delta K_{{eff}}$, so the displacement of the $R = 0.1$ curve is $1/U_{{0.1}} = 2$, giving $U_{{0.1}} = 0.5$ and $k = 1 - 0.9 \times 0.5 = 0.55$.
 
-Step 4: Upper bound $35/11$ from an explicit fractional colouring.
-Take the seventeen independent sets """ + colouring_tex + r""". Each set is independent (no two of its vertices appear together in the edge list of Step 1), and the weights add up to $(5 + 2 + 2 + 2 + 2 + 2 + 4 + 2 + 1 + 1 + 2 + 2 + 1 + 2 + 2 + 1 + 2)/11 = 35/11$. Every vertex is covered with total weight exactly $1$; the sets containing each vertex are """ + cover_tex + r""", and in each case the listed weights sum to $11/11$. Multiplying all weights by $11$ turns the list into $35$ independent sets (set $A$ five times, set $G$ four times, the sets with weight $2/11$ twice, the sets with weight $1/11$ once) in which every vertex appears exactly $11$ times: a $35{:}11$-colouring of $G$. Hence $\chi_f(G) \le 35/11$.
+Step 3: The decisive step: at $R = 0.4$ closure is present, and neither measured curve applies as it stands.
+At $R = 0.4$, $K_{{min}} = 0.40\,K_{{max}} < K_{{op}} = 0.55\,K_{{max}}$, so the crack closes during part of every cycle and $\Delta K_{{eff}} = K_{{max}} - K_{{op}} = 0.45\,K_{{max}}$. With $\Delta K = 0.6\,K_{{max}}$ this is $\Delta K_{{eff}} = U_{{0.4}}\,\Delta K$ with $U_{{0.4}} = 0.45/0.60 = 0.75$. The growth law of the plate is therefore $da/dN = C\,(0.75\,\Delta K)^{{3}} = C_{{eff}}\,\Delta K^{{3}}$ with $C_{{eff}} = 0.75^{{3}} \times 10^{{-12}} = {Ceff:.4e}$ m/cycle per (MPa$\sqrt{{\mathrm{{m}}}}$)$^{{3}}$. Taking the crack to be closure-free at $R = 0.4$ (the $R = 0.7$ fit), using the $R = 0.1$ fit, or interpolating between the two curves in $R$ all give wrong lives.
 
-Step 5: Conclusion.
-Steps 3 and 4 give $\chi_f(G) = 35/11$. None of the bounds of Step 2 is attained: $20/7$, $3$ and $19/6$ are all smaller, and $4$ is larger. A $2$-fold colouring needs $7$ colours (there is no $6{:}2$-colouring, by the search in the verification notes), so stopping at a $2$-fold colouring gives $7/2$; the first $k$-fold colouring whose ratio equals $\chi_f(G)$ is the $35{:}11$-colouring of Step 4.
+Step 4: Stress range, critical crack length and the range of $\Delta K$.
+$\sigma_{{min}} = R\,\sigma_{{max}} = 160$ MPa and $\Delta \sigma = \sigma_{{max}} - \sigma_{{min}} = {ds:.0f}$ MPa. Failure occurs when $K_{{max}} = Y \sigma_{{max}} \sqrt{{\pi a_c}} = K_{{IC}}$, so $a_c = \dfrac{{1}}{{\pi}}\left(\dfrac{{K_{{IC}}}}{{Y \sigma_{{max}}}}\right)^{{2}} = \dfrac{{1}}{{\pi}}\left(\dfrac{{55}}{{1.12 \times 400}}\right)^{{2}} = {ac*1e3:.3f}$ mm (with $\Delta\sigma$ in place of $\sigma_{{max}}$ one would get $13.3$ mm, which is wrong). The applied range grows from $\Delta K(a_0) = 1.12 \times {ds:.0f} \times \sqrt{{\pi \times 0.20 \times 10^{{-3}}}} = {dK0:.2f}$ MPa$\sqrt{{\mathrm{{m}}}}$ to $\Delta K(a_c) = {dKc:.1f}$ MPa$\sqrt{{\mathrm{{m}}}}$; the effective range runs from ${U04*dK0:.2f}$ to ${U04*dKc:.1f}$ MPa$\sqrt{{\mathrm{{m}}}}$, above the intrinsic threshold and inside the straight part of the data.
 
-Answer: $35/11$."""
+Step 5: Integrate the Paris law.
+With $da/dN = C_{{eff}} (Y \Delta\sigma \sqrt{{\pi a}})^{{m}}$ and $m = 3$,
+$$N = \int_{{a_0}}^{{a_c}} \frac{{da}}{{C_{{eff}}\,(Y \Delta\sigma \sqrt{{\pi}})^{{3}}\, a^{{3/2}}}} = \frac{{2}}{{C_{{eff}}\,(Y \Delta\sigma \sqrt{{\pi}})^{{3}}}}\left(a_0^{{-1/2}} - a_c^{{-1/2}}\right).$$
+Here $Y \Delta\sigma \sqrt{{\pi}} = 1.12 \times {ds:.0f} \times \sqrt{{\pi}} = {A:.1f}$ MPa$\sqrt{{\mathrm{{m}}}}\,$m$^{{-1/2}}$, its cube is ${A**3:.4e}$, and $2/(C_{{eff}} \times {A**3:.4e}) = {pref:.0f}$ cycles$\,$m$^{{1/2}}$. With $a_0^{{-1/2}} = (0.20 \times 10^{{-3}})^{{-1/2}} = {a0**-0.5:.2f}$ m$^{{-1/2}}$ and $a_c^{{-1/2}} = ({ac*1e3:.3f} \times 10^{{-3}})^{{-1/2}} = {ac**-0.5:.2f}$ m$^{{-1/2}}$,
+$$N = {pref:.0f} \times ({a0**-0.5:.2f} - {ac**-0.5:.2f}) = {N:.4g} \approx 2.47 \times 10^{{6}} \text{{ cycles}}.$$
+
+Step 6: Conclusion.
+The plate survives $2.47 \times 10^{{6}}$ cycles. The closure-free law (the $R = 0.7$ fit used directly) gives ${Nfree:.3g}$, which is the life one obtains by assuming that closure has vanished at $R = 0.4$; the $R = 0.1$ fit gives $8.33 \times 10^{{6}}$; a log-linear interpolation between the two curves at $R = 0.4$ gives $2.94 \times 10^{{6}}$; computing $a_c$ from $\Delta\sigma$ gives $2.72 \times 10^{{6}}$.
+
+Answer: $2.47 \times 10^{{6}}$ cycles."""
 rubric = [
-    dict(id="c1", description=r"Gives $35/11$ (or an exactly equivalent form).", points=5, isFinalAnswer=True),
-    dict(id="c2", description=r"Exhibits a fractional colouring of $G$ of total weight $35/11$: a list of independent sets with non-negative weights covering every vertex with total at least $1$ (for instance a $35{:}11$-colouring), with weights summing to $35/11$.", points=2, isFinalAnswer=False),
-    dict(id="c3", description=r"Proves the lower bound $\chi_f(G) \ge 35/11$ by a valid argument, for instance a vertex weighting of total $35/11$ under which every independent set weighs at most $1$ (such as $1/11$ on vertices $2$, $3$, $4$, $17$, $20$ and $2/11$ on the other fifteen vertices), or an exact solution of the linear programme and its dual.", points=2, isFinalAnswer=False),
-    dict(id="c4", description=r"Determines the independence number $\alpha(G) = 7$ and the chromatic number $\chi(G) = 4$, so that $20/7 \le \chi_f(G) \le 4$.", points=1, isFinalAnswer=False),
+    dict(id="c1", description=r"Gives $2.47 \times 10^{6}$ cycles (three significant figures; any equivalent numerical form).", points=5, isFinalAnswer=True),
+    dict(id="c2", description=r"Reads the Paris fit of the $R = 0.7$ data as $m = 3$ and $C = 1.0 \times 10^{-12}$ m/cycle per (MPa$\sqrt{\mathrm{m}}$)$^3$, and infers the closure level $K_{op}/K_{max} = 0.55$ (equivalently $U = 0.5$ at $R = 0.1$) from the displacement factor $2$ between the two curves.", points=2, isFinalAnswer=False),
+    dict(id="c3", description=r"Recognises that closure is still present at $R = 0.4$ because $K_{min} = 0.40\,K_{max}$ is below $K_{op} = 0.55\,K_{max}$, and derives $\Delta K_{eff} = 0.75\,\Delta K$ (equivalently $C_{eff} = 4.22 \times 10^{-13}$) for the plate.", points=2, isFinalAnswer=False),
+    dict(id="c4", description=r"Obtains the critical crack length $a_c = 4.80$ mm from $K_{max} = Y \sigma_{max} \sqrt{\pi a_c} = K_{IC}$ with $\sigma_{max} = 400$ MPa.", points=1, isFinalAnswer=False),
 ]
-wrong = ["20/7", "3", "19/6", "4", "7/2"]
-references = r"""Fractional colourings, fractional cliques and the linear programming duality between them (every fractional colouring weighs at least as much as every fractional clique, with equality at the optimum): L. Lovasz, On the ratio of optimal integral and fractional covers, Discrete Mathematics 13 (1975), 383-390. The $k$-fold colourings whose ratios $k/d$ attain the fractional chromatic number: S. Stahl, $n$-tuple colorings and associated graphs, Journal of Combinatorial Theory Series B 20 (1976), 185-203. The uploaded file verification_notes.txt enumerates every independent set of the drawn graph (2455 non-empty, 212 maximal, nine of size 7), checks the fractional clique of weight $35/11$ against all of them and the fractional colouring of weight $35/11$ vertex by vertex, solves the linear programme exactly by a rational simplex and numerically by a second solver, computes the best induced-subgraph ratio ($19/6$) over all induced subgraphs, and shows that no $6{:}2$-colouring exists; the program is embedded with its output."""
-necessity = "The graph is given only by the figure; the forty edges are not listed in the text, and the fractional chromatic number depends on the exact edge set (moving a single edge changes the independent sets and with them both certificates)."
-verify_field = "Sections 3 and 4 of verification_notes.txt give the two certificates: the vertex weighting of total 35/11 (1/11 on vertices 2, 3, 4, 17, 20 and 2/11 on the other fifteen vertices) with the weight of every maximal independent set listed and the two facts behind it (every independent set of six vertices meets {2, 3, 4, 17, 20}; each of the nine independent sets of seven vertices contains three of them), and the seventeen weighted independent sets of total 35/11 that cover every vertex exactly once. Section 5 solves the linear programme exactly by a rational simplex and numerically by HiGHS, both giving 35/11. Section 6 computes the best induced-subgraph ratio 19/6 over all induced subgraphs. Section 7 embeds the program verify_key.py with its full output."
+wrong = [r"$1.04 \times 10^{6}$ cycles", r"$8.33 \times 10^{6}$ cycles", r"$2.94 \times 10^{6}$ cycles", r"$3.62 \times 10^{6}$ cycles", r"$2.72 \times 10^{6}$ cycles"]
+references = r"""Crack closure and the effective stress intensity range: W. Elber, The significance of fatigue crack closure, in Damage Tolerance in Aircraft Structures, ASTM STP 486 (1971), 230-242. The power-law relation between growth rate and stress intensity range: P. C. Paris and F. Erdogan, A critical analysis of crack propagation laws, Journal of Basic Engineering 85 (1963), 528-534. The uploaded file verification_notes.txt states the growth law and closure model from which the figure was generated (so the fits are exact), lists every plotted point, derives the closure level from the displacement of the two curves and the effective range at $R = 0.4$, computes the critical crack length and the life by the closed form and by two numerical integrations, and computes the values reached by the wrong routes; the program is embedded with its output."""
+necessity = "The Paris constants, the slope, the thresholds and the displacement between the two load ratios, from which the closure level follows, are given only by the plot; nothing in the text states the growth law or the closure level."
+verify_field = "Section 1 of verification_notes.txt gives the growth law and closure model that generated the figure and the coordinates of every plotted point, so the fits can be checked against the plot (the R = 0.7 fit passes through 1e-9 m/cycle at 10 MPa sqrt m and 1e-6 at 100; the R = 0.1 fit through the same rates at 20 and 200). Section 2 derives K_op/K_max = 0.55 from the displacement factor 2 of the two curves and the effective range 0.75 delta K at R = 0.4, where K_min is below K_op. Section 3 computes a_c = 4.80 mm and the life 2,466,809 cycles by the closed form, by composite Simpson integration and by scipy quad. Section 4 lists the wrong routes with their values. Section 5 embeds the program verify_key.py with its output."
 task = {"schema_version": "summit-task-package-v1", "task": {
-    "domain": "mathematics", "subdomain": "Graph theory: fractional graph colouring (fractional chromatic number and linear programming duality)",
-    "modality": "image_reference", "taskType": "image_multistep_discrete_reasoning",
-    "imageCreationTool": "matplotlib (original planar straight-line drawing of the graph from a Tutte embedding)",
+    "domain": "engineering", "subdomain": "Fatigue and fracture of titanium alloys",
+    "modality": "image_reference", "taskType": "graph_extraction_computation",
+    "imageCreationTool": "matplotlib (log-log plot generated from the stated growth law and closure model)",
     "imageNecessityExplanation": necessity, "questionText": question, "answerType": "exact_match",
     "finalAnswer": [final_answer], "acceptableAnswerVariants": variants, "multipleChoiceOptions": [],
-    "answerPrecision": {"kind": "none"}, "solution": solution, "references": references,
+    "answerPrecision": {"kind": "significant_figures", "digits": 3}, "solution": solution, "references": references,
     "rubric": {"criteria": rubric, "commonWrongAnswers": wrong}, "image": {"entry": "image.png"},
     "referenceFile": {"entry": "reference.txt", "fileName": "verification_notes.txt"}}}
 def check():
     assert sum(c["points"] for c in rubric) == 10 and sum(c["isFinalAnswer"] for c in rubric) == 1
-    assert final_answer in rubric[0]["description"] and final_answer not in wrong
+    assert "2.47" in rubric[0]["description"] and final_answer not in wrong
     for name, text in [("question", question), ("solution", solution), ("references", references), ("necessity", necessity), ("verify", verify_field)] + [(c["id"], c["description"]) for c in rubric]:
         for ch in ("—", "–", "’", "“", "”", "​"): assert ch not in text, name
-    assert len(question) >= 30 and len(solution) >= 50 and len(solution) <= 30000
-    # every set in Step 4 independent, total 35/11
-    adj = {}
-    for u, v in EDGES: adj.setdefault(u, set()).add(v); adj.setdefault(v, set()).add(u)
-    for S, x in COLOURING: assert all(b not in adj[a] for a in S for b in S), S
-    assert sum(x for S, x in COLOURING) == F(35, 11)
-    for S in SEVEN: assert all(b not in adj[a] for a in S for b in S) and len(S) == 7
+    assert abs(N - 2466809) < 1
     print("package checks passed")
 def build_reference():
     src = (HERE / "verify_key.py").read_text(); out = (HERE / "work" / "verify_key_output.txt").read_text()
+    fig = (HERE / "work" / "figure_data.txt").read_text()
     assert "ALL CHECKS PASSED" in out
     pyver = subprocess.run([sys.executable, "--version"], capture_output=True, text=True).stdout.strip()
-    txt = f"""VERIFICATION NOTES: fractional chromatic number of the graph in the figure
+    txt = f"""VERIFICATION NOTES: fatigue crack growth life from the two-load-ratio da/dN plot
 
-Answer key: 35/11.
+Answer key: 2.47 x 10^6 cycles (2,466,809 cycles before rounding).
 
-1. Edges (from the figure): {", ".join(f"{u}-{v}" for u, v in EDGES)}.
-   Twenty vertices, forty edges, every vertex of degree 4, planar (the figure is a planar straight-line drawing).
-2. Independent sets: enumerated by backtracking; 2455 non-empty independent sets (20 of size 1, 150 of size 2, 528 of
-   size 3, 895 of size 4, 674 of size 5, 179 of size 6, 9 of size 7), 212 of them maximal (listed in the program output).
-   Twelve triangles, no K4. So alpha = 7, omega = 3, n/alpha = 20/7, and chi = 4 (no proper 3-colouring by
-   backtracking; the 4-colouring {{1,4,7,9,13,15}}, {{2,3,5,10,12,14,17}}, {{6,8,11,16,20}}, {{18,19}}). The graph is
-   regular but not vertex-transitive (trivial automorphism group; vertex 3 is in no triangle, vertex 7 in three), so
-   n/alpha is only a lower bound.
-3. Lower bound (fractional clique): weight 1/11 on L = {{2, 3, 4, 17, 20}}, weight 2/11 on the other fifteen vertices;
-   total 35/11. The weight of an independent set I is (2|I| - |I meets L|)/11, so the claim "every independent set
-   has weight at most 1" reduces to: every independent 6-set meets L (true: the fifteen vertices outside L have
-   independence number 5; all 179 independent 6-sets were checked), and every independent 7-set contains at least
-   three vertices of L (true: each of the nine contains 2, 3 and one of 17, 20). The program checks the weight of
-   every one of the 2455 independent sets directly and prints the weight of each maximal one. Weak duality: for any
-   fractional colouring x, sum_I x_I >= sum_I x_I w(I) = sum_v w_v sum_(I contains v) x_I >= sum_v w_v = 35/11.
-4. Upper bound (fractional colouring): seventeen independent sets with weights k/11 (listed in Step 4 of the solution
-   and in the program); total 35/11; every vertex covered with total weight exactly 1 (printed vertex by vertex).
-   Equivalently a 35:11-colouring (printed).
-5. Two further solutions of the linear programme: the dual (maximum weight of a fractional clique) by an exact
-   rational tableau simplex written in the program with the standard library, optimum 35/11; the primal over the
-   212 maximal independent sets by scipy's HiGHS solver, optimum 3.1818181818.
-6. Wrong routes, computed: n/alpha = 20/7; omega = 3; the best ratio |S|/alpha(G[S]) over all 2^20 - 1 induced
-   subgraphs is 19/6 (delete vertex 2 or vertex 3); chi = 4; no 6:2-colouring but a 7:2-colouring, so the best
-   2-fold colouring has weight 7/2.
+1. The figure. Generated by draw_figure.py from the law da/dN = C dK_eff^3 (1 - (dK_th,eff/dK_eff)^4) with
+   C = 1.0e-12 m/cycle per (MPa sqrt m)^3, dK_th,eff = 2.5 MPa sqrt m, and the closure model K_op = 0.55 K_max (no
+   closure once K_min >= K_op). The R = 0.7 series is closure-free (dK_eff = dK). The R = 0.1 series has
+   dK_eff = (1 - 0.55) K_max = (0.45/0.90) dK = 0.5 dK, so it is the intrinsic curve displaced to the right by the
+   factor 2. The dashed lines are the pure Paris parts, da/dN = C dK^3 (R = 0.7) and C (0.5 dK)^3 (R = 0.1); the
+   R = 0.7 fit passes through (10, 1e-9) and (100, 1e-6), the R = 0.1 fit through (20, 1e-9) and (200, 1e-6).
+   Plotted points:
+{textwrap.indent(fig.split(chr(10) + "wrote")[0], "   ")}
+2. Closure level from the plot: equal growth rates at equal dK_eff, so the displacement factor is 1/U with
+   U = dK_eff/dK at R = 0.1; 1/U = 2 gives U = 0.5 and K_op/K_max = 1 - 0.9 U = 0.55. At R = 0.4,
+   K_min/K_max = 0.40 < 0.55, so closure is present: dK_eff = K_max - K_op = 0.45 K_max = 0.75 dK, and the growth law
+   of the plate is da/dN = C (0.75 dK)^3 = 4.2188e-13 dK^3.
+3. Life: sigma_max 400 MPa, R 0.4, delta sigma 240 MPa, Y 1.12, a0 0.20 mm, K_IC 55 MPa sqrt m.
+   a_c = (K_IC/(Y sigma_max))^2/pi = 4.7975 mm. dK runs from 6.74 to 33.0 MPa sqrt m (dK_eff from 5.05 to 24.8), above
+   the intrinsic threshold and inside the straight part. N = 2/(C_eff (Y ds sqrt(pi))^3) (a0^-1/2 - a_c^-1/2)
+   = 2,466,809 cycles (closed form); composite Simpson with 20000 intervals and scipy quad give the same value to
+   better than 1e-9 relative. Keeping the near-threshold knee factor in the law would give 2,505,221 (+1.56 percent);
+   the stem says to use the Paris fits, so the key is the closed-form value.
+4. Wrong routes (values printed by the program): closure assumed absent at R = 0.4 (R = 0.7 fit used directly) gives
+   1.04e6; the R = 0.1 fit gives 8.33e6; a log-linear interpolation between the curves gives 2.94e6; Elber's
+   U = 0.5 + 0.4 R in place of the closure level in the figure gives 3.62e6; a_c from delta sigma gives 2.72e6;
+   sigma_max used in place of delta sigma gives 5.33e5.
 
-7. Program verify_key.py (run with {pyver}; command: python3 verify_key.py; needs only the standard library,
-   numpy and scipy optional; running time about one minute)
+5. Program verify_key.py (run with {pyver}; command: python3 verify_key.py; standard library only, scipy optional)
 
 {textwrap.indent(src, "   ")}
 
    Output:
 
 {textwrap.indent(out, "   ")}
+
+6. Figure script draw_figure.py (same Python; command: python3 draw_figure.py; needs matplotlib)
+
+{textwrap.indent((HERE / "draw_figure.py").read_text(), "   ")}
 """
     (HERE / "reference.txt").write_text(txt); print("reference.txt written")
 def build_readme(screen):
-    lines = ["# task08 (revision): fractional chromatic number of a 20-vertex planar 4-regular graph", "",
-             "Revision of Summit item SUM-MVBCQZWW (the 12-vertex version came back too easy: the weaker model solved it twice out of three). The 12-vertex package is kept in work/v1/.", "",
-             "Domain: Mathematics. Subdomain: " + task["task"]["subdomain"], "",
+    lines = ["# task08: fatigue crack growth life with closure read from two load ratios", "",
+             "Engineering (materials), subdomain: " + task["task"]["subdomain"] + ". This folder was first used for the mathematics task on the fractional chromatic number (Summit SUM-MVBCQZWW, returned too easy); that package and its revision are archived in work/v1 and work/v2-math. Mathematics is closed for new tasks (see AQ_Summit/domains-for-new-task.md).", "",
              "## Question", "", question, "", "## Answer", "", final_answer, "", "## Solution", "", solution, "", "## Rubric", ""]
     for c in rubric: lines.append(f"- {c['id']} ({c['points']} pts{', final answer' if c['isFinalAnswer'] else ''}): {c['description']}")
     lines += ["", "Common wrong answers: " + ", ".join(wrong), "", "## References box", "", references, "",
               "## Verify field", "", verify_field, "", "## Screen", "", screen]
     (HERE / "README.md").write_text("\n".join(lines) + "\n"); print("README.md written")
-def build_paste():
-    lines = ["# Paste sheet for revising SUM-MVBCQZWW on the platform (edit field by field, no zip re-import)", "",
-             "Replace every field below with the text given. Upload image.png as the new image and reference.txt as the new References file (display name verification_notes.txt). Subdomain, modality, task type and answer type stay as they are.", "",
-             "## Image source", "", task["task"]["imageCreationTool"], "", "## Why the image is necessary", "", necessity, "",
-             "## Question text", "", question, "", "## Correct answer", "", final_answer, "", "## Also accepted", ""]
-    lines += [f"- {v}" for v in variants]
-    lines += ["", "## Answer precision", "", "Not set / no precision stated (exact fraction).", "", "## Solution", "", solution, "", "## Rubric (10 points, c1 is the final-answer criterion)", ""]
-    for c in rubric: lines.append(f"- {c['id']} ({c['points']} pts{', final answer' if c['isFinalAnswer'] else ''}): {c['description']}")
-    lines += ["", "## Common wrong answers", ""] + [f"- {w}" for w in wrong]
-    lines += ["", "## References text", "", references, "", "## Verify box (where to find or verify the answer)", "", verify_field, ""]
-    (HERE / "paste-for-edit.md").write_text("\n".join(lines)); print("paste-for-edit.md written")
 def build_zip():
     with zipfile.ZipFile(HERE / f"{SLUG}.zip", "w", zipfile.ZIP_DEFLATED) as z:
         for f in ("task.json", "image.png", "reference.txt"): z.write(HERE / f, f)
     print("zip written")
 if __name__ == "__main__":
     screen = (HERE / "work" / "screen.md").read_text() if (HERE / "work" / "screen.md").exists() else "(filled in after the screen)"
-    check(); (HERE / "task.json").write_text(json.dumps(task, indent=2, ensure_ascii=False)); build_reference(); build_readme(screen); build_paste(); build_zip()
+    check(); (HERE / "task.json").write_text(json.dumps(task, indent=2, ensure_ascii=False)); build_reference(); build_readme(screen); build_zip()
