@@ -1,30 +1,41 @@
-"""Draws the figure for task08 (engineering): long-crack fatigue crack growth data of a MIM Ti-6Al-7Nb alloy at
-R = 0.1 and R = 0.7 on log-log axes, generated from the stated model, with the dashed Paris fits.  Produces image.png
-(300 dpi) and image.pdf.  Run: python3 draw_figure.py"""
+"""Draws the figure for task08 (engineering, constant-K_op version): long-crack fatigue crack growth data of a MIM
+Ti-6Al-7Nb alloy at R = 0.1 and R = 0.7 on log-log axes, generated from the stated model.  The dashed line is the Paris
+fit to the straight part of the R = 0.7 data; the thin solid line through the R = 0.1 data is the closure model.
+Produces image.png (300 dpi) and image.pdf.  Run: python3 draw_figure.py"""
 import pathlib
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LogLocator, NullFormatter, FuncFormatter
 
-C = 1.0e-12; M = 3; DK_TH_EFF = 2.5; KOP_RATIO = 0.55
-U01 = (1 - KOP_RATIO) / (1 - 0.1)                       # dK_eff / dK at R = 0.1  (= 7/9)
-DK_EFF_POINTS = [2.6, 2.75, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0, 10.0, 15.0, 20.0, 30.0, 50.0, 70.0, 100.0]
+C = 1.0e-12; M = 3; DK_TH_EFF = 2.5; KOP = 6.0          # K_op in MPa sqrt m, the same at every load ratio
+DK_EFF_POINTS = [3.0, 3.5, 4.0, 5.0, 6.0, 8.0, 10.0, 14.0, 20.0, 24.0, 30.0, 34.0, 44.0, 50.0, 70.0, 100.0]
 
 def intrinsic(dk_eff):
     return C * dk_eff ** M * (1 - (DK_TH_EFF / dk_eff) ** 4)
+def dk_applied(dk_eff, R):
+    """applied range at load ratio R for a given effective range: K_max - K_op = dk_eff while K_min < K_op."""
+    kmax_closure = dk_eff + KOP                       # closure present: dK_eff = K_max - K_op
+    if R * kmax_closure < KOP: return (1 - R) * kmax_closure
+    return dk_eff                                     # K_min >= K_op: closure absent, dK_eff = dK
 def data():
-    """(dK, da/dN) for the two series; R = 0.7 is closure-free, R = 0.1 is shifted by 1/U in dK."""
-    r07 = [(d, intrinsic(d)) for d in DK_EFF_POINTS]
-    r01 = [(d / U01, intrinsic(d)) for d in DK_EFF_POINTS]
+    r07 = [(dk_applied(d, 0.7), intrinsic(d)) for d in DK_EFF_POINTS]
+    r01 = [(dk_applied(d, 0.1), intrinsic(d)) for d in DK_EFF_POINTS]
     return r01, r07
+def curve01(n=400):
+    import math
+    out = []
+    for i in range(n + 1):
+        d = 2.6 * (200 / 2.6) ** (i / n)
+        out.append((dk_applied(d, 0.1), intrinsic(d)))
+    return out
 
 def draw(out="image"):
     r01, r07 = data()
     fig, ax = plt.subplots(figsize=(7.0, 6.2))
     xs = [2.0, 300.0]
-    ax.plot(xs, [C * x ** M for x in xs], "k--", lw=1.0, label="Paris fit", zorder=2)
-    ax.plot(xs, [C * (U01 * x) ** M for x in xs], "k--", lw=1.0, zorder=2)
+    ax.plot(xs, [C * x ** M for x in xs], "k--", lw=1.0, label="Paris fit, $R = 0.7$", zorder=2)
+    cv = curve01(); ax.plot([d for d, _ in cv], [r for _, r in cv], "-", color="0.45", lw=0.9, zorder=2)
     ax.plot([d for d, _ in r01], [r for _, r in r01], "o", mfc="white", mec="black", ms=6.5, mew=1.2, label="$R = 0.1$", zorder=3)
     ax.plot([d for d, _ in r07], [r for _, r in r07], "s", mfc="black", mec="black", ms=5.5, label="$R = 0.7$", zorder=3)
     ax.set_xscale("log"); ax.set_yscale("log")
@@ -34,13 +45,13 @@ def draw(out="image"):
     ax.xaxis.set_major_locator(LogLocator(base=10, numticks=10))
     ax.xaxis.set_minor_locator(LogLocator(base=10, subs=range(2, 10), numticks=20))
     ax.xaxis.set_major_formatter(FuncFormatter(lambda v, p: f"{v:g}"))
-    ax.xaxis.set_minor_formatter(FuncFormatter(lambda v, p: f"{v:g}" if v in (2, 3, 5, 20, 30, 50, 200) else ""))
+    ax.xaxis.set_minor_formatter(FuncFormatter(lambda v, p: f"{v:g}" if v in (2, 3, 4, 5, 6, 8, 20, 30, 40, 50, 60, 80, 200) else ""))
     ax.yaxis.set_major_locator(LogLocator(base=10, numticks=10))
     ax.yaxis.set_minor_locator(LogLocator(base=10, subs=range(2, 10), numticks=20))
     ax.yaxis.set_minor_formatter(NullFormatter())
     ax.grid(True, which="major", color="0.55", lw=0.8)
     ax.grid(True, which="minor", color="0.85", lw=0.5)
-    ax.tick_params(axis="both", which="both", labelsize=10)
+    ax.tick_params(axis="both", which="both", labelsize=9)
     ax.legend(loc="upper left", fontsize=11, frameon=True)
     ax.text(0.98, 0.03, "MIM Ti-6Al-7Nb, long cracks, lab air", transform=ax.transAxes, ha="right", va="bottom", fontsize=10)
     fig.tight_layout(pad=0.4)
