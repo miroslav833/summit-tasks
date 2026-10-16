@@ -14,7 +14,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task08 | Engineering: fatigue crack growth life of a MIM Ti-6Al-7Nb plate at R = 0.4, closure level read from da/dN curves at R = 0.1 and 0.7 (the two mathematics packages that used this folder, fractional chromatic number 13/4 and 35/11, are archived in v1/ and v2-math/) | 1.04 x 10^6 cycles | tasks/task08-fractional-chromatic-number/crack-growth-closure-two-load-ratios.zip |
 | task09 | Rooted pebbling number of a 10-vertex graph (target double-circled) | 13 | tasks/task09-pebbling-number/graph-rooted-pebbling-number-ten-vertices.zip |
 | task09 v2 | Rooted pebbling number of a 13-vertex graph (revision of SUM-MVBG0GO3, target double-circled) | 25 | tasks/task09-pebbling-number/v2-thirteen/graph-rooted-pebbling-number-thirteen-vertices.zip |
-| task10 | Bandwidth of a 16-vertex, 27-edge graph: no short lower bound, unique optimal numbering | 5 | tasks/task10-bandwidth-sixteen/graph-bandwidth-sixteen-vertices.zip |
+| task06 v3 | Revision of task06: bandwidth of a 16-vertex, 27-edge graph, no short lower bound, unique optimal numbering | 5 | tasks/task06-bandwidth-fourteen/v3-sixteen/graph-bandwidth-sixteen-vertices.zip |
 
 Submission: Import .zip, open every section and check it, open References, make sure verification_notes.txt is attached (upload reference.txt by hand if not), paste the Verify field text from the task README into the explanation box, Submit.
 
@@ -24,7 +24,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 - task09 v2 rooted pebbling number (13 vertices, revision; edit the returned entry field by field with v2-thirteen/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-thirteen-vertices.zip
 - task07 crossing number (10 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-crossing-number-ten-vertices.zip
-- task10 bandwidth (16 vertices, hard instance): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-sixteen-vertices.zip
+- task06 v3 (revision of task06, 16 vertices, hard instance): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-sixteen-vertices.zip
 - task05 v4 (revision of SUM-MVB7DTW7, 14-vertex graph with a late-dying width-4 search): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-vertices-v4.zip
 
 - task09 rooted pebbling number (10 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-ten-vertices.zip
@@ -46,7 +46,7 @@ task09 v2: Sections 1 to 3 of verification_notes.txt give the graph, the trivial
 
 task07: Section 2 of verification_notes.txt checks the two facts given in the question (no single edge deletion and only the pairs 1-2 with 6-7 and 1-5 with 6-7 leave a planar graph) and gives the four-pairs argument that rules out two crossings; section 3 gives the figure's drawing with its four crossings and the straight-line drawing with three crossings, both with integer coordinates and the list of crossing pairs; section 4 is the exhaustive enumeration of crossing sets (none with one or two crossings, four with three); section 6 embeds the program verify_key.py with its full output, including an independent planarity test that does not use a graph library.
 
-task10: Section 2 of verification_notes.txt is the written lower-bound proof (the first k vertices of a numbering of width 4 have at most four outside neighbours; the chain of such sets is listed in full and dies at six vertices). Section 3 gives two independent exact computations, section 4 the explicit numbering of width 5 with every edge stretch, section 5 the check that no degree, diameter or density bound reaches 5. Section 7 embeds the program with its output.
+task06 v3: Section 2 of verification_notes.txt is the written lower-bound proof (the first k vertices of a numbering of width 4 have at most four outside neighbours; the chain of such sets is listed in full and dies at six vertices). Section 3 gives two independent exact computations, section 4 the explicit numbering of width 5 with every edge stretch, section 5 the check that no degree, diameter or density bound reaches 5. Section 7 embeds the program with its output.
 
 task05 v4: Section 2 of verification_notes.txt gives the two independent exact computations showing no numbering of width 4 exists (the pruned placement search with its tree printed to depth 3, and a dynamic programme), the check that every cheap lower bound stops at 4, and the two end-vertex tests that force nothing; section 3 gives the explicit width-5 numbering with every edge stretch; section 6 embeds the program verify_key.py with its full output.
 

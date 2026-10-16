@@ -1,6 +1,6 @@
-# task10: bandwidth of a 16-vertex graph with no short lower bound and a unique optimal numbering
+# task06 v3: bandwidth of a 16-vertex graph with no short lower bound and a unique optimal numbering
 
-Built 2026-10-16 after task05 and its counting version came back from Summit 5/5. Design: an instance where (a) no degree, diameter or density bound reaches the answer, so the lower bound needs the prefix argument (a 57-set chain, short enough to write out), and (b) the optimal numbering is unique up to reversal and heuristics miss it (Cuthill-McKee 7 to 10, simulated annealing 0 of 16 restarts, the width-5 prefix chain has 4455 sets). Found by random search over 16-vertex graphs with 26 to 31 edges (work/gen.py, gen2.py, eval.py). The expected wrong answer is 6, the best width a solver reaches without finding the unique numbering.
+Revision of task06 (the 14-vertex instance was solved by Opus on one run, and task05 with its counting version came back from Summit 5/5). It replaces the task06 entry on Summit field by field: new figure, the same question text with 16 vertices and 27 edges, the same answer 5, new solution, rubric, references text and reference file. Design: an instance where (a) no degree, diameter or density bound reaches the answer, so the lower bound needs the prefix argument (a 57-set chain, short enough to write out), and (b) the optimal numbering is unique up to reversal and heuristics miss it (Cuthill-McKee 7 to 10, simulated annealing 0 of 16 restarts, the width-5 prefix chain has 4455 sets). Found by random search over 16-vertex graphs with 26 to 31 edges (work/gen.py, gen2.py, eval.py). The expected wrong answer is 6, the best width a solver reaches without finding the unique numbering.
 
 Domain: Mathematics. Subdomain: Graph theory: graph layout problems (bandwidth of a graph)
 
@@ -50,8 +50,10 @@ The general theory of the bandwidth problem, including the degree, diameter and 
 
 Section 2 of verification_notes.txt is the written lower-bound proof (the first k vertices of a numbering of width 4 have at most four outside neighbours; the chain of such sets is listed in full and dies at six vertices). Section 3 gives two independent exact computations, section 4 the explicit numbering of width 5 with every edge stretch, section 5 the check that no degree, diameter or density bound reaches 5. Section 7 embeds the program with its output.
 
+## How to submit
+
+Revise the task06 entry on Summit field by field with the texts above: replace the image, the question text, the solution, the rubric, the common wrong answers, the references text and the reference file (remove verification_notes.txt and upload this reference.txt under that name).
+
 ## Screen
 
-Screened 2026-10-16 (figure plus stem only, no code, no web). First pass: Opus cut off at the 64k output token ceiling with no answer, the budget spent in thinking; Sonnet cut off the same way. A staged re-screen of Opus (write each stage down, give a provisional answer early) follows; result below when in.
-
-Second Opus run (same prompt, plus one sentence that an answer with a short justification beats no answer): correct, 5, in 25 minutes and 103k tokens. It read all 27 edges correctly, found the unique width-5 numbering, and proved the lower bound by a halving argument (with width 4 the first four and the last four positions have disjoint closed neighbourhoods, so they form a K4,4 in the graph of pairs at distance 3 or more, and that graph has no K4). Two attempts at a staged re-screen were refused by the model's safeguards and are not counted. Tally: Opus 1/2 (one cut-off), Sonnet 0/1 (cut-off).
+Screened 2026-10-16 (figure plus stem only, no code, no web). First pass: Opus cut off at the 64k output token ceiling with no answer, the budget spent in thinking; Sonnet cut off the same way. Second Opus run (same prompt, plus one sentence that an answer with a short justification beats no answer): correct, 5, in 25 minutes and 103k tokens. It read all 27 edges correctly, found the unique width-5 numbering, and proved the lower bound by a halving argument (with width 4 the first four and the last four positions have disjoint closed neighbourhoods, so they form a K4,4 in the graph of pairs at distance 3 or more, and that graph has no K4). Two attempts at a staged re-screen were refused by the model's safeguards and are not counted. Tally: Opus 1/2 (one cut-off), Sonnet 0/1 (cut-off).
