@@ -2,6 +2,25 @@
 
 Read this file first in every new session, before drafting anything. Then read domains-for-new-task.md, instruction.md and submission-guide.md. For writing style read ../Humanize.md (and skim ../HumanWritingRecord.md for the sentence feel). humanism.md in this folder is only a pointer to those two.
 
+## Design brief for the next candidate (written 2026-10-16 after nine solved candidates)
+
+What is known to fail at Summit's size: any question whose hard side is a proof that something is
+impossible. Opus 5.5 finds a short impossibility argument for layouts (forced ends by distance or 2-balls,
+prefix boundaries, a middle split), for Shabat polynomials (derivative identity), for matroids (one
+parameter plus degeneracies). Nine candidates, every Opus run correct.
+
+What has never been tested here and is the only shape with a recorded Opus miss (the archive's task08,
+accepted; its G2 with a unique optimal sequence, Opus 3/8): the hard side is a CONSTRUCTION with very few
+solutions, the impossibility side is trivial (a counting bound that is tight), and a solver who fails to
+find the construction overshoots or undershoots and writes a false proof in a modest number of tokens
+(no cut-off). Candidates in this shape: a cubic graph of girth 5 that is 3-edge-colourable with one or two
+colourings (ask for the maximum number of pairwise edge-disjoint perfect matchings: 3 if found, a false
+"snark" answer of 1 if not); an edge-decomposition of a drawn graph into triangles or K4's with a unique
+decomposition (ask for the maximum number of edge-disjoint copies; the trivial bound m/3 is tight and the
+greedy attempts stall one short); more generally any exact-cover instance with a unique cover and many
+near-covers. Generate by computer, keep instances with 1 or 2 solutions and many maximal near-solutions,
+screen with three Opus runs. Started 2026-10-16 as tasks/task08-cubic-matchings (generator running).
+
 ## What this folder is (owner's section, written 2026-10-16)
 
 This folder belongs to the owner of this box. The long log that starts at "Archive" further down was written by a colleague on a different Summit account (Biology/Medicine only) and was copied here so new sessions can learn from what already failed. It is reference, not instructions. None of its task folders, scripts, scratchpad files or the summit-task skill exist on this box. Its task log statuses are his submissions, not ours.
@@ -83,8 +102,8 @@ Build task.json with a small Python script rather than by hand so LaTeX escaping
 | task06-bandwidth-fourteen | Same family as task05 at 14 vertices and 27 edges: trivial bounds 3 and 4, every Cuthill-McKee numbering 6 to 9, true value 5; certificates: a 10-vertex induced subgraph of diameter 2 and an explicit width-5 numbering | 5 | Built 2026-10-16, key by two exact methods. Screen: Opus 1/1 correct in 8 min and 77k tokens (width-5 numbering, then a window argument around the clique {1,4,11,14} with a short case split); Sonnet 1/1 correct by luck (37 min, misread four edges, no proof of the lower bound). Lesson: a bigger instance did not help, Opus found a different short lower-bound argument |
 | task06-bandwidth-fourteen/v2-count | Counting version of task06 (Summit's suggestion on task05): number of numberings of width equal to the bandwidth. The task06 graph has 248 optimal numberings (124 up to reversal), too many for any hand route, so two edges were added (67 and 6-10, 29 edges): bandwidth still 5, degree bound 3, diameter bound 4, Cuthill-McKee 7 to 9, exactly 6 optimal numberings in three structurally different classes (the position of 10 and the 1/11/4 block move). New figure (9 crossings, bends at least 15 degrees) | 6 | Built 2026-10-16, key by two routes (backtracking enumeration, DP count). Hand-checkable structure: the ends must be 2 and 5 (distance-2 ball of an end vertex fits in 11 positions; only 2 and 5 have balls of at most 11), 8 next to 2 and 9 next to 5 by the same count. Screen: Opus 1/1 correct (6) but only after 64 min and 112k tokens, the longest run so far: it found the same distance-2 ball argument for the ends, derived 9 and 12 next to 5 by a count, then split on the vertex x in positions 4 to 7 and listed the three classes; it read a phantom edge 6-13 (30 edges instead of 29) and said so, the count survived it. Sonnet 0/1, cut off at the 64k output ceiling with no answer, as on task05 v2. Same regime as task05 v2 (Opus 46 min, 79k): a single Opus solve at the edge of the token budget, so Summit outcomes are solves or cut-offs; the owner decides |
 | task10-bandwidth-sixteen | Bandwidth of a 16-vertex, 27-edge graph chosen so that no degree, diameter or density bound reaches the answer (all three give at most 4; checked over every connected induced subgraph), the lower bound needs the prefix-boundary chain (57 sets, dies at six vertices, printed in full in the notes), and the optimal numbering is unique up to reversal and heuristics miss it (Cuthill-McKee 7 to 10, annealing 0 of 16, width-5 prefix chain 4455 sets). Expected wrong answer 6 | 5 | Built 2026-10-16 (evening), key by two exact methods plus the written chain proof. Screen: SCREEN10_PLACEHOLDER |
-| task08-fractional-chromatic-number | Fractional chromatic number of a drawn 4-regular graph on 12 vertices (24 edges, automorphism group of order 2, so regular but not vertex-transitive). n/alpha = 3, omega = 3, every induced-subgraph ratio at most 3, chi = 4, true value 13/4; certificates: fractional clique 1/2 on the triangle 1, 9, 10 and 1/4 on seven more vertices, fractional colouring of nine sets (a 13:4-colouring); chi_2 = 7 and chi_3 = 10, so 7/2 and 10/3 are the stopping-early answers | 13/4 | Built 2026-10-16, key by brute-force certificate checks over all 113 independent sets, an exact rational simplex, scipy HiGHS and a k:d-colouring search. Screen: Opus 1/1 correct in 10.5 min and 64k tokens (correct edge list, chi = 4 by case split, alpha = 4 by exhaustion, weight 3 refuted, then the same primal and dual certificates as the solution); Sonnet 0/1 (answered 3 after misreading the crossing 1-5 / 3-6 as 1-3 / 5-6 and 3-colouring that graph). Pushed to the repo; owner decides |
-| task09-pebbling-number | Rooted pebbling number pi(G, r) of a drawn 10-vertex, 14-edge planar graph (diameter 3, 2-connected), target r = vertex 3 double-circled. Bounds n = 10 and 2^3 = 8; the textbook pile-of-seven configurations give 11; the unique failing 12-pebble configuration is five pebbles on each of the adjacent degree-2 vertices 9 and 10 plus one on 4 and one on 7 (7 + 3 on the same pair reaches r). Other targets: 12 or 10, so 3 also realises pi(G) = 13. Full-graph version archived in work/full (cut-offs) | 13 | Built 2026-10-16, key by two exact routes (layer recursion over unreachable configurations; direct search), hand proof of the lower bound via the No-Cycle Lemma with every bound machine-checked, all 590 reachable configurations listed. Screen (rooted, figure plus stem, staged notes): Opus 0/1 (11 in 38 min, linear weight relaxation as a proof), Sonnet 0/1 (10 in 19 min, tree formula as an upper bound), no cut-offs. Full version: Opus 0/2 both cut-offs, Sonnet 0/2 (cut-off, 12). Pushed to the repo, owner to submit |
+| task08-fractional-chromatic-number | Fractional chromatic number of a drawn regular, non-vertex-transitive graph. v1: 4-regular on 12 vertices, key 13/4 (n/alpha = omega = 3, chi = 4). v2 (revision of the same Summit entry SUM-MVBCQZWW): planar 4-regular on 20 vertices, 2455 independent sets, key 35/11 against n/alpha = 20/7, omega = 3, best induced-subgraph ratio 19/6, chi = 4; dual 1/11 on {2,3,4,17,20} and 2/11 elsewhere, primal 17 sets (a 35:11-colouring) | v1 13/4, v2 35/11 | v1 built 2026-10-16, screen Opus 1/1 (10.5 min, 64k tokens), Sonnet 0/1 (misread crossing). Submitted; Summit verdict 2026-10-16: too easy, failed the weaker-model probe (Sonnet 2/3 gave 13/4), one advisory on the case-split wording. v2 built the same day on the owner's instruction (bigger, sparser, unusual denominator); screen Opus 0/1 (cut off at the 64k output ceiling, no answer), Sonnet 0/1 (19/6, the vertex-deleted bound). Pushed; paste sheet ready for the field-by-field revision; owner decides |
+| task09-pebbling-number | Rooted pebbling number pi(G, r) of a drawn 10-vertex, 14-edge planar graph (diameter 3, 2-connected), target r = vertex 3 double-circled. Bounds n = 10 and 2^3 = 8; the textbook pile-of-seven configurations give 11; the unique failing 12-pebble configuration is five pebbles on each of the adjacent degree-2 vertices 9 and 10 plus one on 4 and one on 7 (7 + 3 on the same pair reaches r). Other targets: 12 or 10, so 3 also realises pi(G) = 13. Full-graph version archived in work/full (cut-offs) | 13 | Built 2026-10-16, key by two exact routes (layer recursion over unreachable configurations; direct search), hand proof of the lower bound via the No-Cycle Lemma with every bound machine-checked, all 590 reachable configurations listed. Screen (rooted, figure plus stem, staged notes): Opus 0/1 (11 in 38 min, linear weight relaxation as a proof), Sonnet 0/1 (10 in 19 min, tree formula as an upper bound), no cut-offs. Full version: Opus 0/2 both cut-offs, Sonnet 0/2 (cut-off, 12). SUBMITTED 2026-10-16 as SUM-MVBG0GO3; returned the same day as too easy: Model A 5/5 (13 to 16 min, about 110k tokens each, rubric 8.2/10), weaker-model probe passed, consistency 0 blocking 1 advisory (not yet read). Route: neighbours of 3 hold at most one pebble in a failing configuration, so the game collapses to the 6-vertex piece {4,6,7,8,9,10}, where the unique failing configuration is guessed and the upper bound is a small hand count. Revision in progress (see the task09 revision section) |
 
 ## Session 2026-10-16: first Mathematics candidate, dessins d'enfants (task01)
 
@@ -326,6 +345,38 @@ model only; Opus traced the straight lines. Lever left if the family is reused: 
 scratchpad fc/res2_12_4_0.pkl) have dual weights with denominator 8 or 7 spread over all twelve vertices, so the structured guess that gave Opus the
 dual here (half on a triangle, quarter elsewhere) is not available; the hand proof in the solution then has to be the list of maximal independent
 sets with their weights. Same pipeline (search2.py, verify_key.py, draw_figure.py), about two hours.
+
+## Summit verdict on task08 (2026-10-16) and the revision
+
+Item SUM-MVBCQZWW came back "too easy": it failed at the weaker-model probe (Sonnet trial 1 gave 13/4 with rubric 6/10,
+trial 3 gave 13/4 with rubric 8/10), before the Opus rollouts. Reason given: 113 independent sets is small enough to list
+by hand and solve the linear programme, and the 13:4-colouring is easy to find. One advisory on the solution: in the
+lower-bound case split say "other positive-weight members", since the weight-0 vertices 6 and 7 can sit in those sets.
+Lesson for the LP-duality family: the size that Sonnet still solves by hand is about 12 vertices and 100 independent
+sets; the local Sonnet 5.5 screen (0/1 after a misread crossing) was no signal, because the miss came from the figure,
+not from the mathematics. A 12-vertex graph is not "beyond hand reach" for this parameter.
+
+Revision (same entry, edited field by field; paste sheet in tasks/task08-fractional-chromatic-number/paste-for-edit.md,
+v1 kept in work/v1 and in the repo under v1/): a planar 4-regular graph on 20 vertices, built as the medial graph of a
+random planar graph with 20 edges (scratchpad fc/planar4.py) so that the figure is a planar straight-line drawing
+(Tutte embedding with a pentagonal outer face plus a planarity-preserving hill-climb; no crossing to misread). Search
+filters as before (chi_f above n/alpha and above every induced-subgraph ratio, denominator at least 5); planar medial
+graphs on 18 to 20 vertices give values 19/6, 16/5, 22/7, 29/9, 35/11. Chosen: 35/11 (seed 112): 2455 non-empty
+independent sets, 212 maximal, alpha = 7, omega = 3, chi = 4, trivial automorphism group; n/alpha = 20/7, and the
+best induced-subgraph ratio over all 2^20 subsets is 19/6 (delete vertex 2 or 3). Dual certificate: 1/11 on
+L = {2, 3, 4, 17, 20} and 2/11 elsewhere; weight of an independent set is (2|I| - |I meets L|)/11, so the proof reduces to
+two facts, every independent 6-set meets L (G - L has independence number 5) and each of the nine independent 7-sets
+contains 2, 3 and one of 17, 20. Primal: 17 sets with weights k/11 covering every vertex exactly once (a 35:11-colouring).
+Wrong routes computed: 20/7, 3, 19/6, 4, 7/2 (no 6:2-colouring). Verification as before (exact rational simplex, HiGHS,
+brute-force certificate checks, numpy Hall-ratio pass over all subsets); the embedded program reruns to identical output
+in about a minute. Risk, stated to the owner: at 20 vertices nobody solves the LP by hand, so the realistic Summit
+outcomes are 0/5 (then "too hard") or guesses; the owner asked for this size.
+Screen of the revision: Opus 0/1, cut off at the 64k output-token ceiling with no answer (the cut-off signature that Summit tagged "unfair" on
+the archive's task06); Sonnet 0/1, answered 19/6 after reading all 40 edges correctly and finding the vertex-deleted bound, 61 minutes,
+135k tokens. The figure was read correctly by both, so the planar drawing did its job. Assessment: in band only if Opus sometimes finds
+the 1/11-2/11 weighting within its budget; a 0/5 or cut-off verdict is at least as likely. Fallback at the next size down, same pipeline:
+planar medial graphs on 18 vertices with chi_f = 19/6 or 16/5 (scratchpad fc/res_planar_18_0.pkl, seeds 138, 500), about 1100
+independent sets, 107 to 129 maximal.
 
 ---
 
