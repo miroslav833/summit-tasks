@@ -1,0 +1,178 @@
+"""Verification of the answer key: the fractional chromatic number of the 12-vertex 4-regular graph in the
+figure is 13/4.
+
+Self-contained, python3 standard library only (scipy is used for one extra LP solve when it is installed, and
+skipped otherwise).  Run: python3 verify_key.py
+
+  (1) every independent set of the graph is enumerated by brute force (all 4096 vertex subsets);
+      independence number 4, clique number 3, so n/alpha = 3 and omega = 3;
+  (2) the chromatic number is 4 (no proper 3-colouring, an explicit 4-colouring);
+  (3) lower-bound certificate: the vertex weighting w (1/2 on vertices 1, 9, 10; 1/4 on vertices 2, 3, 4, 5, 8,
+      11, 12; 0 on 6 and 7) has total 13/4, and every independent set has weight at most 1, so every
+      fractional colouring has weight at least 13/4 (weak LP duality, written out in the notes);
+  (4) upper-bound certificate: nine independent sets with weights 1/4 and 1/2 cover every vertex at least
+      once with total weight 13/4; equivalently a 13:4-colouring is written out;
+  (5) the LP is solved twice more: the dual (maximum weight of a fractional clique) by an exact rational
+      tableau simplex written here with the standard library, and the primal numerically by scipy's HiGHS
+      solver when scipy is installed; both give 13/4;
+  (6) the wrong routes: n/alpha = 3, omega = 3, the best induced-subgraph ratio |S|/alpha(G[S]) over all
+      induced subgraphs is 3, chi = 4; the 2-fold and 3-fold chromatic numbers are 7 and 10, so 7/2 and
+      10/3 are the weights of the best 2-fold and 3-fold colourings; there is no 12:4-colouring, so the explicit
+      13:4-colouring of (4) is a smallest 4-fold colouring.
+"""
+import itertools
+from fractions import Fraction as F
+
+EDGES = [(1, 5), (1, 8), (1, 9), (1, 10), (2, 3), (2, 7), (2, 9), (2, 10), (3, 5), (3, 6), (3, 12), (4, 6),
+         (4, 9), (4, 11), (4, 12), (5, 7), (5, 12), (6, 7), (6, 8), (7, 11), (8, 10), (8, 11), (9, 10), (11, 12)]
+V = list(range(1, 13)); n = 12
+adj = {v: set() for v in V}
+for u, v in EDGES: adj[u].add(v); adj[v].add(u)
+assert len(EDGES) == 24 and all(len(adj[v]) == 4 for v in V)
+print("vertices:", n, "edges:", len(EDGES), "4-regular:", all(len(adj[v]) == 4 for v in V))
+
+# ---------- (1) independent sets ----------
+def independent(S):
+    return all(v not in adj[u] for u in S for v in S)
+IND = [frozenset(S) for r in range(0, n + 1) for S in itertools.combinations(V, r) if independent(S)]
+alpha = max(len(S) for S in IND)
+MAXIMAL = [S for S in IND if not any(independent(S | {v}) for v in V if v not in S)]
+triangles = [c for c in itertools.combinations(V, 3) if all(b in adj[a] for a, b in itertools.combinations(c, 2))]
+k4 = [c for c in itertools.combinations(V, 4) if all(b in adj[a] for a, b in itertools.combinations(c, 2))]
+print(f"independent sets: {len(IND)} (maximal: {len(MAXIMAL)}), alpha = {alpha}, n/alpha = {F(n, alpha)}")
+print("triangles:", [list(t) for t in triangles], "; K4 subgraphs:", len(k4), "; omega = 3")
+print("maximal independent sets:", [sorted(S) for S in MAXIMAL])
+assert alpha == 4 and triangles and not k4
+
+# ---------- (2) chromatic number ----------
+def colourable(k):
+    col = {}
+    order = sorted(V, key=lambda v: -len(adj[v]))
+    def rec(i):
+        if i == len(order): return True
+        v = order[i]
+        for c in range(k):
+            if all(col.get(u) != c for u in adj[v]):
+                col[v] = c
+                if rec(i + 1): return True
+                del col[v]
+        return False
+    return rec(0), dict(col)
+ok3, _ = colourable(3); ok4, col4 = colourable(4)
+print("proper 3-colouring exists:", ok3, "; 4-colouring:", {v: col4[v] + 1 for v in V})
+assert not ok3 and ok4
+
+# ---------- (3) lower bound: fractional clique ----------
+w = {v: F(0) for v in V}
+for v in (1, 9, 10): w[v] = F(1, 2)
+for v in (2, 3, 4, 5, 8, 11, 12): w[v] = F(1, 4)
+total_w = sum(w.values())
+worst = max(sum(w[v] for v in S) for S in IND)
+print(f"fractional clique: total weight {total_w}, largest weight of an independent set {worst}")
+assert total_w == F(13, 4) and worst == 1
+print("weight of every maximal independent set:", [(sorted(S), str(sum(w[v] for v in S))) for S in MAXIMAL])
+print("CHECK 3: every fractional colouring has weight at least 13/4")
+
+# ---------- (4) upper bound: fractional colouring ----------
+COLOURING = [([1, 2, 6, 11], F(1, 4)), ([1, 2, 6, 12], F(1, 2)), ([1, 3, 4, 7], F(1, 4)), ([5, 6, 9, 11], F(1, 4)),
+             ([2, 4, 5, 8], F(1, 4)), ([4, 5, 10], F(1, 2)), ([3, 7, 8, 9], F(1, 4)), ([7, 8, 9, 12], F(1, 2)),
+             ([3, 10, 11], F(1, 2))]
+for S, x in COLOURING: assert independent(S), S
+cover = {v: sum(x for S, x in COLOURING if v in S) for v in V}
+total_x = sum(x for S, x in COLOURING)
+print(f"fractional colouring: total weight {total_x}, coverage {dict((v, str(cover[v])) for v in V)}")
+assert total_x == F(13, 4) and all(cover[v] >= 1 for v in V)
+# the same colouring as a 13:4-colouring: each set repeated 4x times, each vertex in at least 4 of the 13 sets
+multiset = [S for S, x in COLOURING for _ in range(int(x * 4))]
+assert len(multiset) == 13 and all(sum(v in S for S in multiset) >= 4 for v in V)
+print("13:4-colouring (13 independent sets, every vertex in at least 4):", multiset)
+print("CHECK 4: a fractional colouring of weight 13/4 exists; with CHECK 3 the fractional chromatic number is 13/4")
+
+# ---------- (5) LP solves ----------
+def exact_simplex_dual():
+    """Maximise sum(y_v) subject to sum(y_v : v in S) <= 1 for every maximal independent set S and y >= 0,
+    in exact rational arithmetic (tableau simplex, Bland's rule).  The optimum is the fractional clique
+    number, which equals the fractional chromatic number by LP duality."""
+    m, k = len(MAXIMAL), n           # m constraints, k variables, m slacks
+    T = [[F(1) if V[j] in S else F(0) for j in range(k)] + [F(1) if i == r else F(0) for i in range(m)] + [F(1)]
+         for r, S in enumerate(MAXIMAL)]
+    z = [F(-1)] * k + [F(0)] * m + [F(0)]      # objective row: maximise sum y  ->  z - sum y = 0
+    basis = [k + r for r in range(m)]
+    while True:
+        enter = next((j for j in range(k + m) if z[j] < 0), None)
+        if enter is None: break
+        rows = [(T[r][-1] / T[r][enter], r) for r in range(m) if T[r][enter] > 0]
+        if not rows: raise RuntimeError("unbounded")
+        ratio = min(t for t, _ in rows); leave = min(basis[r] for t, r in rows if t == ratio)
+        r0 = basis.index(leave); piv = T[r0][enter]
+        T[r0] = [t / piv for t in T[r0]]
+        for r in range(m):
+            if r != r0 and T[r][enter] != 0:
+                f = T[r][enter]; T[r] = [a - f * b for a, b in zip(T[r], T[r0])]
+        f = z[enter]; z = [a - f * b for a, b in zip(z, T[r0])]
+        basis[r0] = enter
+    y = {V[j]: F(0) for j in range(k)}
+    for r, bj in enumerate(basis):
+        if bj < k: y[V[bj]] = T[r][-1]
+    return z[-1], y
+val, y = exact_simplex_dual()
+print("exact rational simplex (standard library): fractional clique number =", val, "; an optimal weighting:",
+      {v: str(y[v]) for v in V if y[v]})
+assert val == F(13, 4)
+assert all(sum(y[v] for v in S) <= 1 for S in IND) and sum(y.values()) == F(13, 4)
+try:
+    import numpy as np
+    from scipy.optimize import linprog
+    A = np.array([[1.0 if v in S else 0.0 for S in MAXIMAL] for v in V])
+    res = linprog(np.ones(len(MAXIMAL)), A_ub=-A, b_ub=-np.ones(n), bounds=(0, None), method="highs")
+    print(f"scipy HiGHS (primal LP over the {len(MAXIMAL)} maximal independent sets): minimum weight = {res.fun:.10f} (13/4 = 3.25)")
+    assert abs(res.fun - 3.25) < 1e-9
+except ImportError:
+    print("scipy not installed, numerical LP skipped")
+print("CHECK 5: two independent LP solutions give 13/4")
+
+# ---------- (6) wrong routes ----------
+best = F(0); bestS = None
+for r in range(1, n + 1):
+    for S in itertools.combinations(V, r):
+        aS = max(len(I & set(S)) for I in MAXIMAL)
+        if F(r, aS) > best: best, bestS = F(r, aS), S
+print(f"best induced-subgraph ratio |S|/alpha(G[S]) over all 4095 subsets: {best} (for instance S = {bestS})")
+assert best == 3
+
+def kfold(k, d):
+    """Is there a k:d-colouring (each vertex a d-subset of k colours, adjacent vertices disjoint)?  Colour sets
+    are bitmasks.  Symmetry breaking: vertex 1 gets colours {0, ..., d-1}, and since colours are
+    interchangeable a vertex may introduce new colours only as the next unused indices."""
+    subsets = [sum(1 << c for c in S) for S in itertools.combinations(range(k), d)]
+    order = [1]; seen = {1}; frontier = [1]
+    while frontier:
+        nxt = []
+        for u in frontier:
+            for v in sorted(adj[u], key=lambda x: -len(adj[x] & seen)):
+                if v not in seen: seen.add(v); order.append(v); nxt.append(v)
+        frontier = nxt
+    assign = {1: subsets[0]}
+    def rec(i, used):
+        if i == len(order): return True
+        v = order[i]; forbidden = 0
+        for u in adj[v]:
+            if u in assign: forbidden |= assign[u]
+        maxc = used.bit_length()
+        for S in subsets:
+            if S & forbidden: continue
+            new = S & ~used
+            if new and new != (((1 << bin(new).count("1")) - 1) << maxc): continue
+            assign[v] = S
+            if rec(i + 1, used | S): return True
+            del assign[v]
+        return False
+    found = rec(1, subsets[0])
+    return found, ({v: sorted(c for c in range(k) if assign[v] >> c & 1) for v in V} if found else None)
+results = {}
+for k, d in ((6, 2), (7, 2), (9, 3), (10, 3), (12, 4)):
+    found, col = kfold(k, d); results[(k, d)] = found
+    print(f"{k}:{d}-colouring exists: {found}" + (f"; one such colouring (vertex: colour set): {col}" if found else ""))
+assert not results[(6, 2)] and results[(7, 2)] and not results[(9, 3)] and results[(10, 3)] and not results[(12, 4)]
+print("2-fold chromatic number 7 (best 2-fold weight 7/2), 3-fold chromatic number 10 (best 3-fold weight 10/3); no 12:4-colouring, so the 13:4-colouring of CHECK 4 is a smallest 4-fold colouring")
+print("ALL CHECKS PASSED. Fractional chromatic number 13/4; n/alpha = 3, omega = 3, chi = 4.")
