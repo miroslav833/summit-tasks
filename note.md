@@ -79,6 +79,7 @@ Build task.json with a small Python script rather than by hand so LaTeX escaping
 | task03-matroid-smallest-field | Smallest prime power q over which the rank-3 matroid of a drawn 9-point, 8-line configuration (one 4-point line) is representable. The coordinatisation has a free parameter and no equation; what fails over GF(2), GF(3), GF(4), GF(5) is degeneracy: t must avoid 0, 1, 2, 1/2 and the roots of t^2-3t+1, and over GF(5) the fifth element t = 4 is a root of the quadratic | 7 | Built 2026-10-16, key by two routes (symbolic coordinatisation with full degeneracy list; brute-force search in PG(2,q)). Screen: Opus 1/1 correct in 5 min and 59k tokens (sent the 4-point line to infinity, one parameter c with c^2-c-1, checked GF(2), GF(3), GF(4), GF(5) element by element, explicit GF(7) representation); Sonnet 1/1 correct in 42 min and 104k tokens (frame C, I, B, A, parameter u, same five obstructions). Too easy; held back |
 | task05-bandwidth | Bandwidth of a drawn 12-vertex, 20-edge graph. Trivial bounds 3, every Cuthill-McKee numbering 5 to 7, true value 4; certificates: an 8-vertex induced subgraph of diameter 2 (density bound 4) and an explicit numbering of width 4. task04 (treewidth) was abandoned before packaging: at 12 to 14 vertices min-degree and min-fill heuristics find the optimum, so no overshoot trap exists | 4 | Built 2026-10-16, key by two exact methods. Screen: Opus 1/1 correct in 10 min and 85k tokens (did not use the density bound; excluded width 3 by a case analysis on the position of the degree-5 vertex, then found a width-4 numbering); Sonnet 0/1, cut off at the 64k output ceiling with no answer. SUBMITTED 2026-10-16; Summit: Model A 3/3 in 2.5 to 8.5 min, two short lower-bound arguments (the unique diameter-4 pair {7,5} must take the ends; the adjacent degree-5 vertices 1 and 4), width-4 numbering written down directly; returned as too easy. Summit's own suggestion: ask for the number of optimal numberings (6, 3 up to reversal), which no short argument gives. Built as v2-count/ (same figure, key 6, two independent counts, search tree in the notes); screen: Sonnet 0/1 cut off at 64k output tokens; Opus 1/1 correct but only after 46 min and 79k tokens, via a distance-3 graph on the end positions and a six-case analysis, the longest run of the day. Best candidate so far; recommended as the revision of task05 |
 | task06-bandwidth-fourteen | Same family as task05 at 14 vertices and 27 edges: trivial bounds 3 and 4, every Cuthill-McKee numbering 6 to 9, true value 5; certificates: a 10-vertex induced subgraph of diameter 2 and an explicit width-5 numbering | 5 | Built 2026-10-16, key by two exact methods. Screen: Opus 1/1 correct in 8 min and 77k tokens (width-5 numbering, then a window argument around the clique {1,4,11,14} with a short case split); Sonnet 1/1 correct by luck (37 min, misread four edges, no proof of the lower bound). Lesson: a bigger instance did not help, Opus found a different short lower-bound argument |
+| task08-fractional-chromatic-number | Fractional chromatic number of a drawn 4-regular graph on 12 vertices (24 edges, automorphism group of order 2, so regular but not vertex-transitive). n/alpha = 3, omega = 3, every induced-subgraph ratio at most 3, chi = 4, true value 13/4; certificates: fractional clique 1/2 on the triangle 1, 9, 10 and 1/4 on seven more vertices, fractional colouring of nine sets (a 13:4-colouring); chi_2 = 7 and chi_3 = 10, so 7/2 and 10/3 are the stopping-early answers | 13/4 | Built 2026-10-16, key by brute-force certificate checks over all 113 independent sets, an exact rational simplex, scipy HiGHS and a k:d-colouring search. Screen: Opus 1/1 correct in 10.5 min and 64k tokens (correct edge list, chi = 4 by case split, alpha = 4 by exhaustion, weight 3 refuted, then the same primal and dual certificates as the solution); Sonnet 0/1 (answered 3 after misreading the crossing 1-5 / 3-6 as 1-3 / 5-6 and 3-colouring that graph). Pushed to the repo; owner decides |
 
 ## Session 2026-10-16: first Mathematics candidate, dessins d'enfants (task01)
 
@@ -160,6 +161,40 @@ hand-reachable route exists; (c) degree 10 with 2 x 5 blocks (P = Q(R), Q quadra
 ## What the archive teaches, in short
 
 The colleague ran about 150 model attempts over 17 designs in three days. Clean derivations of any length, coalescent casework, pedigree kinship, knot invariants to ten crossings, pixel-level reading of clean figures, chirality: all solved five out of five. The only accepted task (his task08) had a quantity with no retrievable characterisation, a construction trap measured by a proxy before screening, an instance just beyond hand reach, and a reference file with a written lower-bound proof plus embedded programs. Misses caused by the token ceiling count against the question. Read the archive sections "Summit verdict on task05", "Summit verdict on task06 version 2" and "task08 accepted" before designing.
+
+## Session 2026-10-16 (evening): fractional chromatic number, task08
+
+New mechanism, not tried before on this account: a parameter defined by a linear programme whose two certificates
+(primal and dual) are both short, with the instinctive formula wrong. The fractional chromatic number of a regular
+graph is n/alpha only when the graph is vertex-transitive; regular alone is not enough, and the drawn graph is
+4-regular on 12 vertices with automorphism group of order 2. Design: search over random 4-regular graphs
+(scratchpad fc/search2.py, scipy LP plus exact rational certificates) for instances where chi_f beats every
+induced-subgraph ratio |S|/alpha(G[S]), so that no "density" style bound (the route Opus found for the bandwidth
+tasks) reaches the answer. Cubic graphs on 12 vertices never do (chi_f is always 5/2, 8/3 or 3, equal to a C5,
+8-vertex or triangle bound); 4-regular graphs on 12 vertices give about 40 such instances per 1500 seeds, most
+with chi_f = 13/4, a few with 19/6, 16/5, 25/8, 22/7. Chosen: seed 455, chi_f = 13/4 against n/alpha = 3,
+omega = 3, best subgraph ratio 3, chi = 4; 22 maximal independent sets, 113 independent sets in all; dual
+certificate 1/2 on a triangle and 1/4 on seven more vertices, with a hand proof (case split on the triangle,
+no independent triple among the remaining weight-1/4 vertices); primal certificate nine sets with weights
+1/4 and 1/2, equivalently a 13:4-colouring. Wrong routes computed, not guessed: 3 (n/alpha, omega, subgraph
+ratio, also the value a solver gets who mistakes the graph for the Chvatal graph, which has the same
+parameters 12 vertices, 24 edges, 4-regular), 7/2 (best 2-fold colouring, chi_2 = 7), 10/3 (best 3-fold,
+chi_3 = 10), 4 (chi). Key verified by: brute-force certificate checks over all 113 independent sets, an exact
+rational tableau simplex written in the standard library, scipy HiGHS, and a k:d-colouring search (no 6:2,
+9:3, 12:4). Program embedded in reference.txt, re-extracted and rerun to identical output. Figure: spring
+layout followed by a hill-climb on crossings (6), vertex-to-edge distance and angular resolution
+(work/layout.py, hill.py, hill2.py, polish.py; coordinates hardcoded in draw_figure.py). Findability: the
+value 13/4 appears in the literature as the Hall ratio of 4-regular graphs of girth 4 (arXiv 1904.05618),
+which does not apply to this graph (it has triangles); the stem and the drawn graph are not online.
+Folder name: task07 was taken by a sibling session (crossing number) while this was being built, so this one
+is task08.
+Screen: Opus 1/1 correct (13/4, 10.5 min, 64k tokens; it read the figure correctly, proved alpha = 4 and chi = 4 by hand, refuted weight 3 by an
+inconsistent linear system and produced both certificates). Sonnet 0/1: answered 3 after misreading the crossing of edges 1-5 and 3-6 as 1-3 and 5-6;
+the swapped graph has a proper 3-colouring. Lesson: a crossing whose swapped reading is also a valid 4-regular graph is a reading trap for the weaker
+model only; Opus traced the straight lines. Lever left if the family is reused: the instances with chi_f = 25/8 or 22/7 (seeds 125, 1222, 952 in
+scratchpad fc/res2_12_4_0.pkl) have dual weights with denominator 8 or 7 spread over all twelve vertices, so the structured guess that gave Opus the
+dual here (half on a triangle, quarter elsewhere) is not available; the hand proof in the solution then has to be the list of maximal independent
+sets with their weights. Same pipeline (search2.py, verify_key.py, draw_figure.py), about two hours.
 
 ---
 
