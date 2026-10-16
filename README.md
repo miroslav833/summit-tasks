@@ -12,3 +12,20 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 Submission: Import .zip, open every section and check it, open References, make sure verification_notes.txt is attached (upload reference.txt by hand if not), paste the Verify field text from the task README into the explanation box, Submit.
 
 note.md is the working log (rules, tooling, screen results, lessons).
+
+## Direct download links for the Import .zip files
+
+- task05 bandwidth: https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-twelve-vertices.zip
+- task03 matroid: https://github.com/miroslav833/summit-tasks/raw/main/zips/matroid-smallest-representing-field.zip
+- task02 composite tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/composite-plane-tree-field-of-moduli.zip
+- task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
+
+## Text for the References box (paste after the file is attached)
+
+task05: Sections 2 to 4 of verification_notes.txt give the lower-bound certificate (the induced subgraph on vertices 1, 2, 3, 4, 6, 9, 10, 11 has eight vertices and diameter 2, so every numbering has width at least 4), the explicit numbering of width 4 with the stretch of every edge, and two independent exact computations (backtracking over numberings and a dynamic programme over sets of placed vertices) showing no numbering of width 3 exists. Section 6 embeds the program verify_key.py with its output.
+
+task03: Sections 1 to 3 of verification_notes.txt give the coordinatisation of the configuration (all nine points as vectors in one parameter t, with the eight incidences checked identically), the five degeneracy conditions (t = 0, 1, 2, 1/2 and the roots of t^2 - 3t + 1, each traced to the pair of points that coincide or the triple that becomes collinear), and the admissible parameters over each field up to GF(13), showing none exist over GF(2), GF(3), GF(4), GF(5) and that t = 3, 5, 6 work over GF(7). Section 4 is an independent brute-force search for representations in PG(2,q) for q up to 7. Section 5 embeds the program verify_key.py with its full output, including the explicit representation over GF(7) with every determinant.
+
+task02: Sections 1 and 2 of verification_notes.txt give the quartic for the inner factor and its irreducibility; section 5 embeds verify_key.py, which rederives the quartic symbolically, traces the dessin for each of its four roots and compares it with the figure (the figure is the root s = 1.6628, the four trees are pairwise non-isomorphic), and section 4 recognises the Galois orbit independently from the normalised polynomials at 60 digits.
+
+task01: Section 1 of verification_notes.txt gives the derivation down to the quartic for r; section 4 embeds the program verify_key.py, which redoes the derivation symbolically, traces the dessin for each of the four roots and compares it with the figure (only r = 0.1399 + 2.699i reproduces the drawn orientation), and enumerates the four plane trees of the passport; section 3 solves the full Shabat system numerically from random starts and recovers the same vertex.
