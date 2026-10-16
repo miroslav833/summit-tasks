@@ -107,6 +107,7 @@ Build task.json with a small Python script rather than by hand so LaTeX escaping
 | task08-fractional-chromatic-number (folder reused) | Mathematics closed 2026-10-17; folder reused for Engineering (fatigue and fracture of titanium alloys), Summit type 4: self-drawn log-log da/dN against delta K for MIM Ti-6Al-7Nb at R = 0.1 and 0.7 with dashed Paris fits through gridline points; closure level K_op/K_max = 0.55 read from the factor-2 displacement; plate at R = 0.4 (closure still present, delta K_eff = 0.75 delta K), edge crack from a 0.20 mm pore, Y 1.12, K_IC 55; life by the Paris integral. Earlier contents: fractional chromatic number v1 (12 vertices, 13/4; Summit SUM-MVBCQZWW too easy, Sonnet probe 2/3) and v2 (20 vertices, 35/11; Opus cut-off, Sonnet 19/6), archived in work/v1 and work/v2-math | 2.47 x 10^6 cycles (closure-0.30 version 1.04 x 10^6, archived in work/eng-v1) | Built 2026-10-17, key by closed form, Simpson and scipy quad, figure data embedded. Screen (3 Opus + 1 Sonnet, figure plus stem): closure-0.30 version Opus 3/3, Sonnet 1/1; closure-0.55 version Opus 3/3, Sonnet 1/1, all under two minutes. Not in band; pushed to the repo; owner decides |
 | task09-pebbling-number | Rooted pebbling number pi(G, r) of a drawn 10-vertex, 14-edge planar graph (diameter 3, 2-connected), target r = vertex 3 double-circled. Bounds n = 10 and 2^3 = 8; the textbook pile-of-seven configurations give 11; the unique failing 12-pebble configuration is five pebbles on each of the adjacent degree-2 vertices 9 and 10 plus one on 4 and one on 7 (7 + 3 on the same pair reaches r). Other targets: 12 or 10, so 3 also realises pi(G) = 13. Full-graph version archived in work/full (cut-offs) | 13 | Built 2026-10-16, key by two exact routes (layer recursion over unreachable configurations; direct search), hand proof of the lower bound via the No-Cycle Lemma with every bound machine-checked, all 590 reachable configurations listed. Screen (rooted, figure plus stem, staged notes): Opus 0/1 (11 in 38 min, linear weight relaxation as a proof), Sonnet 0/1 (10 in 19 min, tree formula as an upper bound), no cut-offs. Full version: Opus 0/2 both cut-offs, Sonnet 0/2 (cut-off, 12). SUBMITTED 2026-10-16 as SUM-MVBG0GO3; returned the same day as too easy: Model A 5/5 (13 to 16 min, about 110k tokens each, rubric 8.2/10), weaker-model probe passed, consistency 0 blocking 1 advisory (not yet read). Route: neighbours of 3 hold at most one pebble in a failing configuration, so the game collapses to the 6-vertex piece {4,6,7,8,9,10}, where the unique failing configuration is guessed and the upper bound is a small hand count. Revision in progress (see the task09 revision section) |
 | task09-pebbling-number/v2-thirteen | Revision of SUM-MVBG0GO3 after the 5/5 return. Rooted pebbling number of a 13-vertex, 19-edge planar graph, target 9 double-circled, eccentricity 4, residual piece of 10 vertices after the neighbours-hold-at-most-one reduction. Trivial bounds 16 and 13; one pile of fifteen plus singles stops at 21 (lazy answer 22); 28 failing configurations of 24 pebbles, all with two odd piles, one in each far part (11+11+1+1, 9+3+9+3, 11+1+5+7 and so on) | 25 | Built 2026-10-17, key by two implementations of the layer recursion plus direct search on all 28 maximal failing configurations, their 311 extensions and 60,000 random configurations; lower-bound certificate by exhaustive enumeration of the 61,608 configurations reachable from 11+11+1+1. Screen: Sonnet 0/1 (27 in 39 min), Opus run 1 cut off at 64k output in one reply, run 2 with a one-idea-per-reply protocol pending at the time of the push. Edit sheet paste-for-edit.md for the field-by-field revision |
+| task09-pebbling-number/v3-kitagawa-internal-pore | ENGINEERING replacement for SUM-MVBG0GO3 after the domain change (owner: use the task09 folder). Summit type 4: self-drawn Kitagawa diagram of MIM Ti-6Al-7Nb (0.20 wt% O, 320 HV, surface drilled holes, R = -1), eight points generated from the small-defect law 1.43(HV+120)/sqrt(area)^(1/6) and a long-crack branch fixed by the gridline point (640 um, 150 MPa), knee near 220 um. Question: fatigue limit of a component from a 0.38 wt% O, 372 HV lot with an internal pore of sqrt(area) 600 um, same long-crack threshold, two significant figures. Decisive steps: the pore is in the long-crack regime so the hardness drops out, and the internal factor 0.50 replaces 0.65. Wrong routes 150, 230, 260, 240, 220, 170 | 200 MPa (201.4) | Built 2026-10-17, key by two routes (closed form; least-squares fit of the slope -1/2 branch plus regime check). Screen: Opus 3/3 correct in 73 to 132 s and 42k to 46k tokens, every run named both traps; Sonnet 0/1 (210, reading slip on the right route). Not in band; package pushed for the owner's decision |
 
 ## Session 2026-10-16: first Mathematics candidate, dessins d'enfants (task01)
 
@@ -393,6 +394,28 @@ difficulty; the structural proxy (pi - T1, size of the residual piece, number an
 configurations) is the better predictor and is now computed for every candidate. (3) The lazy template at
 eccentricity 4 is "2^4 - 1 on the far vertex plus singles"; a usable instance must have that template at least
 two below the key, which is rare (about 1 in 40 hits).
+
+## Session 2026-10-17: Engineering, Kitagawa diagram with an internal pore (task09 v3)
+
+Owner's instruction: drop the pebbling revision, build an Engineering task in the task09 folder. Shape 1 of
+domains-for-new-task.md (crack growth) was already taken by the sibling sessions (task05 v5, task08), so
+shape 2 was built: a Kitagawa diagram generated from Murakami's model, with the expert decisions being the
+regime of the component's pore (long-crack, so the hardness lever is a decoy), the hardness independence of
+the long-crack threshold (stated as an assumption to keep the stem unambiguous) and the internal-defect
+factor 0.50 against 0.65. Folder tasks/task09-pebbling-number/v3-kitagawa-internal-pore (verify_key.py,
+draw_figure.py, build_package.py, paste-for-edit.md, zip kitagawa-internal-pore-titanium.zip).
+
+Screen: Opus 3/3 in about 1 to 2 minutes and 42k to 46k tokens; every run fitted both branches, checked the
+small-defect branch against 1.43(HV+120), took the threshold from the gridline points, applied 0.65/0.50, ran
+the regime check and said the hardness drops out. Sonnet 0/1 by a reading slip. Same outcome as the sibling's
+crack-growth shape (Opus 3/3). Lesson for the domain: any engineering question whose solution is "identify the
+standard model from the figure, apply its named constants" is a formula sequence for Opus, exactly like the
+clean mathematics derivations; the stem has to say which framework to use (otherwise the key is ambiguous),
+and naming the framework hands over the constants. What has not been tried: a question whose decisive step
+is a judgement with no named constant, for instance which of two competing mechanisms the drawn data
+support, where the wrong mechanism gives a clean but wrong number; and the extreme-value extrapolation of
+pore size to the component volume, which adds a convention (the inspection volume) that is easy to get
+wrong but is also in Murakami's book.
 
 ## What the archive teaches, in short
 

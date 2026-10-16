@@ -14,6 +14,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task08 | Engineering: fatigue crack growth life of a MIM Ti-6Al-7Nb plate at R = 0.4, closure level read from da/dN curves at R = 0.1 and 0.7 (the two mathematics packages that used this folder, fractional chromatic number 13/4 and 35/11, are archived in v1/ and v2-math/) | 1.04 x 10^6 cycles | tasks/task08-fractional-chromatic-number/crack-growth-closure-two-load-ratios.zip |
 | task09 | Rooted pebbling number of a 10-vertex graph (target double-circled) | 13 | tasks/task09-pebbling-number/graph-rooted-pebbling-number-ten-vertices.zip |
 | task09 v2 | Rooted pebbling number of a 13-vertex graph (revision of SUM-MVBG0GO3, target double-circled) | 25 | tasks/task09-pebbling-number/v2-thirteen/graph-rooted-pebbling-number-thirteen-vertices.zip |
+| task09 v3 | Kitagawa diagram, internal pore in MIM Ti-6Al-7Nb (Engineering replacement for SUM-MVBG0GO3) | 200 MPa | tasks/task09-pebbling-number/v3-kitagawa-internal-pore/kitagawa-internal-pore-titanium.zip |
 | task05 v5 | ENGINEERING replacement for SUM-MVB7DTW7: propagation life of a fatigue crack from a 50 um surface pore in MIM Ti-6Al-7Nb, Klesnil-Lukas constants read from a self-drawn da/dN curve (crossings at 6 and 20 MPa m^1/2), El Haddad short-crack threshold | 1.4 x 10^5 cycles | tasks/task05-bandwidth/v5-crack-growth-pore/pore-crack-propagation-life-mim-titanium.zip |
 | task06 v3 | Revision of task06: bandwidth of a 16-vertex, 27-edge graph, no short lower bound, unique optimal numbering | 5 | tasks/task06-bandwidth-fourteen/v3-sixteen/graph-bandwidth-sixteen-vertices.zip |
 
@@ -23,6 +24,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task09 v3 Kitagawa internal pore (Engineering; edit the returned entry with v3-kitagawa-internal-pore/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/kitagawa-internal-pore-titanium.zip
 - task05 v5 (ENGINEERING replacement for SUM-MVB7DTW7, crack growth from a pore, Category must be Engineering): https://github.com/miroslav833/summit-tasks/raw/main/zips/pore-crack-propagation-life-mim-titanium.zip
 - task09 v2 rooted pebbling number (13 vertices, revision; edit the returned entry field by field with v2-thirteen/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-thirteen-vertices.zip
 - task07 crossing number (10 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-crossing-number-ten-vertices.zip
@@ -43,6 +45,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task09 v3: Section 1 of verification_notes.txt states the model the figure was generated from (small-defect law with 320 HV, long-crack branch fixed by the gridline point 640 um, 150 MPa) and lists the eight plotted values; section 2 derives the key by two routes, the closed form 150 x 0.65/0.50 x sqrt(640/600) = 201 MPa and a least-squares fit of the slope -1/2 branch through the regenerated points followed by the regime check for the 372 HV lot (small-defect value 264 MPa against long-crack value 201 MPa); section 3 evaluates the wrong routes; section 4 embeds the program verify_key.py with its output.
 
 task05 v5: Section 1 of verification_notes.txt states the two gridline crossings the fitted curve was drawn through (6, 2e-9) and (20, 1e-7), the distance of the curve from the nearest gridline at every other labelled abscissa, and solves the two constants m = 2.959 and C = 1.427e-11 from them; section 2 gives the El Haddad length 48.2 um and the thresholds at the pore; section 3 gives the two independent integrations of the life (adaptive quadrature 140891 cycles and Simpson's rule in ln a with the nodes printed, 140913 cycles); section 4 gives the life from each near-miss reading and from each wrong route; section 6 embeds the program verify_key.py with its full output.
 
