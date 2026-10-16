@@ -16,6 +16,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task05 v2 (count of optimal numberings, revision of the returned task05): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-optimal-numberings-count.zip
+
 - task06 bandwidth (14 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-vertices.zip
 - task05 bandwidth: https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-twelve-vertices.zip
 - task03 matroid: https://github.com/miroslav833/summit-tasks/raw/main/zips/matroid-smallest-representing-field.zip
@@ -23,6 +25,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task05 v2: Sections 2 to 5 of verification_notes.txt give the proof that the bandwidth is 4, the complete list of the six numberings of width 4 with the top of the search tree and the reason every dead branch dies, an independent count by a dynamic programme, and the structural facts shared by all six; section 6 embeds the program with its output.
 
 task06: Sections 2 to 4 of verification_notes.txt give the certificate subgraph (the induced subgraph on vertices 1, 3, 4, 7, 8, 10, 11, 12, 13, 14 has ten vertices and diameter 2, with a common neighbour listed for every non-adjacent pair, so every numbering has width at least 5), the explicit numbering of width 5 with the stretch of every edge, and two independent exact computations (backtracking over numberings and a dynamic programme over sets of placed vertices) showing no numbering of width 4 exists. Section 6 embeds the program verify_key.py with its output.
 
