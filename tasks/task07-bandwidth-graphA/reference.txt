@@ -1,0 +1,847 @@
+VERIFICATION NOTES: bandwidth of the graph in the figure
+
+Answer key: 5.
+
+1. Edges (from the figure): 1-3, 1-8, 1-13, 2-4, 2-6, 2-10, 2-12, 3-6, 3-7, 3-9, 4-5, 4-7, 4-8, 5-9, 7-10, 7-12, 8-10, 8-11, 9-13, 10-11, 11-13, 12-13.
+2. Lower bound: no numbering of width 4 exists. Two independent exact methods (backtracking over
+   positions with the two pruning rules stated in the solution, 1612 nodes, every branch to depth 3
+   printed with the rule that kills it; and a dynamic programme over (set of placed vertices, last four
+   placed)) both report none. Every cheap bound stops at 4: degree bound 2, diameter bound 4, and the
+   density bound ceil((|S|-1)/diam(S)) is at most 4 over all connected induced subgraphs S (all 8191
+   subsets checked).
+3. Upper bound: positions 1->1, 11->2, 8->3, 7->4, 13->5, 3->6, 10->7, 4->8, 12->9, 9->10, 6->11, 2->12, 5->13
+   give width 5 (every edge stretch is listed in the program output).
+4. There are 176 numberings of width 5 with nine different end pairs; all Cuthill-McKee numberings
+   (every start vertex, both directions) have width 6 to 8.
+
+6. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py)
+
+   """Verification of the answer key: the bandwidth of the 13-vertex graph in the figure is 5.
+
+   Self-contained: python3 only.  Run: python3 verify_key.py
+     (1) exact bandwidth by backtracking over numberings with pruning: no numbering of width 4, one of
+         width 5 is printed with every edge stretch;
+     (2) independent exact check by a dynamic programme over (set of placed vertices, last b placed);
+     (3) every cheap lower bound stops at 4: degree bound 2, diameter bound 4, and the density bound
+         ceil((|S|-1)/diam(S)) is at most 4 over ALL connected induced subgraphs S (all 2^13 subsets);
+     (4) the width-4 search tree, printed to depth 3 with the reason each branch dies and the number of
+         nodes visited, so that the exhaustive argument can be followed by hand;
+     (5) the number of optimal numberings (176) and the Cuthill-McKee widths (6 to 8).
+   """
+   import itertools, math, collections
+   from functools import lru_cache
+   EDGES = [(2, 4), (9, 13), (12, 13), (11, 13), (5, 9), (3, 6), (1, 13), (8, 10), (1, 3), (2, 12), (7, 10), (10, 11), (1, 8), (3, 9), (4, 8), (3, 7), (4, 7), (7, 12), (2, 10), (2, 6), (4, 5), (8, 11)]
+   V = list(range(1, 14)); n = 13; adj = {v: set() for v in V}
+   for u, v in EDGES: adj[u].add(v); adj[v].add(u)
+   assert len(EDGES) == 22 and len(V) == 13
+   print("edges:", sorted(map(sorted, EDGES))); print("degrees:", {v: len(adj[v]) for v in V})
+   def width(order):
+       p = {v: i for i, v in enumerate(order)}; return max(abs(p[u] - p[v]) for u, v in EDGES)
+
+   # ---------- (1) backtracking ----------
+   def search(b, log=None, maxdepth=0):
+       sols = []; pos = {}; nodes = [0]
+       def rec(i, path):
+           nodes[0] += 1
+           if i == n: sols.append([v for v, _ in sorted(pos.items(), key=lambda kv: kv[1])]); return
+           for v in V:
+               if v in pos: continue
+               bad = [u for u in adj[v] if u in pos and i - pos[u] > b]
+               if bad:
+                   if log is not None and i < maxdepth: log.append(f"{path + [v]}: edge {v}-{bad[0]} would stretch {i - pos[bad[0]]}")
+                   continue
+               pos[v] = i; reason = None
+               for u in list(pos):
+                   far = [w for w in adj[u] if w not in pos]
+                   if far and (pos[u] + b) - i < len(far): reason = f"vertex {u} (position {pos[u]+1}) still needs {len(far)} neighbours {sorted(far)} but only {(pos[u] + b) - i} positions within reach remain"; break
+               if reason is None: rec(i + 1, path + [v])
+               elif log is not None and i < maxdepth: log.append(f"{path + [v]}: {reason}")
+               del pos[v]
+       rec(0, [])
+       return sols, nodes[0]
+   log4 = []
+   s4, nodes4 = search(4, log4, maxdepth=3)
+   s5, nodes5 = search(5)
+   print(f"backtracking: numberings of width 4: {len(s4)} ({nodes4} nodes visited); numberings of width 5: {len(s5)}")
+   assert len(s4) == 0 and len(s5) > 0
+   order = s5[0]; pos = {v: i + 1 for i, v in enumerate(order)}
+   print("a numbering of width 5 (position 1 to 13):", order)
+   for u, v in sorted(map(sorted, EDGES)): print(f"   edge {u}-{v}: stretch {abs(pos[u]-pos[v])}")
+   assert width(order) == 5
+
+   # ---------- (2) dynamic programme ----------
+   def bandwidth_le(b):
+       @lru_cache(maxsize=None)
+       def ok(placed, last):
+           if len(placed) == n: return True
+           for v in V:
+               if v in placed: continue
+               if any(u not in last for u in adj[v] if u in placed): continue
+               if len(last) == b and any(w not in placed and w != v for w in adj[last[0]]): continue
+               if ok(placed | frozenset([v]), (last + (v,))[-b:]): return True
+           return False
+       return ok(frozenset(), tuple())
+   print("dynamic programme: width 4 possible:", bandwidth_le(4), "; width 5 possible:", bandwidth_le(5))
+   assert not bandwidth_le(4) and bandwidth_le(5)
+   print("CHECK 1-2: bandwidth = 5 by two independent exact methods")
+
+   # ---------- (3) cheap bounds ----------
+   def bfs(src, allowed):
+       d = {src: 0}; q = collections.deque([src])
+       while q:
+           x = q.popleft()
+           for y in adj[x]:
+               if y in allowed and y not in d: d[y] = d[x] + 1; q.append(y)
+       return d
+   diamG = max(max(bfs(s, set(V)).values()) for s in V); Delta = max(len(adj[v]) for v in V)
+   print(f"degree bound ceil(Delta/2) = {math.ceil(Delta/2)}; diameter bound ceil((n-1)/diam) = {math.ceil((n-1)/diamG)} (diam = {diamG})")
+   best = 0; bestS = None
+   for mask in range(1, 1 << n):
+       S = {V[i] for i in range(n) if mask >> i & 1}
+       if len(S) < 2: continue
+       s0 = next(iter(S)); d = bfs(s0, S)
+       if len(d) != len(S): continue
+       diam = max(max(bfs(s, S).values()) for s in S)
+       val = math.ceil((len(S) - 1) / diam)
+       if val > best: best, bestS = val, sorted(S)
+   print(f"density bound over all {2**n - 1} subsets (connected induced subgraphs only): max = {best}, attained e.g. by {bestS}")
+   assert best == 4
+   print("CHECK 3: every cheap lower bound gives at most 4")
+
+   # ---------- (4) the width-4 search tree ----------
+   print(f"width-4 search tree: {nodes4} nodes visited; branches at depth <= 3 and why they die:")
+   for e in log4: print("   ", e)
+   # ---------- (5) ----------
+   print("number of numberings of width 5:", len(s5))
+   def cuthill_mckee(start, reverse=False):
+       order = [start]; seen = {start}; q = collections.deque([start])
+       while q:
+           v = q.popleft()
+           for u in sorted(adj[v], key=lambda u: len(adj[u])):
+               if u not in seen: seen.add(u); order.append(u); q.append(u)
+       return order[::-1] if reverse else order
+   cm = sorted(set(width(cuthill_mckee(s, r)) for s in V for r in (False, True))); print("Cuthill-McKee widths from every start (and reversed):", cm)
+   print("ALL CHECKS PASSED. Bandwidth 5.")
+
+
+   Output:
+
+   edges: [[1, 3], [1, 8], [1, 13], [2, 4], [2, 6], [2, 10], [2, 12], [3, 6], [3, 7], [3, 9], [4, 5], [4, 7], [4, 8], [5, 9], [7, 10], [7, 12], [8, 10], [8, 11], [9, 13], [10, 11], [11, 13], [12, 13]]
+   degrees: {1: 3, 2: 4, 3: 4, 4: 4, 5: 2, 6: 2, 7: 4, 8: 4, 9: 3, 10: 4, 11: 3, 12: 3, 13: 4}
+   backtracking: numberings of width 4: 0 (1612 nodes visited); numberings of width 5: 176
+   a numbering of width 5 (position 1 to 13): [1, 11, 8, 7, 13, 3, 10, 4, 12, 9, 6, 2, 5]
+      edge 1-3: stretch 5
+      edge 1-8: stretch 2
+      edge 1-13: stretch 4
+      edge 2-4: stretch 4
+      edge 2-6: stretch 1
+      edge 2-10: stretch 5
+      edge 2-12: stretch 3
+      edge 3-6: stretch 5
+      edge 3-7: stretch 2
+      edge 3-9: stretch 4
+      edge 4-5: stretch 5
+      edge 4-7: stretch 4
+      edge 4-8: stretch 5
+      edge 5-9: stretch 3
+      edge 7-10: stretch 3
+      edge 7-12: stretch 5
+      edge 8-10: stretch 4
+      edge 8-11: stretch 1
+      edge 9-13: stretch 5
+      edge 10-11: stretch 5
+      edge 11-13: stretch 3
+      edge 12-13: stretch 4
+   dynamic programme: width 4 possible: False ; width 5 possible: True
+   CHECK 1-2: bandwidth = 5 by two independent exact methods
+   degree bound ceil(Delta/2) = 2; diameter bound ceil((n-1)/diam) = 4 (diam = 3)
+   density bound over all 8191 subsets (connected induced subgraphs only): max = 4, attained e.g. by [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12]
+   CHECK 3: every cheap lower bound gives at most 4
+   width-4 search tree: 1612 nodes visited; branches at depth <= 3 and why they die:
+       [1, 2, 3]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [1, 2, 4]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 2, 5]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 2, 6]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 2, 7]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 2, 8]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [1, 2, 9]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 2, 10]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 2, 11]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 2, 12]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 2, 13]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [1, 4, 2]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 4, 3]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [1, 4, 5]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 4, 6]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 4, 7]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 4, 9]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 4, 10]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 4, 11]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 4, 12]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 4, 13]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [1, 5, 2]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 5, 4]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 5, 6]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 5, 7]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 5, 9]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 5, 10]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 5, 11]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 5, 12]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 6, 2]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 6, 4]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 6, 5]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 6, 7]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 6, 9]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 6, 10]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 6, 11]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 6, 12]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 7, 2]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 7, 4]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 7, 5]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 7, 6]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 7, 8]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [1, 7, 9]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 7, 10]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 7, 11]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 7, 12]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 7, 13]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [1, 9, 2]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 9, 4]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 9, 5]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 9, 6]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 9, 7]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 9, 10]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 9, 11]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 9, 12]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 10, 2]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 10, 3]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [1, 10, 4]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 10, 5]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 10, 6]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 10, 7]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 10, 9]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 10, 11]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 10, 12]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 10, 13]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [1, 11, 2]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 11, 4]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 11, 5]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 11, 6]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 11, 7]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 11, 9]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 11, 10]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 11, 12]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 12, 2]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 12, 4]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 12, 5]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 12, 6]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 12, 7]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 12, 9]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 12, 10]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [1, 12, 11]: vertex 1 (position 1) still needs 3 neighbours [3, 8, 13] but only 2 positions within reach remain
+       [2, 1]: vertex 2 (position 1) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [2, 3]: vertex 2 (position 1) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [2, 4, 1]: vertex 2 (position 1) still needs 3 neighbours [6, 10, 12] but only 2 positions within reach remain
+       [2, 4, 3]: vertex 2 (position 1) still needs 3 neighbours [6, 10, 12] but only 2 positions within reach remain
+       [2, 4, 5]: vertex 2 (position 1) still needs 3 neighbours [6, 10, 12] but only 2 positions within reach remain
+       [2, 4, 7]: vertex 2 (position 1) still needs 3 neighbours [6, 10, 12] but only 2 positions within reach remain
+       [2, 4, 8]: vertex 2 (position 1) still needs 3 neighbours [6, 10, 12] but only 2 positions within reach remain
+       [2, 4, 9]: vertex 2 (position 1) still needs 3 neighbours [6, 10, 12] but only 2 positions within reach remain
+       [2, 4, 11]: vertex 2 (position 1) still needs 3 neighbours [6, 10, 12] but only 2 positions within reach remain
+       [2, 4, 13]: vertex 2 (position 1) still needs 3 neighbours [6, 10, 12] but only 2 positions within reach remain
+       [2, 5]: vertex 2 (position 1) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [2, 6, 1]: vertex 2 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [2, 6, 3]: vertex 2 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [2, 6, 5]: vertex 2 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [2, 6, 7]: vertex 2 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [2, 6, 8]: vertex 2 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [2, 6, 9]: vertex 2 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [2, 6, 11]: vertex 2 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [2, 6, 13]: vertex 2 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [2, 7]: vertex 2 (position 1) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [2, 8]: vertex 2 (position 1) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [2, 9]: vertex 2 (position 1) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [2, 10, 1]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 12] but only 2 positions within reach remain
+       [2, 10, 3]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 12] but only 2 positions within reach remain
+       [2, 10, 5]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 12] but only 2 positions within reach remain
+       [2, 10, 7]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 12] but only 2 positions within reach remain
+       [2, 10, 8]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 12] but only 2 positions within reach remain
+       [2, 10, 9]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 12] but only 2 positions within reach remain
+       [2, 10, 11]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 12] but only 2 positions within reach remain
+       [2, 10, 13]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 12] but only 2 positions within reach remain
+       [2, 11]: vertex 2 (position 1) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [2, 12, 1]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 10] but only 2 positions within reach remain
+       [2, 12, 3]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 10] but only 2 positions within reach remain
+       [2, 12, 5]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 10] but only 2 positions within reach remain
+       [2, 12, 7]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 10] but only 2 positions within reach remain
+       [2, 12, 8]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 10] but only 2 positions within reach remain
+       [2, 12, 9]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 10] but only 2 positions within reach remain
+       [2, 12, 11]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 10] but only 2 positions within reach remain
+       [2, 12, 13]: vertex 2 (position 1) still needs 3 neighbours [4, 6, 10] but only 2 positions within reach remain
+       [2, 13]: vertex 2 (position 1) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [3, 1, 2]: vertex 3 (position 1) still needs 3 neighbours [6, 7, 9] but only 2 positions within reach remain
+       [3, 1, 4]: vertex 3 (position 1) still needs 3 neighbours [6, 7, 9] but only 2 positions within reach remain
+       [3, 1, 5]: vertex 3 (position 1) still needs 3 neighbours [6, 7, 9] but only 2 positions within reach remain
+       [3, 1, 8]: vertex 3 (position 1) still needs 3 neighbours [6, 7, 9] but only 2 positions within reach remain
+       [3, 1, 10]: vertex 3 (position 1) still needs 3 neighbours [6, 7, 9] but only 2 positions within reach remain
+       [3, 1, 11]: vertex 3 (position 1) still needs 3 neighbours [6, 7, 9] but only 2 positions within reach remain
+       [3, 1, 12]: vertex 3 (position 1) still needs 3 neighbours [6, 7, 9] but only 2 positions within reach remain
+       [3, 1, 13]: vertex 3 (position 1) still needs 3 neighbours [6, 7, 9] but only 2 positions within reach remain
+       [3, 2]: vertex 3 (position 1) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [3, 4]: vertex 3 (position 1) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [3, 5]: vertex 3 (position 1) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [3, 6, 2]: vertex 3 (position 1) still needs 3 neighbours [1, 7, 9] but only 2 positions within reach remain
+       [3, 6, 4]: vertex 3 (position 1) still needs 3 neighbours [1, 7, 9] but only 2 positions within reach remain
+       [3, 6, 5]: vertex 3 (position 1) still needs 3 neighbours [1, 7, 9] but only 2 positions within reach remain
+       [3, 6, 8]: vertex 3 (position 1) still needs 3 neighbours [1, 7, 9] but only 2 positions within reach remain
+       [3, 6, 10]: vertex 3 (position 1) still needs 3 neighbours [1, 7, 9] but only 2 positions within reach remain
+       [3, 6, 11]: vertex 3 (position 1) still needs 3 neighbours [1, 7, 9] but only 2 positions within reach remain
+       [3, 6, 12]: vertex 3 (position 1) still needs 3 neighbours [1, 7, 9] but only 2 positions within reach remain
+       [3, 6, 13]: vertex 3 (position 1) still needs 3 neighbours [1, 7, 9] but only 2 positions within reach remain
+       [3, 7, 2]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 9] but only 2 positions within reach remain
+       [3, 7, 4]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 9] but only 2 positions within reach remain
+       [3, 7, 5]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 9] but only 2 positions within reach remain
+       [3, 7, 8]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 9] but only 2 positions within reach remain
+       [3, 7, 10]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 9] but only 2 positions within reach remain
+       [3, 7, 11]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 9] but only 2 positions within reach remain
+       [3, 7, 12]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 9] but only 2 positions within reach remain
+       [3, 7, 13]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 9] but only 2 positions within reach remain
+       [3, 8]: vertex 3 (position 1) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [3, 9, 2]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 7] but only 2 positions within reach remain
+       [3, 9, 4]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 7] but only 2 positions within reach remain
+       [3, 9, 5]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 7] but only 2 positions within reach remain
+       [3, 9, 8]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 7] but only 2 positions within reach remain
+       [3, 9, 10]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 7] but only 2 positions within reach remain
+       [3, 9, 11]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 7] but only 2 positions within reach remain
+       [3, 9, 12]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 7] but only 2 positions within reach remain
+       [3, 9, 13]: vertex 3 (position 1) still needs 3 neighbours [1, 6, 7] but only 2 positions within reach remain
+       [3, 10]: vertex 3 (position 1) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [3, 11]: vertex 3 (position 1) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [3, 12]: vertex 3 (position 1) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [3, 13]: vertex 3 (position 1) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [4, 1]: vertex 4 (position 1) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [4, 2, 1]: vertex 4 (position 1) still needs 3 neighbours [5, 7, 8] but only 2 positions within reach remain
+       [4, 2, 3]: vertex 4 (position 1) still needs 3 neighbours [5, 7, 8] but only 2 positions within reach remain
+       [4, 2, 6]: vertex 4 (position 1) still needs 3 neighbours [5, 7, 8] but only 2 positions within reach remain
+       [4, 2, 9]: vertex 4 (position 1) still needs 3 neighbours [5, 7, 8] but only 2 positions within reach remain
+       [4, 2, 10]: vertex 4 (position 1) still needs 3 neighbours [5, 7, 8] but only 2 positions within reach remain
+       [4, 2, 11]: vertex 4 (position 1) still needs 3 neighbours [5, 7, 8] but only 2 positions within reach remain
+       [4, 2, 12]: vertex 4 (position 1) still needs 3 neighbours [5, 7, 8] but only 2 positions within reach remain
+       [4, 2, 13]: vertex 4 (position 1) still needs 3 neighbours [5, 7, 8] but only 2 positions within reach remain
+       [4, 3]: vertex 4 (position 1) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [4, 5, 1]: vertex 4 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [4, 5, 3]: vertex 4 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [4, 5, 6]: vertex 4 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [4, 5, 9]: vertex 4 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [4, 5, 10]: vertex 4 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [4, 5, 11]: vertex 4 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [4, 5, 12]: vertex 4 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [4, 5, 13]: vertex 4 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [4, 6]: vertex 4 (position 1) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [4, 7, 1]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 8] but only 2 positions within reach remain
+       [4, 7, 3]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 8] but only 2 positions within reach remain
+       [4, 7, 6]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 8] but only 2 positions within reach remain
+       [4, 7, 9]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 8] but only 2 positions within reach remain
+       [4, 7, 10]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 8] but only 2 positions within reach remain
+       [4, 7, 11]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 8] but only 2 positions within reach remain
+       [4, 7, 12]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 8] but only 2 positions within reach remain
+       [4, 7, 13]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 8] but only 2 positions within reach remain
+       [4, 8, 1]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 7] but only 2 positions within reach remain
+       [4, 8, 3]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 7] but only 2 positions within reach remain
+       [4, 8, 6]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 7] but only 2 positions within reach remain
+       [4, 8, 9]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 7] but only 2 positions within reach remain
+       [4, 8, 10]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 7] but only 2 positions within reach remain
+       [4, 8, 11]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 7] but only 2 positions within reach remain
+       [4, 8, 12]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 7] but only 2 positions within reach remain
+       [4, 8, 13]: vertex 4 (position 1) still needs 3 neighbours [2, 5, 7] but only 2 positions within reach remain
+       [4, 9]: vertex 4 (position 1) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [4, 10]: vertex 4 (position 1) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [4, 11]: vertex 4 (position 1) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [4, 12]: vertex 4 (position 1) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [4, 13]: vertex 4 (position 1) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [5, 2, 1]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [5, 2, 3]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [5, 2, 7]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [5, 2, 8]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [5, 2, 9]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [5, 2, 11]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [5, 2, 13]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [5, 3, 2]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [5, 3, 4]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [5, 3, 8]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [5, 3, 10]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [5, 3, 11]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [5, 3, 12]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [5, 3, 13]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [5, 7, 1]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [5, 7, 2]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [5, 7, 6]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [5, 7, 8]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [5, 7, 9]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [5, 7, 11]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [5, 7, 13]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [5, 8, 2]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [5, 8, 3]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [5, 8, 6]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [5, 8, 7]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [5, 8, 9]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [5, 8, 12]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [5, 8, 13]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [5, 10, 1]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [5, 10, 3]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [5, 10, 4]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [5, 10, 6]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [5, 10, 9]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [5, 10, 12]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [5, 10, 13]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [5, 13, 2]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [5, 13, 3]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [5, 13, 4]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [5, 13, 6]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [5, 13, 7]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [5, 13, 8]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [5, 13, 10]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [6, 4, 1]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [6, 4, 3]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [6, 4, 9]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [6, 4, 10]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [6, 4, 11]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [6, 4, 12]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [6, 4, 13]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [6, 7, 1]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [6, 7, 2]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [6, 7, 5]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [6, 7, 8]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [6, 7, 9]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [6, 7, 11]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [6, 7, 13]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [6, 8, 2]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [6, 8, 3]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [6, 8, 5]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [6, 8, 7]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [6, 8, 9]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [6, 8, 12]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [6, 8, 13]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [6, 10, 1]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [6, 10, 3]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [6, 10, 4]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [6, 10, 5]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [6, 10, 9]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [6, 10, 12]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [6, 10, 13]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [6, 13, 2]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [6, 13, 3]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [6, 13, 4]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [6, 13, 5]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [6, 13, 7]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [6, 13, 8]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [6, 13, 10]: vertex 13 (position 2) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [7, 1]: vertex 7 (position 1) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [7, 2]: vertex 7 (position 1) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [7, 3, 1]: vertex 7 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [7, 3, 2]: vertex 7 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [7, 3, 5]: vertex 7 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [7, 3, 6]: vertex 7 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [7, 3, 8]: vertex 7 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [7, 3, 9]: vertex 7 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [7, 3, 11]: vertex 7 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [7, 3, 13]: vertex 7 (position 1) still needs 3 neighbours [4, 10, 12] but only 2 positions within reach remain
+       [7, 4, 1]: vertex 7 (position 1) still needs 3 neighbours [3, 10, 12] but only 2 positions within reach remain
+       [7, 4, 2]: vertex 7 (position 1) still needs 3 neighbours [3, 10, 12] but only 2 positions within reach remain
+       [7, 4, 5]: vertex 7 (position 1) still needs 3 neighbours [3, 10, 12] but only 2 positions within reach remain
+       [7, 4, 6]: vertex 7 (position 1) still needs 3 neighbours [3, 10, 12] but only 2 positions within reach remain
+       [7, 4, 8]: vertex 7 (position 1) still needs 3 neighbours [3, 10, 12] but only 2 positions within reach remain
+       [7, 4, 9]: vertex 7 (position 1) still needs 3 neighbours [3, 10, 12] but only 2 positions within reach remain
+       [7, 4, 11]: vertex 7 (position 1) still needs 3 neighbours [3, 10, 12] but only 2 positions within reach remain
+       [7, 4, 13]: vertex 7 (position 1) still needs 3 neighbours [3, 10, 12] but only 2 positions within reach remain
+       [7, 5]: vertex 7 (position 1) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [7, 6]: vertex 7 (position 1) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [7, 8]: vertex 7 (position 1) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [7, 9]: vertex 7 (position 1) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [7, 10, 1]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 12] but only 2 positions within reach remain
+       [7, 10, 2]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 12] but only 2 positions within reach remain
+       [7, 10, 5]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 12] but only 2 positions within reach remain
+       [7, 10, 6]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 12] but only 2 positions within reach remain
+       [7, 10, 8]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 12] but only 2 positions within reach remain
+       [7, 10, 9]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 12] but only 2 positions within reach remain
+       [7, 10, 11]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 12] but only 2 positions within reach remain
+       [7, 10, 13]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 12] but only 2 positions within reach remain
+       [7, 11]: vertex 7 (position 1) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [7, 12, 1]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 10] but only 2 positions within reach remain
+       [7, 12, 2]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 10] but only 2 positions within reach remain
+       [7, 12, 5]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 10] but only 2 positions within reach remain
+       [7, 12, 6]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 10] but only 2 positions within reach remain
+       [7, 12, 8]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 10] but only 2 positions within reach remain
+       [7, 12, 9]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 10] but only 2 positions within reach remain
+       [7, 12, 11]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 10] but only 2 positions within reach remain
+       [7, 12, 13]: vertex 7 (position 1) still needs 3 neighbours [3, 4, 10] but only 2 positions within reach remain
+       [7, 13]: vertex 7 (position 1) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [8, 1, 2]: vertex 8 (position 1) still needs 3 neighbours [4, 10, 11] but only 2 positions within reach remain
+       [8, 1, 3]: vertex 8 (position 1) still needs 3 neighbours [4, 10, 11] but only 2 positions within reach remain
+       [8, 1, 5]: vertex 8 (position 1) still needs 3 neighbours [4, 10, 11] but only 2 positions within reach remain
+       [8, 1, 6]: vertex 8 (position 1) still needs 3 neighbours [4, 10, 11] but only 2 positions within reach remain
+       [8, 1, 7]: vertex 8 (position 1) still needs 3 neighbours [4, 10, 11] but only 2 positions within reach remain
+       [8, 1, 9]: vertex 8 (position 1) still needs 3 neighbours [4, 10, 11] but only 2 positions within reach remain
+       [8, 1, 12]: vertex 8 (position 1) still needs 3 neighbours [4, 10, 11] but only 2 positions within reach remain
+       [8, 1, 13]: vertex 8 (position 1) still needs 3 neighbours [4, 10, 11] but only 2 positions within reach remain
+       [8, 2]: vertex 8 (position 1) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [8, 3]: vertex 8 (position 1) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [8, 4, 2]: vertex 8 (position 1) still needs 3 neighbours [1, 10, 11] but only 2 positions within reach remain
+       [8, 4, 3]: vertex 8 (position 1) still needs 3 neighbours [1, 10, 11] but only 2 positions within reach remain
+       [8, 4, 5]: vertex 8 (position 1) still needs 3 neighbours [1, 10, 11] but only 2 positions within reach remain
+       [8, 4, 6]: vertex 8 (position 1) still needs 3 neighbours [1, 10, 11] but only 2 positions within reach remain
+       [8, 4, 7]: vertex 8 (position 1) still needs 3 neighbours [1, 10, 11] but only 2 positions within reach remain
+       [8, 4, 9]: vertex 8 (position 1) still needs 3 neighbours [1, 10, 11] but only 2 positions within reach remain
+       [8, 4, 12]: vertex 8 (position 1) still needs 3 neighbours [1, 10, 11] but only 2 positions within reach remain
+       [8, 4, 13]: vertex 8 (position 1) still needs 3 neighbours [1, 10, 11] but only 2 positions within reach remain
+       [8, 5]: vertex 8 (position 1) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [8, 6]: vertex 8 (position 1) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [8, 7]: vertex 8 (position 1) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [8, 9]: vertex 8 (position 1) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [8, 10, 2]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 11] but only 2 positions within reach remain
+       [8, 10, 3]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 11] but only 2 positions within reach remain
+       [8, 10, 5]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 11] but only 2 positions within reach remain
+       [8, 10, 6]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 11] but only 2 positions within reach remain
+       [8, 10, 7]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 11] but only 2 positions within reach remain
+       [8, 10, 9]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 11] but only 2 positions within reach remain
+       [8, 10, 12]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 11] but only 2 positions within reach remain
+       [8, 10, 13]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 11] but only 2 positions within reach remain
+       [8, 11, 2]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 10] but only 2 positions within reach remain
+       [8, 11, 3]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 10] but only 2 positions within reach remain
+       [8, 11, 5]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 10] but only 2 positions within reach remain
+       [8, 11, 6]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 10] but only 2 positions within reach remain
+       [8, 11, 7]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 10] but only 2 positions within reach remain
+       [8, 11, 9]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 10] but only 2 positions within reach remain
+       [8, 11, 12]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 10] but only 2 positions within reach remain
+       [8, 11, 13]: vertex 8 (position 1) still needs 3 neighbours [1, 4, 10] but only 2 positions within reach remain
+       [8, 12]: vertex 8 (position 1) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [8, 13]: vertex 8 (position 1) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [9, 1, 2]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 1, 4]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 1, 6]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 1, 7]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 1, 8]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 1, 10]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 1, 11]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 1, 12]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 2, 1]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 2, 3]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [9, 2, 4]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 2, 5]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [9, 2, 6]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 2, 7]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 2, 8]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 2, 10]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 2, 11]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 2, 12]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 2, 13]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [9, 4, 1]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 4, 2]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 4, 3]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [9, 4, 6]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 4, 7]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 4, 8]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 4, 10]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 4, 11]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 4, 12]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 4, 13]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [9, 6, 1]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 6, 2]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 6, 4]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 6, 7]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 6, 8]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 6, 10]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 6, 11]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 6, 12]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 7, 1]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 7, 2]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 7, 4]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 7, 5]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [9, 7, 6]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 7, 8]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 7, 10]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 7, 11]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 7, 12]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 7, 13]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [9, 8, 1]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 8, 2]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 8, 3]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [9, 8, 4]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 8, 5]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [9, 8, 6]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 8, 7]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 8, 10]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 8, 11]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 8, 12]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 8, 13]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [9, 10, 1]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 10, 2]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 10, 3]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [9, 10, 4]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 10, 5]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [9, 10, 6]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 10, 7]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 10, 8]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 10, 11]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 10, 12]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 10, 13]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [9, 11, 1]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 11, 2]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 11, 4]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 11, 6]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 11, 7]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 11, 8]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 11, 10]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 11, 12]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 12, 1]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 12, 2]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 12, 4]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 12, 6]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 12, 7]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 12, 8]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 12, 10]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [9, 12, 11]: vertex 9 (position 1) still needs 3 neighbours [3, 5, 13] but only 2 positions within reach remain
+       [10, 1]: vertex 10 (position 1) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [10, 2, 1]: vertex 10 (position 1) still needs 3 neighbours [7, 8, 11] but only 2 positions within reach remain
+       [10, 2, 3]: vertex 10 (position 1) still needs 3 neighbours [7, 8, 11] but only 2 positions within reach remain
+       [10, 2, 4]: vertex 10 (position 1) still needs 3 neighbours [7, 8, 11] but only 2 positions within reach remain
+       [10, 2, 5]: vertex 10 (position 1) still needs 3 neighbours [7, 8, 11] but only 2 positions within reach remain
+       [10, 2, 6]: vertex 10 (position 1) still needs 3 neighbours [7, 8, 11] but only 2 positions within reach remain
+       [10, 2, 9]: vertex 10 (position 1) still needs 3 neighbours [7, 8, 11] but only 2 positions within reach remain
+       [10, 2, 12]: vertex 10 (position 1) still needs 3 neighbours [7, 8, 11] but only 2 positions within reach remain
+       [10, 2, 13]: vertex 10 (position 1) still needs 3 neighbours [7, 8, 11] but only 2 positions within reach remain
+       [10, 3]: vertex 10 (position 1) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [10, 4]: vertex 10 (position 1) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [10, 5]: vertex 10 (position 1) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [10, 6]: vertex 10 (position 1) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [10, 7, 1]: vertex 10 (position 1) still needs 3 neighbours [2, 8, 11] but only 2 positions within reach remain
+       [10, 7, 3]: vertex 10 (position 1) still needs 3 neighbours [2, 8, 11] but only 2 positions within reach remain
+       [10, 7, 4]: vertex 10 (position 1) still needs 3 neighbours [2, 8, 11] but only 2 positions within reach remain
+       [10, 7, 5]: vertex 10 (position 1) still needs 3 neighbours [2, 8, 11] but only 2 positions within reach remain
+       [10, 7, 6]: vertex 10 (position 1) still needs 3 neighbours [2, 8, 11] but only 2 positions within reach remain
+       [10, 7, 9]: vertex 10 (position 1) still needs 3 neighbours [2, 8, 11] but only 2 positions within reach remain
+       [10, 7, 12]: vertex 10 (position 1) still needs 3 neighbours [2, 8, 11] but only 2 positions within reach remain
+       [10, 7, 13]: vertex 10 (position 1) still needs 3 neighbours [2, 8, 11] but only 2 positions within reach remain
+       [10, 8, 1]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 11] but only 2 positions within reach remain
+       [10, 8, 3]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 11] but only 2 positions within reach remain
+       [10, 8, 4]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 11] but only 2 positions within reach remain
+       [10, 8, 5]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 11] but only 2 positions within reach remain
+       [10, 8, 6]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 11] but only 2 positions within reach remain
+       [10, 8, 9]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 11] but only 2 positions within reach remain
+       [10, 8, 12]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 11] but only 2 positions within reach remain
+       [10, 8, 13]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 11] but only 2 positions within reach remain
+       [10, 9]: vertex 10 (position 1) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [10, 11, 1]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [10, 11, 3]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [10, 11, 4]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [10, 11, 5]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [10, 11, 6]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [10, 11, 9]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [10, 11, 12]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [10, 11, 13]: vertex 10 (position 1) still needs 3 neighbours [2, 7, 8] but only 2 positions within reach remain
+       [10, 12]: vertex 10 (position 1) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [10, 13]: vertex 10 (position 1) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [11, 1, 2]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 1, 3]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 1, 4]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 1, 5]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 1, 6]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 1, 7]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 1, 9]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 1, 12]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 2, 1]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 2, 3]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 2, 4]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 2, 5]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 2, 6]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 2, 7]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 2, 8]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [11, 2, 9]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 2, 12]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 2, 13]: vertex 2 (position 2) still needs 4 neighbours [4, 6, 10, 12] but only 3 positions within reach remain
+       [11, 3, 1]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 3, 2]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 3, 4]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 3, 5]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 3, 6]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 3, 7]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 3, 8]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [11, 3, 9]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 3, 10]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [11, 3, 12]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 3, 13]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [11, 4, 1]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 4, 2]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 4, 3]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 4, 5]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 4, 6]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 4, 7]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 4, 9]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 4, 10]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [11, 4, 12]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 4, 13]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [11, 5, 1]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 5, 2]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 5, 3]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 5, 4]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 5, 6]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 5, 7]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 5, 9]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 5, 12]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 6, 1]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 6, 2]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 6, 3]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 6, 4]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 6, 5]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 6, 7]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 6, 9]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 6, 12]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 7, 1]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 7, 2]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 7, 3]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 7, 4]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 7, 5]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 7, 6]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 7, 8]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [11, 7, 9]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 7, 12]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 7, 13]: vertex 7 (position 2) still needs 4 neighbours [3, 4, 10, 12] but only 3 positions within reach remain
+       [11, 9, 1]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 9, 2]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 9, 3]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 9, 4]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 9, 5]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 9, 6]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 9, 7]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 9, 12]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 12, 1]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 12, 2]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 12, 3]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 12, 4]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 12, 5]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 12, 6]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 12, 7]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [11, 12, 9]: vertex 11 (position 1) still needs 3 neighbours [8, 10, 13] but only 2 positions within reach remain
+       [12, 1, 3]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 1, 4]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 1, 5]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 1, 6]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 1, 8]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 1, 9]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 1, 10]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 1, 11]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 3, 1]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 3, 2]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [12, 3, 4]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 3, 5]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 3, 6]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 3, 8]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 3, 9]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 3, 10]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 3, 11]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 3, 13]: vertex 3 (position 2) still needs 4 neighbours [1, 6, 7, 9] but only 3 positions within reach remain
+       [12, 4, 1]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 4, 3]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 4, 5]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 4, 6]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 4, 8]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 4, 9]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 4, 10]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 4, 11]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 4, 13]: vertex 4 (position 2) still needs 4 neighbours [2, 5, 7, 8] but only 3 positions within reach remain
+       [12, 5, 1]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 5, 3]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 5, 4]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 5, 6]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 5, 8]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 5, 9]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 5, 10]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 5, 11]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 6, 1]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 6, 3]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 6, 4]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 6, 5]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 6, 8]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 6, 9]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 6, 10]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 6, 11]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 8, 1]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 8, 2]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [12, 8, 3]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 8, 4]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 8, 5]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 8, 6]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 8, 7]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [12, 8, 9]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 8, 10]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 8, 11]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 8, 13]: vertex 8 (position 2) still needs 4 neighbours [1, 4, 10, 11] but only 3 positions within reach remain
+       [12, 9, 1]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 9, 3]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 9, 4]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 9, 5]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 9, 6]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 9, 8]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 9, 10]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 9, 11]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 10, 1]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 10, 3]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 10, 4]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 10, 5]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 10, 6]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 10, 8]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 10, 9]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 10, 11]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 10, 13]: vertex 10 (position 2) still needs 4 neighbours [2, 7, 8, 11] but only 3 positions within reach remain
+       [12, 11, 1]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 11, 3]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 11, 4]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 11, 5]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 11, 6]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 11, 8]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 11, 9]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [12, 11, 10]: vertex 12 (position 1) still needs 3 neighbours [2, 7, 13] but only 2 positions within reach remain
+       [13, 1, 2]: vertex 13 (position 1) still needs 3 neighbours [9, 11, 12] but only 2 positions within reach remain
+       [13, 1, 3]: vertex 13 (position 1) still needs 3 neighbours [9, 11, 12] but only 2 positions within reach remain
+       [13, 1, 4]: vertex 13 (position 1) still needs 3 neighbours [9, 11, 12] but only 2 positions within reach remain
+       [13, 1, 5]: vertex 13 (position 1) still needs 3 neighbours [9, 11, 12] but only 2 positions within reach remain
+       [13, 1, 6]: vertex 13 (position 1) still needs 3 neighbours [9, 11, 12] but only 2 positions within reach remain
+       [13, 1, 7]: vertex 13 (position 1) still needs 3 neighbours [9, 11, 12] but only 2 positions within reach remain
+       [13, 1, 8]: vertex 13 (position 1) still needs 3 neighbours [9, 11, 12] but only 2 positions within reach remain
+       [13, 1, 10]: vertex 13 (position 1) still needs 3 neighbours [9, 11, 12] but only 2 positions within reach remain
+       [13, 2]: vertex 13 (position 1) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [13, 3]: vertex 13 (position 1) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [13, 4]: vertex 13 (position 1) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [13, 5]: vertex 13 (position 1) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [13, 6]: vertex 13 (position 1) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [13, 7]: vertex 13 (position 1) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [13, 8]: vertex 13 (position 1) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [13, 9, 2]: vertex 13 (position 1) still needs 3 neighbours [1, 11, 12] but only 2 positions within reach remain
+       [13, 9, 3]: vertex 13 (position 1) still needs 3 neighbours [1, 11, 12] but only 2 positions within reach remain
+       [13, 9, 4]: vertex 13 (position 1) still needs 3 neighbours [1, 11, 12] but only 2 positions within reach remain
+       [13, 9, 5]: vertex 13 (position 1) still needs 3 neighbours [1, 11, 12] but only 2 positions within reach remain
+       [13, 9, 6]: vertex 13 (position 1) still needs 3 neighbours [1, 11, 12] but only 2 positions within reach remain
+       [13, 9, 7]: vertex 13 (position 1) still needs 3 neighbours [1, 11, 12] but only 2 positions within reach remain
+       [13, 9, 8]: vertex 13 (position 1) still needs 3 neighbours [1, 11, 12] but only 2 positions within reach remain
+       [13, 9, 10]: vertex 13 (position 1) still needs 3 neighbours [1, 11, 12] but only 2 positions within reach remain
+       [13, 10]: vertex 13 (position 1) still needs 4 neighbours [1, 9, 11, 12] but only 3 positions within reach remain
+       [13, 11, 2]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 12] but only 2 positions within reach remain
+       [13, 11, 3]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 12] but only 2 positions within reach remain
+       [13, 11, 4]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 12] but only 2 positions within reach remain
+       [13, 11, 5]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 12] but only 2 positions within reach remain
+       [13, 11, 6]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 12] but only 2 positions within reach remain
+       [13, 11, 7]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 12] but only 2 positions within reach remain
+       [13, 11, 8]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 12] but only 2 positions within reach remain
+       [13, 11, 10]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 12] but only 2 positions within reach remain
+       [13, 12, 2]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 11] but only 2 positions within reach remain
+       [13, 12, 3]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 11] but only 2 positions within reach remain
+       [13, 12, 4]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 11] but only 2 positions within reach remain
+       [13, 12, 5]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 11] but only 2 positions within reach remain
+       [13, 12, 6]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 11] but only 2 positions within reach remain
+       [13, 12, 7]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 11] but only 2 positions within reach remain
+       [13, 12, 8]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 11] but only 2 positions within reach remain
+       [13, 12, 10]: vertex 13 (position 1) still needs 3 neighbours [1, 9, 11] but only 2 positions within reach remain
+   number of numberings of width 5: 176
+   Cuthill-McKee widths from every start (and reversed): [6, 7, 8]
+   ALL CHECKS PASSED. Bandwidth 5.
+

@@ -42,7 +42,7 @@ Common wrong answers: 4, 6, 7
 
 ## References box
 
-The density lower bound for the bandwidth (a connected subgraph with $k$ vertices and diameter $d$ forces width at least $\lceil (k-1)/d \rceil$) and the general theory of the bandwidth problem: P. Z. Chinn, J. Chvatalova, A. K. Dewdney and N. E. Gibbs, The bandwidth problem for graphs and matrices, a survey, Journal of Graph Theory 6 (1982), 223-254. NP-completeness of bandwidth, which is why the exact value needs a certificate on each side: C. H. Papadimitriou, The NP-completeness of the bandwidth minimization problem, Computing 16 (1976), 263-270. The uploaded file verification_notes.txt contains two independent exact computations of the bandwidth (backtracking over numberings, and a dynamic programme over sets of placed vertices), the diameter computation for the certificate subgraph, the explicit numbering of width $4$ with the stretch of every edge, and the widths of all Cuthill-McKee numberings; the program is embedded with its output.
+The density lower bound for the bandwidth (a connected subgraph with $k$ vertices and diameter $d$ forces width at least $\lceil (k-1)/d \rceil$) and the general theory of the bandwidth problem: P. Z. Chinn, J. Chvatalova, A. K. Dewdney and N. E. Gibbs, The bandwidth problem for graphs and matrices, a survey, Journal of Graph Theory 6 (1982), 223-254. NP-completeness of bandwidth, which is why the exact value needs a certificate on each side: C. H. Papadimitriou, The NP-completeness of the bandwidth minimization problem, Computing 16 (1976), 263-270. The uploaded file verification_notes.txt contains two independent exact computations of the bandwidth (backtracking over numberings, and a dynamic programme over sets of placed vertices), the diameter computation for the certificate subgraph, the explicit numbering of width $5$ with the stretch of every edge, and the widths of all Cuthill-McKee numberings; the program is embedded with its output.
 
 ## Verify field
 
@@ -50,4 +50,4 @@ Sections 2 to 4 of verification_notes.txt give the certificate subgraph (ten ver
 
 ## Screen
 
-(filled in after the screen)
+Screened 2026-10-16 (figure plus stem only, no code, no web). Opus 1/1 correct in 8 min and 77k tokens: found the width-5 numbering, then a window argument around the clique 1, 4, 11, 14 with a short case split for the lower bound. Sonnet 1/1 correct in 37 min, but by luck: it misread four edges and gave no proof of the lower bound. Verdict: a bigger instance did not help; Opus found a different short lower-bound argument. Not submitted. The counting version is in v2-count/.

@@ -1,0 +1,319 @@
+VERIFICATION NOTES: number of optimal numberings of the graph in the figure
+
+Answer key: 6 (bandwidth 5; three numberings up to reversal, six in all).
+
+1. Edges (from the figure): 12, 14, 16, 18, 1-11, 1-14, 28, 37, 38, 3-10, 3-12, 3-13, 4-10, 4-11, 4-13, 4-14,
+   59, 5-12, 67, 69, 6-10, 6-11, 78, 7-11, 9-13, 9-14, 11-13, 11-14, 12-14. Fourteen vertices, 29 edges,
+   degrees 6,2,5,5,2,5,4,4,4,3,6,3,4,5 for vertices 1 to 14, diameter 4.
+2. Bandwidth 5: no numbering of width 4 (exhaustive backtracking); the induced subgraph on
+   {1,3,4,7,8,10,11,12,13,14} has ten vertices and diameter 2 (a common neighbour inside the subgraph is
+   printed for every non-adjacent pair), so width >= ceil(9/2) = 5; the numbering
+   2,8,7,1,11,4,3,6,14,13,10,12,9,5 has width 5. The degree bound gives 3 and the diameter bound 4.
+3. All numberings of width 5, by backtracking with pruning (a vertex can be placed only if all its placed
+   neighbours are within 5 positions, and every placed vertex must still have room for its unplaced
+   neighbours): exactly six, listed in the output, closed under reversal, three up to reversal. The top
+   two levels of the search tree are printed with the reason each dead branch dies, so the start of the
+   enumeration can be followed by hand; the only live starts are (2,8) and (5,9).
+4. Independent count: a dynamic programme over (set of placed vertices, last five placed vertices)
+   counts the numberings of width at most 5 without listing them: 6.
+5. Facts shared by all six, with the hand-checkable reasons the program prints: the ends are 2 and 5 (a
+   vertex in position 1 has its whole distance-2 ball in positions 1 to 11; only 2 and 5 have a ball of
+   at most 11 vertices, sizes 9 and 7, every other ball has 12 to 14 vertices); with 2 in position 1,
+   8 is in position 2 (1 in position 2 would force thirteen vertices into positions 1 to 12) and 9 is in
+   position 13 (the vertex there has its distance-2 ball plus vertex 5 inside positions 3 to 14; for
+   every candidate but 9 that is thirteen vertices in twelve positions); the search then gives 1 in
+   position 4 or 5, 3 in position 7, 6 in position 8, 12 in position 12; seven edges are stretched by
+   exactly 5 in each numbering (listed in the output). For comparison 23662 numberings have width at
+   most 6, and every breadth-first (Cuthill-McKee) numbering has width 7 to 9.
+
+6. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py)
+
+   """Verification of the answer key: the graph in the figure has bandwidth 5 and exactly 6 numberings of
+   width 5 (3 up to reversal).
+
+   Self-contained: python3 only.  Run: python3 verify_key.py
+     (1) bandwidth 5: no numbering of width 4 (backtracking with pruning); density certificate: the induced
+         subgraph on {1,3,4,7,8,10,11,12,13,14} has ten vertices and diameter 2, so width >= ceil(9/2) = 5;
+     (2) all numberings of width 5 by backtracking with pruning: six, listed; a numbering and its reverse
+         are counted separately; three up to reversal;
+     (3) independent count by a dynamic programme over (set of placed vertices, last five placed);
+     (4) the search tree at the top levels, printed with the reason each dead branch dies, so that the
+         enumeration can be followed by hand; structural facts shared by all six numberings;
+     (5) the trivial bounds and the breadth-first (Cuthill-McKee) numberings from every start vertex.
+   """
+   import itertools, collections, math
+   from functools import lru_cache
+   EDGES = [(1, 2), (1, 4), (1, 6), (1, 8), (1, 11), (1, 14), (2, 8), (3, 7), (3, 8), (3, 10), (3, 12), (3, 13),
+            (4, 10), (4, 11), (4, 13), (4, 14), (5, 9), (5, 12), (6, 7), (6, 9), (6, 10), (6, 11), (7, 8), (7, 11),
+            (9, 13), (9, 14), (11, 13), (11, 14), (12, 14)]
+   V = list(range(1, 15)); n = 14; adj = {v: set() for v in V}
+   for u, v in EDGES: adj[u].add(v); adj[v].add(u)
+   assert len(EDGES) == 29 and len(set(frozenset(e) for e in EDGES)) == 29
+   print("vertices:", n, "edges:", len(EDGES), "degrees:", {v: len(adj[v]) for v in V})
+   def width(order):
+       p = {v: i for i, v in enumerate(order)}; return max(abs(p[u] - p[v]) for u, v in EDGES)
+
+   def all_numberings(b, log=None, maxdepth=0):
+       """every numbering of width at most b. A vertex goes to the next free position only if all its placed
+       neighbours are within b positions, and every placed vertex must still have room within b positions
+       for all its unplaced neighbours."""
+       sols = []; pos = {}
+       def rec(i, path):
+           if i == n: sols.append([v for v, _ in sorted(pos.items(), key=lambda kv: kv[1])]); return
+           for v in V:
+               if v in pos: continue
+               bad = [u for u in adj[v] if u in pos and i - pos[u] > b]
+               if bad:
+                   if log is not None and i < maxdepth: log.append(f"{path + [v]}: edge {v}-{bad[0]} would stretch {i - pos[bad[0]]} > {b}")
+                   continue
+               pos[v] = i; reason = None
+               for u in list(pos):
+                   far = [w for w in adj[u] if w not in pos]
+                   if far and (pos[u] + b) - i < len(far): reason = f"vertex {u} at position {pos[u]+1} still needs {len(far)} neighbours but only {(pos[u] + b) - i} positions remain within reach"; break
+               if reason is None: rec(i + 1, path + [v])
+               elif log is not None and i < maxdepth: log.append(f"{path + [v]}: {reason}")
+               del pos[v]
+       rec(0, [])
+       return sols
+
+   # ---------- (1) bandwidth 5 ----------
+   print("numberings of width 4:", len(all_numberings(4)))
+   S = [1, 3, 4, 7, 8, 10, 11, 12, 13, 14]
+   def dist_in(S):
+       D = {}
+       for s in S:
+           d = {s: 0}; q = collections.deque([s])
+           while q:
+               x = q.popleft()
+               for y in adj[x]:
+                   if y in S and y not in d: d[y] = d[x] + 1; q.append(y)
+           D[s] = d
+       return D
+   D = dist_in(S); assert all(len(D[s]) == len(S) for s in S)
+   diam = max(D[s][t] for s in S for t in S)
+   print(f"certificate subgraph on {S}: {len(S)} vertices, diameter {diam} -> bandwidth >= ceil(9/2) = 5")
+   assert diam == 2
+   for s in S:
+       for t in S:
+           if s < t and t not in adj[s]: print(f"   {s},{t}: common neighbour in S: {sorted(adj[s] & adj[t] & set(S))}")
+   def diameter_all():
+       best = 0
+       for s in V:
+           d = {s: 0}; q = collections.deque([s])
+           while q:
+               x = q.popleft()
+               for y in adj[x]:
+                   if y not in d: d[y] = d[x] + 1; q.append(y)
+           best = max(best, max(d.values()))
+       return best
+   print("diameter of G:", diameter_all(), "-> diameter bound ceil(13/4) =", math.ceil(13 / diameter_all()),
+         "; degree bound ceil(6/2) = 3")
+   print("CHECK 1: bandwidth = 5")
+
+   # ---------- (2) all numberings of width 5 ----------
+   log = []
+   sols = all_numberings(5, log, maxdepth=2)
+   print("numberings of width 5:", len(sols))
+   for s in sols: print("   ", s, " width", width(s), " reverse present:", s[::-1] in sols)
+   assert len(sols) == 6 and all(width(s) == 5 for s in sols) and all(s[::-1] in sols for s in sols)
+   classes = sorted(set(tuple(min(s, s[::-1])) for s in sols))
+   print("up to reversal:", len(classes))
+   for c in classes:
+       tight = sorted((u, v) for u, v in EDGES if abs(c.index(u) - c.index(v)) == 5)
+       print("   ", list(c), " edges stretched by exactly 5:", tight)
+
+   # ---------- (3) independent count ----------
+   @lru_cache(maxsize=None)
+   def count(placed, last, b=5):
+       """number of ways to finish a numbering of width at most b: 'last' holds the last b placed vertices;
+       a new vertex may only have placed neighbours among them, and the vertex leaving the window must
+       have no unplaced neighbour left."""
+       if len(placed) == n: return 1
+       tot = 0
+       for v in V:
+           if v in placed: continue
+           if any(u not in last for u in adj[v] if u in placed): continue
+           if len(last) == b and any(w not in placed and w != v for w in adj[last[0]]): continue
+           tot += count(placed | frozenset([v]), (last + (v,))[-b:])
+       return tot
+   c5 = count(frozenset(), tuple()); print("dynamic programme, numberings of width at most 5:", c5); assert c5 == 6
+   c6 = count.__wrapped__ if False else None
+   @lru_cache(maxsize=None)
+   def count6(placed, last):
+       if len(placed) == n: return 1
+       tot = 0
+       for v in V:
+           if v in placed: continue
+           if any(u not in last for u in adj[v] if u in placed): continue
+           if len(last) == 6 and any(w not in placed and w != v for w in adj[last[0]]): continue
+           tot += count6(placed | frozenset([v]), (last + (v,))[-6:])
+       return tot
+   print("for comparison, numberings of width at most 6:", count6(frozenset(), tuple()))
+   print("CHECK 2-3: exactly six numberings of width 5 by two independent methods")
+
+   # ---------- (4) structure and search tree ----------
+   print("structural facts in all six: ends are 2 and 5:", all({s[0], s[-1]} == {2, 5} for s in sols),
+         "; 8 next to 2:", all(abs(s.index(8) - s.index(2)) == 1 for s in sols),
+         "; 9 next to 5:", all(abs(s.index(9) - s.index(5)) == 1 for s in sols),
+         "; 12 next to 9:", all(abs(s.index(12) - s.index(9)) == 1 for s in sols),
+         "; from the end at 2: 1 in position 4 or 5:", all(sorted(s, key=lambda v: 0)[0] is not None and (s.index(1) + 1 in (4, 5) if s[0] == 2 else 14 - s.index(1) in (4, 5)) for s in sols),
+         "; 3 in position 7 and 6 in position 8:", all((s[6], s[7]) == (3, 6) if s[0] == 2 else (s[7], s[6]) == (3, 6) for s in sols))
+   def ball(v, r):
+       d = {v: 0}; q = collections.deque([v])
+       while q:
+           x = q.popleft()
+           if d[x] == r: continue
+           for y in adj[x]:
+               if y not in d: d[y] = d[x] + 1; q.append(y)
+       return set(d)
+   print("end-vertex test: a vertex at position 1 of a numbering of width 5 has its whole distance-2 ball in positions 1 to 11;")
+   print("   sizes of the distance-2 balls:", {v: len(ball(v, 2)) for v in V}, "-> only 2 and 5 fit (ball at most 11)")
+   assert [v for v in V if len(ball(v, 2)) <= 11] == [2, 5]
+   # 1 cannot be in position 2 next to 2: its five other neighbours fill positions 3 to 7, and their further neighbours must be within 12
+   close = {2, 1} | adj[1] | set().union(*(adj[u] for u in adj[1] - {2}))
+   print("   with 2 at position 1 and 1 at position 2, the vertices forced into positions 1 to 12 are", sorted(close), "->", len(close), "vertices, more than 12, so 8 is in position 2")
+   assert len(close) > 12
+   print("   position 13 (with 5 in position 14): the vertex there has its distance-2 ball, and 5, inside positions 3 to 14 (twelve positions);")
+   for x in V:
+       if x in (2, 5): continue
+       forced = ball(x, 2) | {5} | ({6} if x == 12 else set())
+       print(f"      {x}: forced vertices {len(forced)}" + (" (6 joins because it is adjacent to 9, which is within five positions of 5)" if x == 12 else "") + (" -> possible" if len(forced) <= 12 else " -> impossible"))
+   assert [x for x in V if x not in (2, 5) and len(ball(x, 2) | {5} | ({6} if x == 12 else set())) <= 12] == [9]
+   print("search tree, first two positions (dead branches with reasons; live branches continue):")
+   live = sorted(set(tuple(s[:2]) for s in sols))
+   dead_first = collections.Counter(eval(e.split(":")[0])[0] for e in log if len(eval(e.split(":")[0])) == 1)
+   print("   first vertex alone:", "dead:", sorted(dead_first), "live:", sorted(set(s[0] for s in sols)))
+   for entry in log:
+       if len(eval(entry.split(":")[0])) >= 2: print("   dead:", entry)
+   print("   live pairs of first two vertices:", live)
+   print("   numberings per first vertex:", dict(collections.Counter(s[0] for s in sols)))
+
+   # ---------- (5) heuristics ----------
+   def cuthill_mckee(start, reverse=False):
+       order = [start]; seen = {start}; q = collections.deque([start])
+       while q:
+           v = q.popleft()
+           for u in sorted(adj[v], key=lambda u: len(adj[u])):
+               if u not in seen: seen.add(u); order.append(u); q.append(u)
+       return order[::-1] if reverse else order
+   ws = sorted(set(width(cuthill_mckee(s, r)) for s in V for r in (False, True)))
+   print("breadth-first (Cuthill-McKee and reverse) numberings from every start vertex have widths:", ws)
+   print("ALL CHECKS PASSED. Bandwidth 5, exactly 6 optimal numberings (3 up to reversal).")
+
+
+   Output:
+
+   vertices: 14 edges: 29 degrees: {1: 6, 2: 2, 3: 5, 4: 5, 5: 2, 6: 5, 7: 4, 8: 4, 9: 4, 10: 3, 11: 6, 12: 3, 13: 4, 14: 5}
+   numberings of width 4: 0
+   certificate subgraph on [1, 3, 4, 7, 8, 10, 11, 12, 13, 14]: 10 vertices, diameter 2 -> bandwidth >= ceil(9/2) = 5
+      1,3: common neighbour in S: [8]
+      1,7: common neighbour in S: [8, 11]
+      1,10: common neighbour in S: [4]
+      1,12: common neighbour in S: [14]
+      1,13: common neighbour in S: [4, 11]
+      3,4: common neighbour in S: [10, 13]
+      3,11: common neighbour in S: [7, 13]
+      3,14: common neighbour in S: [12]
+      4,7: common neighbour in S: [11]
+      4,8: common neighbour in S: [1]
+      4,12: common neighbour in S: [14]
+      7,10: common neighbour in S: [3]
+      7,12: common neighbour in S: [3]
+      7,13: common neighbour in S: [3, 11]
+      7,14: common neighbour in S: [11]
+      8,10: common neighbour in S: [3]
+      8,11: common neighbour in S: [1, 7]
+      8,12: common neighbour in S: [3]
+      8,13: common neighbour in S: [3]
+      8,14: common neighbour in S: [1]
+      10,11: common neighbour in S: [4]
+      10,12: common neighbour in S: [3]
+      10,13: common neighbour in S: [3, 4]
+      10,14: common neighbour in S: [4]
+      11,12: common neighbour in S: [14]
+      12,13: common neighbour in S: [3]
+      13,14: common neighbour in S: [4, 11]
+   diameter of G: 4 -> diameter bound ceil(13/4) = 4 ; degree bound ceil(6/2) = 3
+   CHECK 1: bandwidth = 5
+   numberings of width 5: 6
+       [2, 8, 7, 1, 11, 4, 3, 6, 14, 13, 10, 12, 9, 5]  width 5  reverse present: True
+       [2, 8, 7, 10, 1, 11, 3, 6, 4, 14, 13, 12, 9, 5]  width 5  reverse present: True
+       [2, 8, 10, 7, 1, 4, 3, 6, 11, 14, 13, 12, 9, 5]  width 5  reverse present: True
+       [5, 9, 12, 10, 13, 14, 6, 3, 4, 11, 1, 7, 8, 2]  width 5  reverse present: True
+       [5, 9, 12, 13, 14, 4, 6, 3, 11, 1, 10, 7, 8, 2]  width 5  reverse present: True
+       [5, 9, 12, 13, 14, 11, 6, 3, 4, 1, 7, 10, 8, 2]  width 5  reverse present: True
+   up to reversal: 3
+       [2, 8, 7, 1, 11, 4, 3, 6, 14, 13, 10, 12, 9, 5]  edges stretched by exactly 5: [(1, 14), (3, 8), (3, 12), (4, 10), (6, 7), (6, 9), (11, 13)]
+       [2, 8, 7, 10, 1, 11, 3, 6, 4, 14, 13, 12, 9, 5]  edges stretched by exactly 5: [(1, 14), (3, 8), (3, 12), (4, 10), (6, 7), (6, 9), (11, 13)]
+       [2, 8, 10, 7, 1, 4, 3, 6, 11, 14, 13, 12, 9, 5]  edges stretched by exactly 5: [(1, 14), (3, 8), (3, 12), (4, 13), (6, 9), (6, 10), (7, 11)]
+   dynamic programme, numberings of width at most 5: 6
+   for comparison, numberings of width at most 6: 23662
+   CHECK 2-3: exactly six numberings of width 5 by two independent methods
+   structural facts in all six: ends are 2 and 5: True ; 8 next to 2: True ; 9 next to 5: True ; 12 next to 9: True ; from the end at 2: 1 in position 4 or 5: True ; 3 in position 7 and 6 in position 8: True
+   end-vertex test: a vertex at position 1 of a numbering of width 5 has its whole distance-2 ball in positions 1 to 11;
+      sizes of the distance-2 balls: {1: 13, 2: 9, 3: 14, 4: 13, 5: 7, 6: 13, 7: 13, 8: 12, 9: 12, 10: 12, 11: 13, 12: 12, 13: 13, 14: 14} -> only 2 and 5 fit (ball at most 11)
+      with 2 at position 1 and 1 at position 2, the vertices forced into positions 1 to 12 are [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14] -> 13 vertices, more than 12, so 8 is in position 2
+      position 13 (with 5 in position 14): the vertex there has its distance-2 ball, and 5, inside positions 3 to 14 (twelve positions);
+         1: forced vertices 14 -> impossible
+         3: forced vertices 14 -> impossible
+         4: forced vertices 14 -> impossible
+         6: forced vertices 13 -> impossible
+         7: forced vertices 14 -> impossible
+         8: forced vertices 13 -> impossible
+         9: forced vertices 12 -> possible
+         10: forced vertices 13 -> impossible
+         11: forced vertices 14 -> impossible
+         12: forced vertices 13 (6 joins because it is adjacent to 9, which is within five positions of 5) -> impossible
+         13: forced vertices 13 -> impossible
+         14: forced vertices 14 -> impossible
+   search tree, first two positions (dead branches with reasons; live branches continue):
+      first vertex alone: dead: [1, 11] live: [2, 5]
+      dead: [2, 11]: vertex 11 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [3, 1]: vertex 3 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [3, 2]: vertex 3 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [3, 4]: vertex 3 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [3, 5]: vertex 3 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [3, 6]: vertex 3 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [3, 9]: vertex 3 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [3, 11]: vertex 3 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [3, 14]: vertex 3 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [4, 2]: vertex 4 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [4, 3]: vertex 4 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [4, 5]: vertex 4 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [4, 6]: vertex 4 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [4, 7]: vertex 4 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [4, 8]: vertex 4 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [4, 9]: vertex 4 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [4, 12]: vertex 4 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [5, 1]: vertex 1 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [5, 11]: vertex 11 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [6, 2]: vertex 6 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [6, 3]: vertex 6 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [6, 4]: vertex 6 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [6, 5]: vertex 6 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [6, 8]: vertex 6 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [6, 12]: vertex 6 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [6, 13]: vertex 6 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [6, 14]: vertex 6 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [7, 1]: vertex 1 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [8, 11]: vertex 11 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [9, 1]: vertex 1 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [9, 11]: vertex 11 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [10, 1]: vertex 1 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [10, 11]: vertex 11 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [12, 1]: vertex 1 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [12, 11]: vertex 11 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [13, 1]: vertex 1 at position 2 still needs 6 neighbours but only 5 positions remain within reach
+      dead: [14, 2]: vertex 14 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [14, 3]: vertex 14 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [14, 5]: vertex 14 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [14, 6]: vertex 14 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [14, 7]: vertex 14 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [14, 8]: vertex 14 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [14, 10]: vertex 14 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      dead: [14, 13]: vertex 14 at position 1 still needs 5 neighbours but only 4 positions remain within reach
+      live pairs of first two vertices: [(2, 8), (5, 9)]
+      numberings per first vertex: {2: 3, 5: 3}
+   breadth-first (Cuthill-McKee and reverse) numberings from every start vertex have widths: [7, 8, 9]
+   ALL CHECKS PASSED. Bandwidth 5, exactly 6 optimal numberings (3 up to reversal).
+
