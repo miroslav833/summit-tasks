@@ -27,6 +27,22 @@ Submit page as seen 2026-10-16: four required sections (Classification, Question
 - pdftoppm, zip and unzip are available.
 - No sudo. Anything else must be installed user-local (venv or a tarball under the home directory) and recorded here.
 
+## Delivery: the GitHub repo
+
+Finished packages are mirrored to the public repo https://github.com/miroslav833/summit-tasks (local clone at
+~/aq-summit-repo). Layout: tasks/<task folder> (zip, task.json, image, reference.txt, verify_key.py, README),
+zips/ (every Import .zip at the top level, direct links https://github.com/miroslav833/summit-tasks/raw/main/zips/<name>.zip),
+README.md (table of tasks, direct links, and the paste text for the References box of each task). The owner
+submits from there with a browser extension. Pushing needs a GitHub token pasted by the owner in the session;
+use it once on the remote URL and reset the URL to the plain https address afterwards. The Summit import
+fills the four sections and attaches the reference file but leaves the "explain where to verify" box empty,
+so every README carries that text under "Verify field".
+
+Summit calibration in progress (2026-10-16): task05 (bandwidth, 12 vertices) and task03 (matroid) were
+submitted. Their verdicts decide the next design: 5/5 means the local single-run screens are representative
+and the family is too easy at any size; cut-offs mean the solve length is the problem; 1 to 4 means the
+band is reachable by run-to-run variance and more instances of the same shape are worth making.
+
 ## Folder layout for a task
 
 ```
@@ -62,7 +78,7 @@ Build task.json with a small Python script rather than by hand so LaTeX escaping
 | task02-composite-tree-twelve-edges | Degree of the field of moduli of a 12-edge plane tree that is a composition Q(R) of the 3-edge path Q = 3y^2-2y^3 with a quartic R whose critical values are the path vertices 0, 3/2, 1; the inner parameter satisfies 3s^4-6s^3+4s-2 = 0, irreducible, and the four roots give four non-isomorphic trees (two symmetric, one chiral pair), so the orbit has size 4. Derivative identity at degree 12 leaves 11 unknowns, so the only short route is the composition | 4 | Built 2026-10-16, key by three routes (symbolic derivation + irreducibility, dessin tracing of all four roots against the figure, PSLQ orbit recognition at 60 digits). Findability: nothing. Screen: Opus 1/1 correct in 10 min and 85k tokens (found the composition from the valencies, counted the quartics by a Hurwitz count, derived a quartic in p^2 via power sums of the critical values, proved irreducibility mod 5); Sonnet 0/1, answered 3 by an invented recollection of a 'known worked example', no computation. Held back |
 | task03-matroid-smallest-field | Smallest prime power q over which the rank-3 matroid of a drawn 9-point, 8-line configuration (one 4-point line) is representable. The coordinatisation has a free parameter and no equation; what fails over GF(2), GF(3), GF(4), GF(5) is degeneracy: t must avoid 0, 1, 2, 1/2 and the roots of t^2-3t+1, and over GF(5) the fifth element t = 4 is a root of the quadratic | 7 | Built 2026-10-16, key by two routes (symbolic coordinatisation with full degeneracy list; brute-force search in PG(2,q)). Screen: Opus 1/1 correct in 5 min and 59k tokens (sent the 4-point line to infinity, one parameter c with c^2-c-1, checked GF(2), GF(3), GF(4), GF(5) element by element, explicit GF(7) representation); Sonnet 1/1 correct in 42 min and 104k tokens (frame C, I, B, A, parameter u, same five obstructions). Too easy; held back |
 | task05-bandwidth | Bandwidth of a drawn 12-vertex, 20-edge graph. Trivial bounds 3, every Cuthill-McKee numbering 5 to 7, true value 4; certificates: an 8-vertex induced subgraph of diameter 2 (density bound 4) and an explicit numbering of width 4. task04 (treewidth) was abandoned before packaging: at 12 to 14 vertices min-degree and min-fill heuristics find the optimum, so no overshoot trap exists | 4 | Built 2026-10-16, key by two exact methods. Screen: Opus 1/1 correct in 10 min and 85k tokens (did not use the density bound; excluded width 3 by a case analysis on the position of the degree-5 vertex, then found a width-4 numbering); Sonnet 0/1, cut off at the 64k output ceiling with no answer. Held back pending a Summit calibration |
-| task06-bandwidth-fourteen | Same family as task05 at 14 vertices and 27 edges: trivial bounds 3 and 4, every Cuthill-McKee numbering 6 to 9, true value 5; certificates: a 10-vertex induced subgraph of diameter 2 and an explicit width-5 numbering. The exhaustive case analysis Opus used on task05 (position of the degree-5 vertex) no longer fits | 5 | Built 2026-10-16, key by two exact methods. Screen: pending |
+| task06-bandwidth-fourteen | Same family as task05 at 14 vertices and 27 edges: trivial bounds 3 and 4, every Cuthill-McKee numbering 6 to 9, true value 5; certificates: a 10-vertex induced subgraph of diameter 2 and an explicit width-5 numbering | 5 | Built 2026-10-16, key by two exact methods. Screen: Opus 1/1 correct in 8 min and 77k tokens (width-5 numbering, then a window argument around the clique {1,4,11,14} with a short case split); Sonnet pending. Lesson: a bigger instance did not help, Opus found a different short lower-bound argument |
 
 ## Session 2026-10-16: first Mathematics candidate, dessins d'enfants (task01)
 
