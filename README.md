@@ -14,6 +14,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task09 | Rooted pebbling number of a 10-vertex graph (target double-circled) | 13 | tasks/task09-pebbling-number/graph-rooted-pebbling-number-ten-vertices.zip |
 | task09 v2 | Rooted pebbling number of a 13-vertex graph (revision of SUM-MVBG0GO3, target double-circled) | 25 | tasks/task09-pebbling-number/v2-thirteen/graph-rooted-pebbling-number-thirteen-vertices.zip |
 | task09 v3 | Kitagawa diagram, internal pore in MIM Ti-6Al-7Nb (Engineering replacement for SUM-MVBG0GO3) | 200 MPa | tasks/task09-pebbling-number/v3-kitagawa-internal-pore/kitagawa-internal-pore-titanium.zip |
+| task09 v6 | S-N curve with Haibach extension, block loading of MIM Ti-6Al-7Nb (Engineering replacement for SUM-MVBG0GO3; local screen Opus 2/3, Sonnet 0/1) | 5 blocks | tasks/task09-pebbling-number/v6-sn-haibach/sn-curve-haibach-block-loading-titanium.zip |
 | task05 v5 | ENGINEERING replacement for SUM-MVB7DTW7: propagation life of a fatigue crack from a 50 um surface pore in MIM Ti-6Al-7Nb, Klesnil-Lukas constants read from a self-drawn da/dN curve (crossings at 6 and 20 MPa m^1/2), El Haddad short-crack threshold | 1.4 x 10^5 cycles | tasks/task05-bandwidth/v5-crack-growth-pore/pore-crack-propagation-life-mim-titanium.zip |
 | task06 v3 | Revision of task06: bandwidth of a 16-vertex, 27-edge graph, no short lower bound, unique optimal numbering | 5 | tasks/task06-bandwidth-fourteen/v3-sixteen/graph-bandwidth-sixteen-vertices.zip |
 
@@ -23,6 +24,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task09 v6 S-N block loading (Engineering candidate; edit sheet in v6-sn-haibach/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/sn-curve-haibach-block-loading-titanium.zip
 - task09 v3 Kitagawa internal pore (Engineering; edit the returned entry with v3-kitagawa-internal-pore/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/kitagawa-internal-pore-titanium.zip
 - task05 v5 (ENGINEERING replacement for SUM-MVB7DTW7, crack growth from a pore, Category must be Engineering): https://github.com/miroslav833/summit-tasks/raw/main/zips/pore-crack-propagation-life-mim-titanium.zip
 - task09 v2 rooted pebbling number (13 vertices, revision; edit the returned entry field by field with v2-thirteen/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-thirteen-vertices.zip
@@ -43,6 +45,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task09 v6: Section 1 of verification_notes.txt states the fit the figure was generated from (k = 12.36, A = 744 MPa, knee at 1e7 cycles, fatigue limit 201.9 MPa) and lists where the drawn curve crosses every horizontal gridline with the distance to the nearest vertical line, showing that (5e4, 310) and (2e6, 230) are the only exact crossings; section 2 derives the block count by two routes (closed form, and a numerical reconstruction of the curve with the crossings and lives found by bisection), both 5.53 blocks; section 3 evaluates the wrong crossings (4 or 6 blocks), the wrong damage rules (6 and 3) and the rounding robustness of the integer; section 4 embeds the program verify_key.py with its output.
 
 task09 v3: Section 1 of verification_notes.txt states the model the figure was generated from (small-defect law with 320 HV, long-crack branch fixed by the gridline point 640 um, 150 MPa) and lists the eight plotted values; section 2 derives the key by two routes, the closed form 150 x 0.65/0.50 x sqrt(640/600) = 201 MPa and a least-squares fit of the slope -1/2 branch through the regenerated points followed by the regime check for the 372 HV lot (small-defect value 264 MPa against long-crack value 201 MPa); section 3 evaluates the wrong routes; section 4 embeds the program verify_key.py with its output.
 
