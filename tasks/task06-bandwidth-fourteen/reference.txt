@@ -1,0 +1,196 @@
+VERIFICATION NOTES: bandwidth of the graph in the figure
+
+Answer key: 5.
+
+1. Edges (from the figure): 1-2, 1-4, 1-6, 1-8, 1-11, 1-14, 2-8, 3-7, 3-8, 3-10, 3-12, 3-13, 4-10, 4-11, 4-13, 4-14, 5-9, 5-12, 6-9, 6-11, 7-8, 7-11, 9-13, 9-14, 11-13, 11-14, 12-14.
+2. Lower bound: the induced subgraph on {1,3,4,7,8,10,11,12,13,14} has 10 vertices and diameter 2
+   (a common neighbour inside the subgraph is listed for every non-adjacent pair in the program
+   output), so every numbering has width at least ceil(9/2) = 5 (density bound).
+3. Upper bound: positions 2->1, 7->2, 8->3, 1->4, 11->5, 4->6, 3->7, 6->8, 14->9, 13->10, 10->11, 12->12, 9->13, 5->14
+   give width 5 (every edge stretch is listed in the program output).
+4. Two independent exact computations (backtracking with pruning; dynamic programme over sets of
+   placed vertices) both report: no numbering of width 4, a numbering of width 5.
+5. The trivial bounds give 3 and 4; all Cuthill-McKee numberings (every start vertex, both
+   directions) have width 6 to 9.
+
+6. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py)
+
+   """Verification of the answer key: the bandwidth of the 14-vertex graph in the figure is 5.
+
+   Self-contained: python3 only (networkx optional, not used).  Run: python3 verify_key.py
+     (1) exact bandwidth by backtracking over numberings with pruning (no numbering of width 4);
+     (2) independent exact check by a dynamic programme over (set of placed vertices, last b placed);
+     (3) the lower-bound certificate: the induced subgraph on {1,3,4,7,8,10,11,12,13,14} has 10 vertices
+         and diameter 2, so any numbering stretches some edge by at least ceil(9/2) = 5;
+     (4) the upper-bound certificate: the numbering 2,7,8,1,11,4,3,6,14,13,10,12,9,5 (position 1 to 14) has
+         width 5; every edge is listed with its stretch;
+     (5) the trivial bounds and the Cuthill-McKee numberings from every start vertex (widths 6 to 9).
+   """
+   import itertools, math, collections
+   from functools import lru_cache
+
+   EDGES = [(1, 2), (1, 4), (1, 6), (1, 8), (1, 11), (1, 14), (2, 8), (3, 7), (3, 10), (3, 12), (3, 13), (4, 10), (4, 11), (4, 13), (4, 14), (5, 9), (6, 9), (6, 11), (8, 3), (8, 7), (11, 7), (11, 13), (11, 14), (12, 5), (13, 9), (14, 9), (14, 12)]
+   V = sorted(set(v for e in EDGES for v in e)); n = len(V)
+   adj = {v: set() for v in V}
+   for u, v in EDGES: adj[u].add(v); adj[v].add(u)
+   assert n == 14 and len(EDGES) == 27
+   print("vertices:", n, "edges:", len(EDGES), "degrees:", {v: len(adj[v]) for v in V})
+
+   def width(order):
+       pos = {v: i for i, v in enumerate(order)}
+       return max(abs(pos[u] - pos[v]) for u, v in EDGES)
+
+   # ---------- (1) backtracking ----------
+   def has_numbering(b):
+       pos = {}
+       def rec(i):
+           if i == n: return True
+           for v in V:
+               if v in pos or any(i - pos[u] > b for u in adj[v] if u in pos): continue
+               pos[v] = i; ok = True
+               for u in list(pos):
+                   far = [w for w in adj[u] if w not in pos]
+                   if far and (pos[u] + b) - i < len(far): ok = False; break
+               if ok and rec(i + 1): return True
+               del pos[v]
+           return False
+       return rec(0)
+   print("backtracking: width 4 numbering exists:", has_numbering(4), "; width 5 exists:", has_numbering(5))
+   assert not has_numbering(4) and has_numbering(5)
+
+   # ---------- (2) dynamic programme ----------
+   def bandwidth_le(b):
+       @lru_cache(maxsize=None)
+       def ok(placed, last):
+           if len(placed) == n: return True
+           for v in V:
+               if v in placed: continue
+               if any(u not in last for u in adj[v] if u in placed): continue
+               if len(last) == b and any(w not in placed and w != v for w in adj[last[0]]): continue
+               if ok(placed | frozenset([v]), (last + (v,))[-b:]): return True
+           return False
+       return ok(frozenset(), tuple())
+   print("dynamic programme: width 4 possible:", bandwidth_le(4), "; width 5 possible:", bandwidth_le(5))
+   assert not bandwidth_le(4) and bandwidth_le(5)
+   print("CHECK 1-2: bandwidth = 5 by two independent exact methods")
+
+   # ---------- (3) lower-bound certificate ----------
+   S = [1, 3, 4, 7, 8, 10, 11, 12, 13, 14]
+   def dist_in(S):
+       Sset = set(S); D = {}
+       for s in S:
+           d = {s: 0}; q = collections.deque([s])
+           while q:
+               x = q.popleft()
+               for y in adj[x]:
+                   if y in Sset and y not in d: d[y] = d[x] + 1; q.append(y)
+           D[s] = d
+       return D
+   D = dist_in(S)
+   assert all(len(D[s]) == len(S) for s in S), "subgraph not connected"
+   diam = max(D[s][t] for s in S for t in S)
+   print(f"induced subgraph on {S}: {len(S)} vertices, diameter {diam}, bound ceil(({len(S)}-1)/{diam}) = {math.ceil((len(S)-1)/diam)}")
+   assert diam == 2
+   print("CHECK 3: bandwidth >= 5 by the density bound on a 10-vertex induced subgraph of diameter 2")
+   for s in S:
+       for t in S:
+           if s < t and t not in adj[s]: print(f"   {s},{t}: common neighbour in S: {sorted(adj[s] & adj[t] & set(S))}")
+
+   # ---------- (4) upper-bound certificate ----------
+   order = [2, 7, 8, 1, 11, 4, 3, 6, 14, 13, 10, 12, 9, 5]
+   pos = {v: i + 1 for i, v in enumerate(order)}
+   print("numbering (vertex: position):", pos)
+   for u, v in EDGES: print(f"   edge {u}-{v}: stretch {abs(pos[u]-pos[v])}")
+   assert sorted(pos.values()) == list(range(1, 15)) and width(order) == 5
+   print("CHECK 4: the numbering has width 5")
+
+   # ---------- (5) bounds and heuristics ----------
+   def bfs_all(s):
+       d = {s: 0}; q = collections.deque([s])
+       while q:
+           x = q.popleft()
+           for y in adj[x]:
+               if y not in d: d[y] = d[x] + 1; q.append(y)
+       return d
+   diamG = max(max(bfs_all(s).values()) for s in V); Delta = max(len(adj[v]) for v in V)
+   print(f"trivial bounds: ceil(Delta/2) = {math.ceil(Delta/2)}, ceil((n-1)/diam(G)) = {math.ceil((n-1)/diamG)} (diam = {diamG})")
+   def cuthill_mckee(start, reverse=False):
+       order = [start]; seen = {start}; q = collections.deque([start])
+       while q:
+           v = q.popleft()
+           for u in sorted(adj[v], key=lambda u: len(adj[u])):
+               if u not in seen: seen.add(u); order.append(u); q.append(u)
+       return order[::-1] if reverse else order
+   cm = {(s, r): width(cuthill_mckee(s, r)) for s in V for r in (False, True)}
+   print("Cuthill-McKee widths from every start (and reversed):", sorted(set(cm.values())), "; minimum", min(cm.values()))
+   print("ALL CHECKS PASSED. Bandwidth 5.")
+
+
+   Output:
+
+   vertices: 14 edges: 27 degrees: {1: 6, 2: 2, 3: 5, 4: 5, 5: 2, 6: 3, 7: 3, 8: 4, 9: 4, 10: 2, 11: 6, 12: 3, 13: 4, 14: 5}
+   backtracking: width 4 numbering exists: False ; width 5 exists: True
+   dynamic programme: width 4 possible: False ; width 5 possible: True
+   CHECK 1-2: bandwidth = 5 by two independent exact methods
+   induced subgraph on [1, 3, 4, 7, 8, 10, 11, 12, 13, 14]: 10 vertices, diameter 2, bound ceil((10-1)/2) = 5
+   CHECK 3: bandwidth >= 5 by the density bound on a 10-vertex induced subgraph of diameter 2
+      1,3: common neighbour in S: [8]
+      1,7: common neighbour in S: [8, 11]
+      1,10: common neighbour in S: [4]
+      1,12: common neighbour in S: [14]
+      1,13: common neighbour in S: [4, 11]
+      3,4: common neighbour in S: [10, 13]
+      3,11: common neighbour in S: [7, 13]
+      3,14: common neighbour in S: [12]
+      4,7: common neighbour in S: [11]
+      4,8: common neighbour in S: [1]
+      4,12: common neighbour in S: [14]
+      7,10: common neighbour in S: [3]
+      7,12: common neighbour in S: [3]
+      7,13: common neighbour in S: [3, 11]
+      7,14: common neighbour in S: [11]
+      8,10: common neighbour in S: [3]
+      8,11: common neighbour in S: [1, 7]
+      8,12: common neighbour in S: [3]
+      8,13: common neighbour in S: [3]
+      8,14: common neighbour in S: [1]
+      10,11: common neighbour in S: [4]
+      10,12: common neighbour in S: [3]
+      10,13: common neighbour in S: [3, 4]
+      10,14: common neighbour in S: [4]
+      11,12: common neighbour in S: [14]
+      12,13: common neighbour in S: [3]
+      13,14: common neighbour in S: [4, 11]
+   numbering (vertex: position): {2: 1, 7: 2, 8: 3, 1: 4, 11: 5, 4: 6, 3: 7, 6: 8, 14: 9, 13: 10, 10: 11, 12: 12, 9: 13, 5: 14}
+      edge 1-2: stretch 3
+      edge 1-4: stretch 2
+      edge 1-6: stretch 4
+      edge 1-8: stretch 1
+      edge 1-11: stretch 1
+      edge 1-14: stretch 5
+      edge 2-8: stretch 2
+      edge 3-7: stretch 5
+      edge 3-10: stretch 4
+      edge 3-12: stretch 5
+      edge 3-13: stretch 3
+      edge 4-10: stretch 5
+      edge 4-11: stretch 1
+      edge 4-13: stretch 4
+      edge 4-14: stretch 3
+      edge 5-9: stretch 1
+      edge 6-9: stretch 5
+      edge 6-11: stretch 3
+      edge 8-3: stretch 4
+      edge 8-7: stretch 1
+      edge 11-7: stretch 3
+      edge 11-13: stretch 5
+      edge 11-14: stretch 4
+      edge 12-5: stretch 2
+      edge 13-9: stretch 3
+      edge 14-9: stretch 4
+      edge 14-12: stretch 3
+   CHECK 4: the numbering has width 5
+   trivial bounds: ceil(Delta/2) = 3, ceil((n-1)/diam(G)) = 4 (diam = 4)
+   Cuthill-McKee widths from every start (and reversed): [6, 7, 8, 9] ; minimum 6
+   ALL CHECKS PASSED. Bandwidth 5.
+

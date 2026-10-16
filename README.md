@@ -8,6 +8,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task02 | Field of moduli of a 12-edge composite plane tree | 4 | tasks/task02-composite-tree-twelve-edges/composite-plane-tree-field-of-moduli.zip |
 | task03 | Smallest field over which a 9-point configuration matroid is representable | 7 | tasks/task03-matroid-smallest-field/matroid-smallest-representing-field.zip |
 | task05 | Bandwidth of a 12-vertex graph | 4 | tasks/task05-bandwidth/graph-bandwidth-twelve-vertices.zip |
+| task06 | Bandwidth of a 14-vertex graph | 5 | tasks/task06-bandwidth-fourteen/graph-bandwidth-fourteen-vertices.zip |
 
 Submission: Import .zip, open every section and check it, open References, make sure verification_notes.txt is attached (upload reference.txt by hand if not), paste the Verify field text from the task README into the explanation box, Submit.
 
@@ -15,12 +16,15 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task06 bandwidth (14 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-vertices.zip
 - task05 bandwidth: https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-twelve-vertices.zip
 - task03 matroid: https://github.com/miroslav833/summit-tasks/raw/main/zips/matroid-smallest-representing-field.zip
 - task02 composite tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/composite-plane-tree-field-of-moduli.zip
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task06: Sections 2 to 4 of verification_notes.txt give the certificate subgraph (the induced subgraph on vertices 1, 3, 4, 7, 8, 10, 11, 12, 13, 14 has ten vertices and diameter 2, with a common neighbour listed for every non-adjacent pair, so every numbering has width at least 5), the explicit numbering of width 5 with the stretch of every edge, and two independent exact computations (backtracking over numberings and a dynamic programme over sets of placed vertices) showing no numbering of width 4 exists. Section 6 embeds the program verify_key.py with its output.
 
 task05: Sections 2 to 4 of verification_notes.txt give the lower-bound certificate (the induced subgraph on vertices 1, 2, 3, 4, 6, 9, 10, 11 has eight vertices and diameter 2, so every numbering has width at least 4), the explicit numbering of width 4 with the stretch of every edge, and two independent exact computations (backtracking over numberings and a dynamic programme over sets of placed vertices) showing no numbering of width 3 exists. Section 6 embeds the program verify_key.py with its output.
 
