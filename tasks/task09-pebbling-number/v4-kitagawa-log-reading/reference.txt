@@ -1,0 +1,153 @@
+VERIFICATION NOTES: fatigue limit of the component with the internal pore (Kitagawa diagram of MIM Ti-6Al-7Nb)
+
+Answer key: 200 MPa (two significant figures; 200.0 MPa exactly by construction).
+
+1. Model behind the figure. Specimen lot: 0.20 wt% O, 320 HV, surface drilled holes, R = -1, 1e7 cycles. Standard logarithmic axes, decade labels, unlabelled minor gridlines at 2 to 9 times each decade; the points do not sit on gridlines.
+   Small-defect branch (Murakami, surface): sigma_w = 1.43 (HV + 120) (sqrt(area))^(-1/6), sqrt(area) in um.
+   Long-crack branch (surface): sigma_w = DK_th / (0.65 sqrt(pi sqrt(area))), sqrt(area) in m, with DK_th
+   chosen so that the component value is exactly 200.0 MPa: DK_th = 4.3416 MPa sqrt(m). The plotted fatigue
+   limit is the smaller of the two. Plotted points (sqrt(area) um, MPa): (25, 368.0), (50, 327.8),
+   (90, 297.2), (170, 267.3), (480, 172.0), (650, 147.8), (850, 129.3), (1100, 113.6). Knee: 215 um.
+
+2. Key by two routes. Route A: the component's pore (600 um, internal) is read off the long-crack branch
+   with the internal factor 0.50 in place of 0.65: sigma = v x (0.65/0.50) x sqrt(s/600) = 200.0 MPa from
+   every plotted point (s, v) of that branch. Route B: regenerate the points, fit the slope -1/2 branch
+   through (480, 650, 850, 1100) by least squares (DK_th = 4.3416 MPa sqrt(m)), then for the 372 HV lot
+   compare the small-defect value with the internal constant, 1.56 x 492 x 600^(-1/6) = 264.3 MPa, with the
+   long-crack value 4.3416 / (0.50 sqrt(pi 600e-6)) = 200.0 MPa; the smaller applies, and the knee of the
+   component lot for internal defects is at 260 um, so 600 um is in the long-crack regime. Both routes:
+   200.0 MPa. Reading sensitivity: the key is linear in the reading of the steep branch; readings within
+   2.5 percent of the true values round to 200; linear interpolation between the 100 and 200 MPa lines
+   reads the four steep-branch points 3 to 6 percent high and gives 207 to 212 MPa, which round to 210.
+
+3. Wrong routes (section 3 of the program output): linear reading of the log axis, 210 MPa; surface factor
+   kept, 154 MPa; long-crack branch scaled with the hardness ratio 492/440, 224 MPa; small-defect law with
+   the internal constant, 264 MPa; with the surface constant, 242 MPa; small-defect law at the specimen
+   hardness, 217 MPa; long-crack branch with surface factor and hardness scaling, 172 MPa.
+
+4. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py; standard library only)
+
+   """Verification of the answer key: fatigue limit of the component with the internal pore, 200 MPa (2 s.f.; 200.0 MPa).
+
+   Self-contained, Python standard library only.  Run: python3 verify_key.py
+
+   The figure is generated from the model below (draw_figure.py uses the same numbers), so every plotted
+   point is exact.
+
+   Model behind the figure (0.20 wt% O lot, 320 HV, surface drilled holes, R = -1, 1e7 cycles):
+     small-defect branch (Murakami):  sigma_w = 1.43 (HV + 120) / (sqrt(area))^(1/6)   [MPa, sqrt(area) in um]
+     long-crack branch:               sigma_w = DK_th / (0.65 sqrt(pi sqrt(area)))      [sqrt(area) in m]
+     plotted fatigue limit = the smaller of the two.  DK_th is chosen so that the component value is exactly
+     200.0 MPa: DK_th = 200 * 0.50 * sqrt(pi * 600e-6) = 4.3416 MPa sqrt(m).
+   Component: 0.38 wt% O lot, 372 HV, largest pore internal, sqrt(area) = 600 um, R = -1, same long-crack
+   threshold.  Key = DK_th / (0.50 sqrt(pi * 600e-6)) = 200.0 MPa.
+
+   Route A: closed form from any plotted long-crack point (s, v): key = v * (0.65/0.50) * sqrt(s/600).
+   Route B: regenerate the plotted points, recover DK_th by a least-squares fit of slope -1/2 through the
+     points on the long-crack branch, check the regime of the component's pore for the 372 HV lot, evaluate.
+   Reading sensitivity: the key is linear in the reading of the steep branch, so a reading error of x percent
+     moves the key by x percent; the band that rounds to 200 is 195 to 205, i.e. readings within 2.5 percent.
+     Linear interpolation between the neighbouring gridlines of the logarithmic axis (a common misreading) is
+     evaluated for every plotted point.
+   """
+   import math
+   HV_SPEC = 320; HV_COMP = 372; S_COMP = 600e-6
+   DK_TH = 200.0 * 0.50 * math.sqrt(math.pi * S_COMP)
+   def small(hv, s_um, c=1.43): return c * (hv + 120) / s_um ** (1 / 6)
+   def longcrack(s_um, Y=0.65, dk=DK_TH): return dk / (Y * math.sqrt(math.pi * s_um * 1e-6))
+   POINTS = [25, 50, 90, 170, 480, 650, 850, 1100]
+   print(f"DK_th (fixed so that the component value is 200.0 MPa): {DK_TH:.4f} MPa sqrt(m)")
+   print("plotted points (sqrt(area) um, fatigue limit MPa, branch):")
+   plotted = []
+   for s in POINTS:
+       a, b = small(HV_SPEC, s), longcrack(s); v = min(a, b); plotted.append((s, v))
+       print(f"   {s:5d}  {v:7.2f}   {'small-defect' if a < b else 'long-crack'}   (small {a:.2f}, long-crack {b:.2f})")
+   lo, hi = 100.0, 1000.0
+   for _ in range(100):
+       mid = math.sqrt(lo * hi)
+       if small(HV_SPEC, mid) < longcrack(mid): lo = mid
+       else: hi = mid
+   print(f"knee of the 320 HV lot (surface defects): sqrt(area) = {lo:.1f} um, {longcrack(lo):.1f} MPa")
+   # ---------------- Route A from each long-crack point
+   print("\nROUTE A: key from each plotted long-crack point, v * 0.65/0.50 * sqrt(s/600):")
+   for s, v in plotted:
+       if s >= 480: print(f"   ({s} um, {v:.2f} MPa) -> {v * 1.3 * math.sqrt(s / 600):.2f} MPa")
+   keyA = 200.0
+   # ---------------- Route B
+   lc = [(s, v) for s, v in plotted if s >= 480]
+   c = sum(math.log(v) + 0.5 * math.log(s) for s, v in lc) / len(lc)
+   dk_fit = math.exp(c) * 0.65 * math.sqrt(math.pi * 1e-6)
+   print(f"ROUTE B: least-squares level of the slope -1/2 branch through {[s for s, v in lc]} um gives DK_th = {dk_fit:.4f} MPa sqrt(m)")
+   assert abs(dk_fit - DK_TH) < 1e-9
+   s_small_comp = small(HV_COMP, 600, c=1.56); s_long_comp = dk_fit / (0.50 * math.sqrt(math.pi * S_COMP))
+   print(f"   component, 372 HV lot, internal pore 600 um: small-defect branch (1.56, internal) {s_small_comp:.1f} MPa, long-crack branch (Y = 0.50) {s_long_comp:.1f} MPa; the smaller applies: {min(s_small_comp, s_long_comp):.2f} MPa")
+   keyB = min(s_small_comp, s_long_comp); assert abs(keyB - 200.0) < 1e-9
+   lo, hi = 50.0, 2000.0
+   for _ in range(100):
+       mid = math.sqrt(lo * hi)
+       if small(HV_COMP, mid, 1.56) < dk_fit / (0.5 * math.sqrt(math.pi * mid * 1e-6)): lo = mid
+       else: hi = mid
+   print(f"   knee of the 372 HV lot for internal defects: sqrt(area) = {lo:.1f} um; 600 um lies beyond it")
+   print("ROUTE B: key = 200.00 MPa -> 200 MPa (2 s.f.)")
+   # ---------------- reading sensitivity: linear interpolation between decade gridlines
+   def linear_misread(v):
+       # linear interpolation between the two neighbouring gridlines (minor gridlines at 2..9 times the decade)
+       d = 10 ** math.floor(math.log10(v)); k = math.floor(v / d); lo_, hi_ = k * d, (k + 1) * d
+       frac = (math.log10(v) - math.log10(lo_)) / (math.log10(hi_) - math.log10(lo_))
+       return lo_ + frac * (hi_ - lo_)
+   print("\nREADING: value read by linear interpolation between the neighbouring gridlines of the logarithmic y axis, and the key it gives:")
+   for s, v in lc:
+       m = linear_misread(v); print(f"   true {v:.1f} at {s} um -> linear read {m:.1f} -> key {m * 1.3 * math.sqrt(s / 600):.1f} MPa")
+   print("   band of readings of the 650 um point that still round to 200:", f"{195 / (1.3 * math.sqrt(650 / 600)):.1f} to {205 / (1.3 * math.sqrt(650 / 600)):.1f} MPa (true {longcrack(650):.1f})")
+   # ---------------- wrong routes
+   print("\nWRONG ROUTES:")
+   print(f"   surface factor 0.65 kept for the internal pore: {longcrack(600):.1f} MPa -> 150")
+   print(f"   long-crack branch scaled with hardness (492/440), internal factor: {200.0 * (HV_COMP + 120) / (HV_SPEC + 120):.1f} MPa -> 220")
+   print(f"   small-defect law, internal constant 1.56, 372 HV: {small(HV_COMP, 600, 1.56):.1f} MPa -> 260")
+   print(f"   small-defect law, surface constant 1.43, 372 HV: {small(HV_COMP, 600, 1.43):.1f} MPa -> 240")
+   print(f"   small-defect law, surface constant, specimen hardness: {small(HV_SPEC, 600, 1.43):.1f} MPa -> 220")
+   print(f"   long-crack branch, surface factor, scaled with hardness: {longcrack(600) * (HV_COMP + 120) / (HV_SPEC + 120):.1f} MPa -> 170")
+   print("\nALL CHECKS PASSED: key 200 MPa (200.0 MPa).")
+
+
+   Output:
+
+   DK_th (fixed so that the component value is 200.0 MPa): 4.3416 MPa sqrt(m)
+   plotted points (sqrt(area) um, fatigue limit MPa, branch):
+         25   367.96   small-defect   (small 367.96, long-crack 753.69)
+         50   327.81   small-defect   (small 327.81, long-crack 532.94)
+         90   297.22   small-defect   (small 297.22, long-crack 397.23)
+        170   267.33   small-defect   (small 267.33, long-crack 289.03)
+        480   172.01   long-crack   (small 224.86, long-crack 172.01)
+        650   147.81   long-crack   (small 213.78, long-crack 147.81)
+        850   129.26   long-crack   (small 204.43, long-crack 129.26)
+       1100   113.62   long-crack   (small 195.83, long-crack 113.62)
+   knee of the 320 HV lot (surface defects): sqrt(area) = 214.8 um, 257.1 MPa
+
+   ROUTE A: key from each plotted long-crack point, v * 0.65/0.50 * sqrt(s/600):
+      (480 um, 172.01 MPa) -> 200.00 MPa
+      (650 um, 147.81 MPa) -> 200.00 MPa
+      (850 um, 129.26 MPa) -> 200.00 MPa
+      (1100 um, 113.62 MPa) -> 200.00 MPa
+   ROUTE B: least-squares level of the slope -1/2 branch through [480, 650, 850, 1100] um gives DK_th = 4.3416 MPa sqrt(m)
+      component, 372 HV lot, internal pore 600 um: small-defect branch (1.56, internal) 264.3 MPa, long-crack branch (Y = 0.50) 200.0 MPa; the smaller applies: 200.00 MPa
+      knee of the 372 HV lot for internal defects: sqrt(area) = 260.0 um; 600 um lies beyond it
+   ROUTE B: key = 200.00 MPa -> 200 MPa (2 s.f.)
+
+   READING: value read by linear interpolation between the neighbouring gridlines of the logarithmic y axis, and the key it gives:
+      true 172.0 at 480 um -> linear read 178.2 -> key 207.3 MPa
+      true 147.8 at 650 um -> linear read 156.4 -> key 211.6 MPa
+      true 129.3 at 850 um -> linear read 137.0 -> key 212.0 MPa
+      true 113.6 at 1100 um -> linear read 118.4 -> key 208.5 MPa
+      band of readings of the 650 um point that still round to 200: 144.1 to 151.5 MPa (true 147.8)
+
+   WRONG ROUTES:
+      surface factor 0.65 kept for the internal pore: 153.8 MPa -> 150
+      long-crack branch scaled with hardness (492/440), internal factor: 223.6 MPa -> 220
+      small-defect law, internal constant 1.56, 372 HV: 264.3 MPa -> 260
+      small-defect law, surface constant 1.43, 372 HV: 242.3 MPa -> 240
+      small-defect law, surface constant, specimen hardness: 216.7 MPa -> 220
+      long-crack branch, surface factor, scaled with hardness: 172.0 MPa -> 170
+
+   ALL CHECKS PASSED: key 200 MPa (200.0 MPa).
+
