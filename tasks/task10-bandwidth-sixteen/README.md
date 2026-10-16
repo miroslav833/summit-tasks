@@ -52,4 +52,6 @@ Section 2 of verification_notes.txt is the written lower-bound proof (the first 
 
 ## Screen
 
-(filled in after the screen)
+Screened 2026-10-16 (figure plus stem only, no code, no web). First pass: Opus cut off at the 64k output token ceiling with no answer, the budget spent in thinking; Sonnet cut off the same way. A staged re-screen of Opus (write each stage down, give a provisional answer early) follows; result below when in.
+
+RESCREEN_PLACEHOLDER
