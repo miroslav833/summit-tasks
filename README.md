@@ -11,6 +11,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task06 | Bandwidth of a 14-vertex graph | 5 | tasks/task06-bandwidth-fourteen/graph-bandwidth-fourteen-vertices.zip |
 | task06 v2 | Number of optimal numberings of a 14-vertex, 29-edge graph (counting version of task06, two edges added) | 6 | tasks/task06-bandwidth-fourteen/v2-count/graph-bandwidth-fourteen-optimal-numberings-count.zip |
 | task08 | Fractional chromatic number of a 12-vertex 4-regular graph | 13/4 | tasks/task08-fractional-chromatic-number/fractional-chromatic-number-twelve-vertices.zip |
+| task09 | Rooted pebbling number of a 10-vertex graph (target double-circled) | 13 | tasks/task09-pebbling-number/graph-rooted-pebbling-number-ten-vertices.zip |
 
 Submission: Import .zip, open every section and check it, open References, make sure verification_notes.txt is attached (upload reference.txt by hand if not), paste the Verify field text from the task README into the explanation box, Submit.
 
@@ -18,6 +19,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task09 rooted pebbling number (10 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-ten-vertices.zip
 - task05 v3 (revision of SUM-MVB7DTW7 with the reviewer's Graph A, 13 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-thirteen-vertices.zip
 
 - task06 v2 (count of optimal numberings, 14 vertices, new figure): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-optimal-numberings-count.zip
@@ -31,6 +33,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task09: Sections 1 to 3 of verification_notes.txt give the graph, the trivial bounds, the twelve-pebble configuration (five pebbles on 9, five on 10, one on 4, one on 7, target 3) with the written proof that it fails and the list of all 590 configurations reachable from it, none with a pebble on 3; section 4 gives the two independent exact computations showing that every configuration of 13 pebbles reaches the target 3 (layer recursion and direct search, both embedded in the program verify_key.py with its full output in section 5), and the rooted pebbling numbers of all ten targets.
 
 task05 v3: Section 2 of verification_notes.txt gives the two independent exact computations showing no numbering of width 4 exists (the pruned placement search with its tree printed to depth 3, and a dynamic programme) and the check that every cheap lower bound stops at 4; section 3 gives the explicit width-5 numbering with every edge stretch; section 6 embeds the program verify_key.py with its full output.
 

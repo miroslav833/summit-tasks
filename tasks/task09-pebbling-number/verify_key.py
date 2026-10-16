@@ -1,0 +1,174 @@
+"""Verification of the answer key: the pebbling number of the 10-vertex, 14-edge graph in the figure is 13.
+
+Self-contained, Python standard library only.  Run: python3 verify_key.py   (about one minute)
+
+Definitions.  A configuration c assigns c(v) >= 0 pebbles to each vertex.  A pebbling move removes two
+pebbles from a vertex u and adds one pebble to a neighbour of u.  A target r is reachable from c if some
+sequence of moves puts a pebble on r.  pi(G, r) is the least k such that every configuration of k pebbles
+reaches r; pi(G) = max_r pi(G, r).
+
+Route A (layer method).  For a target r let U_k be the set of configurations of k pebbles, none on r,
+  from which r is not reachable.  U_0 = {0}.  Adding a pebble never destroys reachability, so every member
+  of U_k is a member of U_{k-1} plus one pebble; a candidate c belongs to U_k iff no move from c lands on r
+  and every move from c leads into U_{k-1}.  Then pi(G, r) = 1 + max{k : U_k nonempty}.  The program prints
+  |U_k| for every k and every target.
+Route B (direct search).  For every target r and every configuration of 13 pebbles with none on r (203,490
+  configurations), a memoised depth-first search over move sequences confirms that r is reachable; for the
+  target 3 the same search over all 125,970 configurations of 12 pebbles finds exactly one from which 3 is
+  not reachable: five pebbles on 9, five on 10, one on 4, one on 7.
+Certificates.  (i) All configurations reachable from that configuration are enumerated (590 of them): none
+  has a pebble on 3, and none has two pebbles on any of 1, 2, 5.  (ii) Over all move sequences whose move
+  digraph is acyclic (the No-Cycle Lemma says such a sequence exists whenever the target is reachable), the
+  maximal numbers of pebbles arriving at 6, 7, 8 are 3, 2, 3, no pebble ever moves from 6 to 9 or from 8 to
+  10, and at most 4 pebbles leave the pair {9, 10}; these are the facts used in the written proof.
+  (iii) The trivial bounds: n = 10, diameter 3 so 2^3 = 8; the rooted values pi(G, r) for every r.
+"""
+import sys, collections, functools, time
+sys.setrecursionlimit(100000)
+
+EDGES = [(1,2),(1,3),(1,6),(2,3),(2,8),(3,5),(4,6),(4,7),(5,7),(6,7),(6,9),(7,8),(8,10),(9,10)]
+N = 10; V = list(range(1, N + 1))
+adj = {v: [] for v in V}
+for u, v in EDGES: adj[u].append(v); adj[v].append(u)
+for v in V: adj[v].sort()
+assert len(EDGES) == 14 and len({tuple(sorted(e)) for e in EDGES}) == 14
+print("vertices:", N, " edges:", len(EDGES))
+print("adjacency:", {v: adj[v] for v in V})
+print("degrees:", {v: len(adj[v]) for v in V})
+
+def bfs(s):
+    d = {s: 0}; q = collections.deque([s])
+    while q:
+        x = q.popleft()
+        for y in adj[x]:
+            if y not in d: d[y] = d[x] + 1; q.append(y)
+    return d
+DIST = {v: bfs(v) for v in V}
+ecc = {v: max(DIST[v].values()) for v in V}; diam = max(ecc.values())
+print("eccentricities:", ecc, " diameter:", diam)
+print("trivial lower bounds: n =", N, " 2^diam =", 2 ** diam)
+
+# ---------------------------------------------------------------- Route A
+def layers(r):
+    U = {tuple([0] * N)}; k = 0; sizes = [1]
+    while U:
+        k += 1; prev = U; cand = set()
+        for c in prev:
+            for v in V:
+                if v == r: continue
+                l = list(c); l[v - 1] += 1; cand.add(tuple(l))
+        U = set()
+        for c in cand:
+            stuck = True
+            for u in V:
+                if c[u - 1] >= 2:
+                    for w in adj[u]:
+                        if w == r: stuck = False; break
+                        l = list(c); l[u - 1] -= 2; l[w - 1] += 1
+                        if tuple(l) not in prev: stuck = False; break
+                    if not stuck: break
+            if stuck: U.add(c)
+        sizes.append(len(U))
+        if U: last = U
+    return len(sizes) - 1, sizes, last   # pi(G,r) = index of first empty layer = 1 + last nonempty k
+
+t0 = time.time(); piA = {}
+print("\nROUTE A: layer sizes |U_0|, |U_1|, ... for each target (last entry is 0)")
+for r in V:
+    p, sizes, last = layers(r); piA[r] = p
+    print(f"  target {r:2d}: pi(G,{r}) = {p:2d}   sizes = {sizes}")
+    if r == 3:
+        print("     unreachable configurations of 12 pebbles for target 3:", [{v: c[v-1] for v in V if c[v-1]} for c in sorted(last)])
+print("ROUTE A: pi(G) = max_r pi(G,r) =", max(piA.values()), f"  ({time.time()-t0:.0f} s)")
+assert max(piA.values()) == 13 and piA[3] == 13
+
+# ---------------------------------------------------------------- Route B
+def compositions(total, parts):
+    if parts == 1: yield (total,); return
+    for first in range(total + 1):
+        for rest in compositions(total - first, parts - 1): yield (first,) + rest
+def configs(r, k):
+    others = [v for v in V if v != r]
+    for comp in compositions(k, N - 1):
+        c = [0] * N
+        for v, x in zip(others, comp): c[v - 1] = x
+        yield tuple(c)
+def reach_checker(r):
+    memo = {}
+    def ok(c):
+        if c[r - 1] >= 1: return True
+        if c in memo: return memo[c]
+        memo[c] = False; res = False
+        for u in V:
+            if c[u - 1] >= 2:
+                for w in adj[u]:
+                    l = list(c); l[u - 1] -= 2; l[w - 1] += 1
+                    if ok(tuple(l)): res = True; break
+                if res: break
+        memo[c] = res; return res
+    return ok
+t0 = time.time()
+print("\nROUTE B: direct search")
+for r in V:
+    ok = reach_checker(r); tot = bad = 0
+    for c in configs(r, 13):
+        tot += 1
+        if not ok(c): bad += 1
+    print(f"  target {r:2d}: {tot} configurations of 13 pebbles, unreachable: {bad}")
+    assert bad == 0
+ok = reach_checker(3); bad = [c for c in configs(3, 12) if not ok(c)]
+print(f"  target  3: configurations of 12 pebbles from which 3 is unreachable: {len(bad)}:", [{v: c[v-1] for v in V if c[v-1]} for c in bad])
+assert len(bad) == 1 and bad[0] == tuple({9: 5, 10: 5, 4: 1, 7: 1}.get(v, 0) for v in V)
+print(f"ROUTE B: every vertex is reachable from every configuration of 13 pebbles, and one configuration of 12 pebbles fails for target 3; pi(G) = 13  ({time.time()-t0:.0f} s)")
+
+# ---------------------------------------------------------------- Certificates
+C = tuple({9: 5, 10: 5, 4: 1, 7: 1}.get(v, 0) for v in V)
+def moves(c):
+    for u in V:
+        if c[u - 1] >= 2:
+            for w in adj[u]:
+                l = list(c); l[u - 1] -= 2; l[w - 1] += 1; yield u, w, tuple(l)
+seen = {C}; q = collections.deque([C])
+while q:
+    c = q.popleft()
+    for u, w, t in moves(c):
+        if t not in seen: seen.add(t); q.append(t)
+maxon = {v: max(c[v - 1] for c in seen) for v in V}
+print("\nCERTIFICATE (i): configurations reachable from {9:5, 10:5, 4:1, 7:1}:", len(seen))
+print("  maximum number of pebbles ever on each vertex:", maxon)
+assert maxon[3] == 0 and maxon[1] <= 1 and maxon[2] <= 1 and maxon[5] <= 1
+print("  no reachable configuration has a pebble on 3, and none has two pebbles on 1, 2 or 5")
+print("  full list (vertex: pebbles), sorted:")
+for c in sorted(seen, key=lambda c: (-sum(c), c)):
+    print("    ", {v: c[v - 1] for v in V if c[v - 1]})
+
+def closes_cycle(arcs, u, w):
+    st = [w]; vis = {w}
+    while st:
+        x = st.pop()
+        if x == u: return True
+        for a, b in arcs:
+            if a == x and b not in vis: vis.add(b); st.append(b)
+    return False
+stats = collections.defaultdict(int); memo = set()
+def rec(c, arcs, counts):
+    key = (c, arcs)
+    if key in memo: return
+    memo.add(key)
+    for k, v in counts.items(): stats[k] = max(stats[k], v)
+    for u, w, t in moves(c):
+        if (u, w) not in arcs and closes_cycle(arcs, u, w): continue
+        nc = dict(counts); nc[('arrive', w)] = nc.get(('arrive', w), 0) + 1; nc[('arc', u, w)] = nc.get(('arc', u, w), 0) + 1
+        if (u, w) in ((9, 6), (10, 8)): nc['leave pair'] = nc.get('leave pair', 0) + 1
+        rec(t, arcs | {(u, w)}, nc)
+rec(C, frozenset(), {})
+print("\nCERTIFICATE (ii): move sequences with an acyclic move digraph, from the same configuration:", len(memo), "(configuration, arc set) pairs")
+for x in (4, 6, 7, 8, 9, 10): print(f"  maximum number of pebbles arriving at {x}: {stats[('arrive', x)]}")
+for arc in ((6,1),(8,2),(7,5),(9,6),(10,8),(10,9),(9,10),(6,9),(8,10)): print(f"  maximum number of moves {arc[0]}->{arc[1]}: {stats[('arc',)+arc]}")
+print("  maximum number of pebbles leaving the pair {9,10}:", stats['leave pair'])
+assert stats[('arrive', 6)] == 3 and stats[('arrive', 8)] == 3 and stats[('arrive', 7)] == 2
+assert stats[('arc', 6, 9)] == 0 and stats[('arc', 8, 10)] == 0 and stats['leave pair'] == 4
+
+print("\nCERTIFICATE (iii): rooted pebbling numbers pi(G, r):", piA)
+print("  distances from 3:", DIST[3])
+print("ALL CHECKS PASSED: pi(G) = 13.")
