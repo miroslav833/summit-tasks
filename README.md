@@ -9,6 +9,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task03 | Smallest field over which a 9-point configuration matroid is representable | 7 | tasks/task03-matroid-smallest-field/matroid-smallest-representing-field.zip |
 | task05 | Bandwidth of a 12-vertex graph | 4 | tasks/task05-bandwidth/graph-bandwidth-twelve-vertices.zip |
 | task06 | Bandwidth of a 14-vertex graph | 5 | tasks/task06-bandwidth-fourteen/graph-bandwidth-fourteen-vertices.zip |
+| task07 | Crossing number of a 10-vertex, 21-edge graph (skewness 2, crossing number 3) | 3 | tasks/task07-crossing-number/graph-crossing-number-ten-vertices.zip |
 | task06 v2 | Number of optimal numberings of a 14-vertex, 29-edge graph (counting version of task06, two edges added) | 6 | tasks/task06-bandwidth-fourteen/v2-count/graph-bandwidth-fourteen-optimal-numberings-count.zip |
 | task08 | Fractional chromatic number of a 20-vertex planar 4-regular graph (revision of SUM-MVBCQZWW; the 12-vertex version, key 13/4, came back too easy and is kept in v1/) | 35/11 | tasks/task08-fractional-chromatic-number/fractional-chromatic-number-twenty-vertices.zip |
 | task09 | Rooted pebbling number of a 10-vertex graph (target double-circled) | 13 | tasks/task09-pebbling-number/graph-rooted-pebbling-number-ten-vertices.zip |
@@ -20,6 +21,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task07 crossing number (10 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-crossing-number-ten-vertices.zip
 - task10 bandwidth (16 vertices, hard instance): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-sixteen-vertices.zip
 - task05 v4 (revision of SUM-MVB7DTW7, 14-vertex graph with a late-dying width-4 search): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-vertices-v4.zip
 
@@ -37,6 +39,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task07: Section 2 of verification_notes.txt checks the two facts given in the question (no single edge deletion and only the pairs 1-2 with 6-7 and 1-5 with 6-7 leave a planar graph) and gives the four-pairs argument that rules out two crossings; section 3 gives the figure's drawing with its four crossings and the straight-line drawing with three crossings, both with integer coordinates and the list of crossing pairs; section 4 is the exhaustive enumeration of crossing sets (none with one or two crossings, four with three); section 6 embeds the program verify_key.py with its full output, including an independent planarity test that does not use a graph library.
 
 task10: Section 2 of verification_notes.txt is the written lower-bound proof (the first k vertices of a numbering of width 4 have at most four outside neighbours; the chain of such sets is listed in full and dies at six vertices). Section 3 gives two independent exact computations, section 4 the explicit numbering of width 5 with every edge stretch, section 5 the check that no degree, diameter or density bound reaches 5. Section 7 embeds the program with its output.
 

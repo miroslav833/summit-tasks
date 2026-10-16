@@ -29,7 +29,8 @@ from fractions import Fraction
 
 EDGES = [(1, 2), (1, 5), (1, 9), (1, 10), (2, 3), (2, 4), (2, 6), (3, 5), (3, 6), (3, 8), (3, 9), (4, 5), (4, 6), (4, 8), (4, 10), (5, 6), (6, 7), (7, 8), (7, 9), (7, 10), (8, 10)]
 VERTS = sorted({v for e in EDGES for v in e}); N = len(VERTS); M = len(EDGES)
-COORDS = {1: (0, 4), 2: (6, 6), 3: (5, 7), 4: (8, 6), 5: (2, 5), 6: (7, 7), 7: (12, 10), 8: (9, 8), 9: (5, 12), 10: (10, 3)}
+FIG_COORDS = {1: (0, 1), 2: (0, 20), 3: (17, 17), 4: (6, 7), 5: (6, 13), 6: (12, 12), 7: (10, 7), 8: (12, 3), 9: (19, 0), 10: (4, 3)}
+COORDS = {1: (0, 1), 2: (0, 20), 3: (17, 17), 4: (6, 7), 5: (6, 13), 6: (12, 12), 7: (13, 1), 8: (12, 3), 9: (19, 0), 10: (4, 3)}
 
 print("vertices", N, "edges", M)
 print("degrees", {v: sum(v in e for e in EDGES) for v in VERTS})
@@ -327,14 +328,37 @@ print("Shorter argument: a drawing with two crossings {a,b} and {c,d} has four d
 print("   leave G - e planar, and no single deletion is planar), and deleting a,c or a,d or b,c or b,d leaves a planar")
 print("   graph, so there would be four distinct planar pairs; only", len(pairs_planar), "exist:", pairs_planar)
 assert len(pairs_planar) < 4
-# faces of the planar subgraph behind the straight-line drawing: G minus the three crossed edges 1-2, 2-3, 3-8
-Hp = [e for e in EDGES if e not in [(1, 2), (2, 3), (3, 8)]]; hp = adj_of(Hp); fp = dmp_embedding(hp); check_faces(hp, fp)
-print("Planar subgraph G - {1-2, 2-3, 3-8} (18 edges), faces of an embedding (DMP):")
+# faces of the planar subgraph behind the three-crossing drawing: G minus the crossed edges 1-5, 2-6, 3-8
+Hp = [e for e in EDGES if e not in [(1, 5), (2, 6), (3, 8)]]; hp = adj_of(Hp); fp = dmp_embedding(hp); check_faces(hp, fp)
+print("Planar subgraph G - {1-5, 2-6, 3-8} (18 edges), faces of an embedding (DMP):")
 for f in fp: print("      ", "-".join(str(v) for v in f))
-for x in [(1, 2), (2, 3), (3, 8)]:
+for x in [(1, 5), (2, 6), (3, 8)]:
     print("   insertion distance of", x, "into this embedding:", dual_distance(fp, *x))
 
-print("Upper bound: straight-line drawing with the listed coordinates")
+def straight_line_crossings(P, label):
+    """Exact check of a straight-line drawing: returns the list of crossing pairs."""
+    assert len(set(P.values())) == N
+    for (u, v) in EDGES:
+        for w in VERTS:
+            assert w in (u, v) or not on_segment(P[u], P[v], P[w]), "vertex on an edge"
+    crossing_pairs = []; points = {}
+    for e, f in combinations(EDGES, 2):
+        p1, p2, q1, q2 = P[e[0]], P[e[1]], P[f[0]], P[f[1]]
+        if set(e) & set(f):
+            s = (set(e) & set(f)).pop(); a = [x for x in e if x != s][0]; b = [x for x in f if x != s][0]
+            assert not (orient(P[s], P[a], P[b]) == 0 and (P[a][0] - P[s][0]) * (P[b][0] - P[s][0]) + (P[a][1] - P[s][1]) * (P[b][1] - P[s][1]) > 0), "overlapping adjacent edges"
+            continue
+        d = [orient(q1, q2, p1), orient(q1, q2, p2), orient(p1, p2, q1), orient(p1, p2, q2)]
+        assert 0 not in d or not any(on_segment(q1, q2, p) for p in (p1, p2)) and not any(on_segment(p1, p2, q) for q in (q1, q2)), "touching edges"
+        if (d[0] > 0) != (d[1] > 0) and (d[2] > 0) != (d[3] > 0) and 0 not in d:
+            den = (p1[0] - p2[0]) * (q1[1] - q2[1]) - (p1[1] - p2[1]) * (q1[0] - q2[0])
+            t = Fraction((p1[0] - q1[0]) * (q1[1] - q2[1]) - (p1[1] - q1[1]) * (q1[0] - q2[0]), den)
+            pt = (p1[0] + t * (p2[0] - p1[0]), p1[1] + t * (p2[1] - p1[1]))
+            points.setdefault(pt, []).append((e, f)); crossing_pairs.append((e, f))
+    assert all(len(l) == 1 for l in points.values()), "three edges through one point"
+    print(f"   {label}: coordinates", P)
+    print(f"   {label}: crossing pairs", crossing_pairs)
+    return crossing_pairs
 
 
 def orient(a, b, c):
@@ -345,28 +369,14 @@ def on_segment(a, b, p):
     return orient(a, b, p) == 0 and min(a[0], b[0]) <= p[0] <= max(a[0], b[0]) and min(a[1], b[1]) <= p[1] <= max(a[1], b[1])
 
 
-P = COORDS
-assert len(set(P.values())) == N
-for (u, v) in EDGES:
-    for w in VERTS:
-        assert w in (u, v) or not on_segment(P[u], P[v], P[w]), "vertex on an edge"
-crossing_pairs = []; points = {}
-for e, f in combinations(EDGES, 2):
-    p1, p2, q1, q2 = P[e[0]], P[e[1]], P[f[0]], P[f[1]]
-    if set(e) & set(f):
-        s = (set(e) & set(f)).pop(); a = [x for x in e if x != s][0]; b = [x for x in f if x != s][0]
-        assert not (orient(P[s], P[a], P[b]) == 0 and (P[a][0] - P[s][0]) * (P[b][0] - P[s][0]) + (P[a][1] - P[s][1]) * (P[b][1] - P[s][1]) > 0), "overlapping adjacent edges"
-        continue
-    d = [orient(q1, q2, p1), orient(q1, q2, p2), orient(p1, p2, q1), orient(p1, p2, q2)]
-    assert 0 not in d or not any(on_segment(q1, q2, p) for p in (p1, p2)) and not any(on_segment(p1, p2, q) for q in (q1, q2)), "touching edges"
-    if (d[0] > 0) != (d[1] > 0) and (d[2] > 0) != (d[3] > 0) and 0 not in d:
-        den = (p1[0] - p2[0]) * (q1[1] - q2[1]) - (p1[1] - p2[1]) * (q1[0] - q2[0])
-        t = Fraction((p1[0] - q1[0]) * (q1[1] - q2[1]) - (p1[1] - q1[1]) * (q1[0] - q2[0]), den)
-        pt = (p1[0] + t * (p2[0] - p1[0]), p1[1] + t * (p2[1] - p1[1]))
-        points.setdefault(pt, []).append((e, f)); crossing_pairs.append((e, f))
-assert all(len(l) == 1 for l in points.values()), "three edges through one point"
-print("   coordinates:", P)
-print("   crossing pairs:", crossing_pairs)
+print("The drawing in the figure (straight lines, integer coordinates)")
+fig_cross = straight_line_crossings(FIG_COORDS, "figure")
+assert len(fig_cross) == 4
+print("   the figure has exactly 4 crossings, as the question says")
+moved = [v for v in VERTS if FIG_COORDS[v] != COORDS[v]]
+print("   vertices at a different place in the three-crossing drawing below:", moved)
+print("Upper bound: straight-line drawing with three crossings")
+crossing_pairs = straight_line_crossings(COORDS, "drawing")
 assert len(crossing_pairs) == 3
 print("   exactly 3 crossings, so cr(G) <= 3")
 print("Route B result: cr(G) = 3")
