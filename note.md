@@ -194,6 +194,13 @@ Also fixed in the parent task06 package while here: the image-necessity text sai
 README screen section filled in. Repo clone updated (v2-count folder, zips/, README table, link and
 References text); commit and push pending the owner's token.
 
+Verdict context learned after the screen, from the task05 v3 row written by the sibling session: task05 v2
+(the 12-vertex counting version, key 6) came back from Summit 5/5, and the reviewer proposed a 13-vertex
+graph instead (v3-graphA). task06 v2-count is the same counting shape one size up; the local Opus solve
+took 64 min and 112k tokens, longer than task05 v2's 46 min, but the route (ball counts for the ends, then a
+small split) is the same kind of short argument, so a 5/5 or cut-off outcome is the likely Summit result.
+Hold it unless the owner wants a second calibration point on the counting shape.
+
 Sibling sessions on 2026-10-16 evening built tasks/task07-crossing-number, tasks/task07-fractional-chromatic-number
 (mirrored to the repo as task08-fractional-chromatic-number, key 13/4) and tasks/task09-pebbling-number;
 none of them is in the task log above yet, and two folders share the number 07.
