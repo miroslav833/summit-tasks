@@ -54,4 +54,4 @@ Section 2 of verification_notes.txt is the written lower-bound proof (the first 
 
 Screened 2026-10-16 (figure plus stem only, no code, no web). First pass: Opus cut off at the 64k output token ceiling with no answer, the budget spent in thinking; Sonnet cut off the same way. A staged re-screen of Opus (write each stage down, give a provisional answer early) follows; result below when in.
 
-RESCREEN_PLACEHOLDER
+Second Opus run (same prompt, plus one sentence that an answer with a short justification beats no answer): correct, 5, in 25 minutes and 103k tokens. It read all 27 edges correctly, found the unique width-5 numbering, and proved the lower bound by a halving argument (with width 4 the first four and the last four positions have disjoint closed neighbourhoods, so they form a K4,4 in the graph of pairs at distance 3 or more, and that graph has no K4). Two attempts at a staged re-screen were refused by the model's safeguards and are not counted. Tally: Opus 1/2 (one cut-off), Sonnet 0/1 (cut-off).
