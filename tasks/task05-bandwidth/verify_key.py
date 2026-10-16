@@ -1,0 +1,106 @@
+"""Verification of the answer key: the bandwidth of the 12-vertex graph in the figure is 4.
+
+Self-contained: python3 only (networkx optional, not used).  Run: python3 verify_key.py
+  (1) exact bandwidth by backtracking over numberings with pruning (no numbering of width 3);
+  (2) independent exact check by a dynamic programme over (set of placed vertices, last b placed);
+  (3) the lower-bound certificate: the induced subgraph on {1,2,3,4,6,9,10,11} has 8 vertices and
+      diameter 2, so any numbering stretches some edge by at least ceil(7/2) = 4;
+  (4) the upper-bound certificate: the numbering 5,8,12,6,3,2,9,1,4,10,7,11 (vertex -> position) has
+      width 4; every edge is listed with its stretch;
+  (5) the trivial bounds and the Cuthill-McKee numberings from every start vertex (widths 5 to 7).
+"""
+import itertools, math, collections
+from functools import lru_cache
+
+EDGES = [(1, 2), (1, 3), (1, 4), (1, 6), (1, 11), (2, 6), (2, 8), (2, 10), (3, 4), (3, 5), (4, 9), (4, 10), (4, 11), (6, 9), (8, 5), (8, 12), (9, 7), (9, 12), (11, 7), (11, 10)]
+V = sorted(set(v for e in EDGES for v in e)); n = len(V)
+adj = {v: set() for v in V}
+for u, v in EDGES: adj[u].add(v); adj[v].add(u)
+assert n == 12 and len(EDGES) == 20
+print("vertices:", n, "edges:", len(EDGES), "degrees:", {v: len(adj[v]) for v in V})
+
+def width(order):
+    pos = {v: i for i, v in enumerate(order)}
+    return max(abs(pos[u] - pos[v]) for u, v in EDGES)
+
+# ---------- (1) backtracking ----------
+def has_numbering(b):
+    pos = {}
+    def rec(i):
+        if i == n: return True
+        for v in V:
+            if v in pos or any(i - pos[u] > b for u in adj[v] if u in pos): continue
+            pos[v] = i; ok = True
+            for u in list(pos):
+                far = [w for w in adj[u] if w not in pos]
+                if far and (pos[u] + b) - i < len(far): ok = False; break
+            if ok and rec(i + 1): return True
+            del pos[v]
+        return False
+    return rec(0)
+print("backtracking: width 3 numbering exists:", has_numbering(3), "; width 4 exists:", has_numbering(4))
+assert not has_numbering(3) and has_numbering(4)
+
+# ---------- (2) dynamic programme ----------
+def bandwidth_le(b):
+    @lru_cache(maxsize=None)
+    def ok(placed, last):
+        if len(placed) == n: return True
+        for v in V:
+            if v in placed: continue
+            if any(u not in last for u in adj[v] if u in placed): continue
+            if len(last) == b and any(w not in placed and w != v for w in adj[last[0]]): continue
+            if ok(placed | frozenset([v]), (last + (v,))[-b:]): return True
+        return False
+    return ok(frozenset(), tuple())
+print("dynamic programme: width 3 possible:", bandwidth_le(3), "; width 4 possible:", bandwidth_le(4))
+assert not bandwidth_le(3) and bandwidth_le(4)
+print("CHECK 1-2: bandwidth = 4 by two independent exact methods")
+
+# ---------- (3) lower-bound certificate ----------
+S = [1, 2, 3, 4, 6, 9, 10, 11]
+def dist_in(S):
+    Sset = set(S); D = {}
+    for s in S:
+        d = {s: 0}; q = collections.deque([s])
+        while q:
+            x = q.popleft()
+            for y in adj[x]:
+                if y in Sset and y not in d: d[y] = d[x] + 1; q.append(y)
+        D[s] = d
+    return D
+D = dist_in(S)
+assert all(len(D[s]) == len(S) for s in S), "subgraph not connected"
+diam = max(D[s][t] for s in S for t in S)
+print(f"induced subgraph on {S}: {len(S)} vertices, diameter {diam}, bound ceil(({len(S)}-1)/{diam}) = {math.ceil((len(S)-1)/diam)}")
+assert diam == 2
+print("CHECK 3: bandwidth >= 4 by the density bound on an 8-vertex induced subgraph of diameter 2")
+
+# ---------- (4) upper-bound certificate ----------
+order = [5, 8, 12, 6, 3, 2, 9, 1, 4, 10, 7, 11]
+pos = {v: i + 1 for i, v in enumerate(order)}
+print("numbering (vertex: position):", pos)
+for u, v in EDGES: print(f"   edge {u}-{v}: stretch {abs(pos[u]-pos[v])}")
+assert sorted(pos.values()) == list(range(1, 13)) and width(order) == 4
+print("CHECK 4: the numbering has width 4")
+
+# ---------- (5) bounds and heuristics ----------
+def bfs_all(s):
+    d = {s: 0}; q = collections.deque([s])
+    while q:
+        x = q.popleft()
+        for y in adj[x]:
+            if y not in d: d[y] = d[x] + 1; q.append(y)
+    return d
+diamG = max(max(bfs_all(s).values()) for s in V); Delta = max(len(adj[v]) for v in V)
+print(f"trivial bounds: ceil(Delta/2) = {math.ceil(Delta/2)}, ceil((n-1)/diam(G)) = {math.ceil((n-1)/diamG)} (diam = {diamG})")
+def cuthill_mckee(start, reverse=False):
+    order = [start]; seen = {start}; q = collections.deque([start])
+    while q:
+        v = q.popleft()
+        for u in sorted(adj[v], key=lambda u: len(adj[u])):
+            if u not in seen: seen.add(u); order.append(u); q.append(u)
+    return order[::-1] if reverse else order
+cm = {(s, r): width(cuthill_mckee(s, r)) for s in V for r in (False, True)}
+print("Cuthill-McKee widths from every start (and reversed):", sorted(set(cm.values())), "; minimum", min(cm.values()))
+print("ALL CHECKS PASSED. Bandwidth 4.")

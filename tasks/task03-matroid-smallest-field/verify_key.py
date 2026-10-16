@@ -1,0 +1,145 @@
+"""Verification of the answer key: the smallest field over which the rank-3 matroid of the figure
+(nine points A..I, eight lines ABE, ACD, AFI, BCG, CEI, CFH, DEFG, GHI) is representable is GF(7).
+
+Self-contained: python3 with sympy and numpy.  Run: python3 verify_key.py
+  (1) coordinatisation: A, B, C, F form a frame; D = (1,0,t); every other point is forced, the eight
+      incidences impose no condition on t; the degeneracies (two points equal, or three points not on
+      a drawn line becoming collinear) are exactly t in {0, 1, 2, 1/2} and t^2 - 3t + 1 = 0;
+  (2) field table: for q = 2,3,4,5,7,8,9,11,13 the values t in GF(q) avoiding all degeneracies;
+  (3) independent brute force: backtracking search for an injective map to PG(2,q) preserving exactly
+      the drawn collinearities, q = 2,3,4,5,7;
+  (4) the coordinates used to draw image.png realise exactly the eight lines; the explicit GF(7)
+      representation for t = 3 is printed with all determinants.
+"""
+import itertools
+from functools import reduce
+import numpy as np
+import sympy as sp
+
+LABEL = "ABCDEFGHI"
+LINES = [(0, 1, 4), (0, 2, 3), (0, 5, 8), (1, 2, 6), (2, 4, 8), (2, 5, 7), (3, 4, 5, 6), (6, 7, 8)]
+DEP = set(tuple(sorted(tr)) for L in LINES for tr in itertools.combinations(L, 3))
+print("lines:", ["".join(LABEL[i] for i in L) for L in LINES])
+
+# ---------- finite fields ----------
+IRRED = {4: (1, 1, 1), 8: (1, 0, 1, 1), 9: (1, 0, 1)}
+class GF:
+    def __init__(self, q):
+        self.q = q
+        p = next(p for p in (2, 3, 5, 7, 11, 13) if q % p == 0); k = 0; m = q
+        while m % p == 0: m //= p; k += 1
+        self.p, self.k = p, k
+        vec = lambda a: [(a // p**i) % p for i in range(k)]
+        enc = lambda v: sum((c % p) * p**i for i, c in enumerate(v))
+        self.add = [[enc([(x + y) % p for x, y in zip(vec(a), vec(b))]) for b in range(q)] for a in range(q)]
+        self.neg = [enc([(-x) % p for x in vec(a)]) for a in range(q)]
+        if k == 1: self.mul = [[(a * b) % p for b in range(q)] for a in range(q)]
+        else:
+            irr = IRRED[q]
+            def mulvec(u, v):
+                prod = [0] * (2 * k - 1)
+                for i, a in enumerate(u):
+                    for j, b in enumerate(v): prod[i + j] = (prod[i + j] + a * b) % p
+                for d in range(2 * k - 2, k - 1, -1):
+                    c = prod[d]
+                    if c:
+                        prod[d] = 0
+                        for t in range(1, k + 1): prod[d - t] = (prod[d - t] - c * irr[t]) % p
+                return prod[:k]
+            self.mul = [[enc(mulvec(vec(a), vec(b))) for b in range(q)] for a in range(q)]
+        self.points = [v for v in itertools.product(range(q), repeat=3) if v != (0, 0, 0) and next(c for c in v if c) == 1]
+    def det(self, u, v, w):
+        m, a, n = self.mul, self.add, self.neg
+        t1 = m[u[0]][a[m[v[1]][w[2]]][n[m[v[2]][w[1]]]]]
+        t2 = m[u[1]][a[m[v[0]][w[2]]][n[m[v[2]][w[0]]]]]
+        t3 = m[u[2]][a[m[v[0]][w[1]]][n[m[v[1]][w[0]]]]]
+        return a[a[t1][n[t2]]][t3]
+
+# ---------- (1) coordinatisation ----------
+t = sp.symbols("t")
+A, B, C, F = [sp.Matrix(v) for v in ((1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 1))]
+D = sp.Matrix([1, 0, t])
+meet = lambda P, Q, R, S: (P.cross(Q)).cross(R.cross(S))
+E = meet(A, B, D, F); G = meet(B, C, D, E); I = meet(A, F, C, E); H = meet(C, F, G, I)
+X = {0: A, 1: B, 2: C, 3: D, 4: E, 5: F, 6: G, 7: H, 8: I}
+for i in range(9): print(f"  {LABEL[i]} = {list(sp.factor(c) for c in X[i])}")
+for L in LINES:
+    for tr in itertools.combinations(L, 3):
+        assert sp.expand(sp.Matrix.hstack(*[X[i] for i in tr]).det()) == 0
+print("CHECK 1a: all eight drawn lines hold identically in t (no condition on t)")
+forbidden = {}
+for a, b in itertools.combinations(range(9), 2):
+    M = sp.Matrix.hstack(X[a], X[b]); minors = [sp.expand(M.extract([i, j], [0, 1]).det()) for i, j in itertools.combinations(range(3), 2)]
+    g = reduce(sp.gcd, [m for m in minors if m != 0])
+    for f, _ in sp.factor_list(g)[1]:
+        if f.free_symbols: forbidden.setdefault(sp.factor(f), []).append(f"{LABEL[a]}={LABEL[b]}")
+for tr in itertools.combinations(range(9), 3):
+    if tr in DEP: continue
+    d = sp.expand(sp.Matrix.hstack(*[X[i] for i in tr]).det())
+    assert d != 0, "an undrawn triple is always collinear"
+    for f, _ in sp.factor_list(d)[1]:
+        if f.free_symbols: forbidden.setdefault(sp.factor(f), []).append("".join(LABEL[i] for i in tr) + " collinear")
+print("degeneracies (t must avoid every root):")
+for f, where in forbidden.items(): print(f"   {f} = 0  ->  {sorted(set(where))}")
+assert set(forbidden) == {t, t - 1, 2*t - 1, t - 2, t**2 - 3*t + 1}
+print("CHECK 1b: the degeneracy set is exactly t in {0, 1, 2, 1/2} and t^2 - 3t + 1 = 0")
+
+# ---------- (2) field table ----------
+def valid_t(q):
+    Fq = GF(q); p = Fq.p
+    def ev(poly, tv):
+        val = 0
+        for c in sp.Poly(poly, t).all_coeffs(): val = Fq.add[Fq.mul[val][tv]][int(c) % p]
+        return val
+    return [tv for tv in range(q) if all(ev(f, tv) != 0 for f in forbidden)]
+for q in (2, 3, 4, 5, 7, 8, 9, 11, 13):
+    print(f"   GF({q}): admissible t = {valid_t(q)}")
+assert all(valid_t(q) == [] for q in (2, 3, 4, 5)) and valid_t(7) == [3, 5, 6]
+print("CHECK 2: no admissible t over GF(2), GF(3), GF(4), GF(5); over GF(7) the admissible t are 3, 5, 6")
+
+# ---------- (3) brute force ----------
+def representable(q):
+    Fq = GF(q); frame = [0, 1, 2, 5]; order = frame + [3, 4, 6, 7, 8]
+    std = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 1)]; assign = {}
+    def ok(i, P):
+        if P in assign.values(): return False
+        for j, k in itertools.combinations(assign, 2):
+            col = Fq.det(assign[j], assign[k], P) == 0
+            if col != (tuple(sorted((i, j, k))) in DEP): return False
+        return True
+    def rec(idx):
+        if idx == 9: return True
+        i = order[idx]
+        for P in ([std[idx]] if idx < 4 else Fq.points):
+            if ok(i, P):
+                assign[i] = P
+                if rec(idx + 1): return True
+                del assign[i]
+        return False
+    return rec(0)
+for q in (2, 3, 4, 5, 7):
+    r = representable(q); print(f"   brute force over GF({q}): representable = {r}")
+    assert r == (q == 7)
+print("CHECK 3: brute-force search agrees: first representation over GF(7)")
+
+# ---------- (4) the figure and the GF(7) representation ----------
+POS = {"A": (0.371, 0.597), "B": (-0.005, 1.18), "C": (-0.031, 0.039), "D": (-1.272, -1.685), "E": (0.927, -0.265),
+       "F": (2.401, 0.688), "G": (-0.052, -0.897), "H": (-0.813, -0.17), "I": (-1.526, 0.512)}
+def col(a, b, c, tol=4e-3):
+    (x1, y1), (x2, y2), (x3, y3) = POS[a], POS[b], POS[c]
+    return abs((x2 - x1)*(y3 - y1) - (y2 - y1)*(x3 - x1)) < tol
+assert all(col(*[LABEL[i] for i in tr]) == (tr in DEP) for tr in itertools.combinations(range(9), 3))
+print("CHECK 4a: the drawn coordinates (rounded) are collinear exactly on the eight lines")
+F7 = GF(7); tv = 3
+rep7 = {i: tuple(int(sp.Poly(c, t).eval(tv)) % 7 for c in X[i]) for i in range(9)}
+print("representation over GF(7) with t = 3:", {LABEL[i]: rep7[i] for i in range(9)})
+for tr in itertools.combinations(range(9), 3):
+    d = F7.det(rep7[tr[0]], rep7[tr[1]], rep7[tr[2]])
+    assert (d == 0) == (tr in DEP)
+# distinctness as projective points
+def normalise(v):
+    v = list(v); first = next(c for c in v if c); inv = next(x for x in range(1, 7) if (first * x) % 7 == 1)
+    return tuple((c * inv) % 7 for c in v)
+assert len(set(normalise(rep7[i]) for i in range(9))) == 9
+print("CHECK 4b: over GF(7) with t = 3 the nine points are distinct and collinear exactly on the eight lines")
+print("ALL CHECKS PASSED. Smallest field: GF(7).")
