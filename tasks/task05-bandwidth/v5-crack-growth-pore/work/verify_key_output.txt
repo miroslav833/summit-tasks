@@ -1,0 +1,33 @@
+m = 2.9586  (root of (20^m - 4^m)/(6^m - 4^m) = 50), C = 1.4273e-11 m/cycle (MPa m^0.5)^-m
+check: C (6^m - 4^m) = 2.000e-09, C (20^m - 4^m) = 1.000e-07
+   m = 2.9: ratio = 47.04 (target 50)
+   m = 2.95: ratio = 49.55 (target 50)
+   m = 2.96: ratio = 50.07 (target 50)
+   m = 2.959: ratio = 50.02 (target 50)
+a0 = 48.22 um
+Delta K at the pore = 3.666 MPa m^0.5, long-crack threshold 4.0, size-corrected threshold 2.854
+Kitagawa fatigue limit (stress range) for a 50 um pore = 350.3 MPa
+Route 1, adaptive quadrature: N = 140891.0 (error estimate 3.6e-05)
+Simpson nodes (a in um, integrand a/(da/dN) in cycles):
+   a =    50.00 um   g =     143402.0
+   a =    66.68 um   g =     105096.9
+   a =    88.91 um   g =      80312.2
+   a =   118.57 um   g =      63418.7
+   a =   158.11 um   g =      51382.7
+   a =   210.85 um   g =      42466.4
+   a =   281.17 um   g =      35629.5
+   a =   374.95 um   g =      30228.8
+   a =   500.00 um   g =      25855.2
+Route 2, Simpson in ln a, 8 intervals: N = 140913.3
+Route 2, Simpson in ln a, 2000 intervals: N = 140891.0
+Answer key: 1.409e+05 cycles (two significant figures: 140000)
+Misreading: decoy crossings (8, 5e-9) and (20, 1e-7): m = 3.145, C = 8.136e-12, N = 1.749e+05
+Misreading: decoy crossings (10, 1e-8) and (100, 1e-5): m = 2.970, C = 1.146e-11, N = 1.717e+05
+Misreading: decoy crossings (5, 1e-9) and (20, 1e-7): m = 2.772, C = 2.502e-11, N = 1.141e+05
+Misreading: decoy crossings (10, 1e-8) and (20, 1e-7): m = 3.255, C = 5.862e-12, N = 1.988e+05
+Misreading: decoy crossings (7, 5e-9) and (30, 5e-7): m = 3.026, C = 1.697e-11, N = 1.045e+05
+Misreading: right first point, decoy second (6, 2e-9) and (10, 1e-8): m = 2.469, C = 3.788e-11, N = 1.351e+05
+Wrong route: both points treated as Paris-law points (threshold ignored in the fit): m = 3.249, C = 5.924e-12, N = 1.986e+05
+Wrong route: pure Paris integral with the right C and m, no threshold: 1.046e+05
+Wrong route: long-crack threshold kept; Delta K at the pore is below 4.0 so growth is predicted not to start; starting the integral where Delta K reaches 4.0 (a = 59.5 um) gives 6.975e+05
+Wrong route: a0 from the stress amplitude instead of the range: 1.142e+05

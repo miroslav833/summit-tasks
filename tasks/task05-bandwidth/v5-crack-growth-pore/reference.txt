@@ -1,0 +1,133 @@
+VERIFICATION NOTES: propagation life of a crack growing from a 60 um surface pore
+
+Answer key: 1.4 x 10^5 cycles (1.4089 x 10^5 before rounding).
+
+1. Inputs. From the figure: the rate axis carries gridlines at 1, 2 and 5 of every decade. The fitted Klesnil-Lukas
+   curve is drawn exactly through the gridline crossings (6, 2e-9) and (20, 1e-7); at every other labelled abscissa
+   it runs between gridlines: 5 -> 8.1e-10 (24 percent from the nearest line), 7 -> 3.7e-9 (37), 8 -> 5.8e-9 (17),
+   10 -> 1.2e-8 (21), 30 -> 3.3e-7 (50), 40 -> 7.8e-7 (28), 50 -> 1.5e-6 (32), 60 -> 2.6e-6 (30), 80 -> 6.1e-6 (22),
+   100 -> 1.2e-5 (18). With the stated threshold 4.0 MPa m^0.5 the two crossings give (20^m - 4^m)/(6^m - 4^m) = 50,
+   so m = 2.959 and C = 2e-9/(6^m - 4^m) = 1.427e-11 m/cycle with Delta K in MPa m^0.5 (the program solves this and
+   prints the hand iteration). From the text: fatigue limit 500 MPa (range) at R = 0.1, applied range 450 MPa, pore
+   sqrt(area) = 50 um, final size 0.5 mm, Y = 0.65.
+2. El Haddad length: a0 = (4.0/(0.65*500))^2/pi = 48.22 um. Delta K at the pore = 3.666 MPa m^0.5 (below the
+   long-crack threshold); size-corrected threshold at 50 um = 2.854 MPa m^0.5, so the crack grows from cycle one.
+   Kitagawa fatigue limit of the part with a 50 um pore: 350.3 MPa, below the applied 450 MPa.
+3. Life, two independent routes: adaptive quadrature (scipy quad) 140891 cycles; Simpson's rule in ln a with
+   8 intervals 140913 cycles and with 2000 intervals 140891 cycles. Both round to 1.4e5.
+4. Near-miss readings (curve taken through gridline crossings it does not pass through): (8, 5e-9)+(20, 1e-7) 1.75e5;
+   (10, 1e-8)+(100, 1e-5) 1.72e5; (5, 1e-9)+(20, 1e-7) 1.14e5; (10, 1e-8)+(20, 1e-7) 1.99e5; (7, 5e-9)+(30, 5e-7)
+   1.05e5; right first point with a near-miss second point, (6, 2e-9)+(10, 1e-8), 1.35e5 (same rounded value: once
+   the crossing at 6 is read, the life is insensitive to the slope). Wrong routes: the two true points treated as
+   Paris-law points (threshold ignored in the fit) 1.99e5; pure Paris integral 1.05e5; long-crack threshold kept and
+   integral started at 59.5 um (where Delta K reaches 4.0) 7.0e5; a0 from the stress amplitude instead of the range
+   1.14e5.
+5. The figure (image.png) was drawn by work/draw.py from the law C*(dK^m - 4^m) with the constants above and 7 percent
+   lognormal scatter on the twenty data points, none of which sits at a labelled abscissa; the curve carries no
+   scatter. Gridlines: major at decades, minor at 2 and 5 on the rate axis; the Delta K axis is labelled at 3, 4, 5,
+   6, 7, 8, 10, 20, 30, 40, 50, 60, 80, 100.
+
+6. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py)
+
+   # Propagation life of a crack growing from a surface pore: constants from two points on the fitted curve,
+   # then two independent integrations. Run: python3 verify_key.py (needs numpy and scipy)
+   import numpy as np
+   from scipy.integrate import quad
+   from scipy.optimize import brentq
+   Kth = 4.0        # long-crack threshold, MPa m^0.5 (stated in the question and marked in the figure)
+   x1, y1 = 6.0, 2.0e-9    # the fitted curve passes exactly through this gridline crossing (Delta K, da/dN)
+   x2, y2 = 20.0, 1.0e-7   # and through this one
+   # Step 1: m and C from the two points of the Klesnil-Lukas law y = C (x^m - Kth^m)
+   ratio = lambda mm: (x2**mm - Kth**mm) / (x1**mm - Kth**mm) - y2 / y1
+   m = brentq(ratio, 2.0, 5.0)
+   C = y1 / (x1**m - Kth**m)
+   print(f"m = {m:.4f}  (root of (20^m - 4^m)/(6^m - 4^m) = 50), C = {C:.4e} m/cycle (MPa m^0.5)^-m")
+   print(f"check: C (6^m - 4^m) = {C*(x1**m-Kth**m):.3e}, C (20^m - 4^m) = {C*(x2**m-Kth**m):.3e}")
+   # Hand route for m: a few iterations of the ratio
+   for mm in (2.9, 2.95, 2.96, 2.959):
+       print(f"   m = {mm}: ratio = {(x2**mm-Kth**mm)/(x1**mm-Kth**mm):.2f} (target 50)")
+   Y = 0.65         # Murakami surface-defect factor
+   dsw = 500.0      # smooth-specimen fatigue limit, stress range, MPa, R = 0.1
+   ds = 450.0       # applied stress range, MPa
+   ai = 50e-6       # initial crack size (sqrt(area) of the pore), m
+   af = 0.5e-3      # final crack size, m
+   a0 = (Kth / (Y * dsw))**2 / np.pi
+   dK = lambda a: Y * ds * np.sqrt(np.pi * a)
+   Kth_a = lambda a: Kth * np.sqrt(a / (a + a0))
+   rate = lambda a: C * (dK(a)**m - Kth_a(a)**m)
+   print(f"a0 = {a0*1e6:.2f} um")
+   print(f"Delta K at the pore = {dK(ai):.3f} MPa m^0.5, long-crack threshold {Kth}, size-corrected threshold {Kth_a(ai):.3f}")
+   print(f"Kitagawa fatigue limit (stress range) for a 50 um pore = {dsw*np.sqrt(a0/(ai+a0)):.1f} MPa")
+   N1, err = quad(lambda a: 1.0 / rate(a), ai, af, limit=200)
+   print(f"Route 1, adaptive quadrature: N = {N1:.1f} (error estimate {err:.1e})")
+   u = np.linspace(np.log(ai), np.log(af), 9); a = np.exp(u); g = a / rate(a); h = u[1] - u[0]
+   print("Simpson nodes (a in um, integrand a/(da/dN) in cycles):")
+   for ak, gk in zip(a, g): print(f"   a = {ak*1e6:8.2f} um   g = {gk:12.1f}")
+   N2 = h / 3 * (g[0] + g[-1] + 4 * g[1:-1:2].sum() + 2 * g[2:-1:2].sum())
+   print(f"Route 2, Simpson in ln a, 8 intervals: N = {N2:.1f}")
+   u = np.linspace(np.log(ai), np.log(af), 2001); a = np.exp(u); g = a / rate(a); h = u[1] - u[0]
+   N3 = h / 3 * (g[0] + g[-1] + 4 * g[1:-1:2].sum() + 2 * g[2:-1:2].sum())
+   print(f"Route 2, Simpson in ln a, 2000 intervals: N = {N3:.1f}")
+   print(f"Answer key: {N1:.3e} cycles (two significant figures: {float(f'{N1:.2g}'):.0f})")
+   def life_from(xa, ya, xb, yb, paris=False):
+       if paris:
+           mm = np.log10(yb / ya) / np.log10(xb / xa); CC = ya / xa**mm
+       else:
+           mm = brentq(lambda t: (xb**t - Kth**t) / (xa**t - Kth**t) - yb / ya, 2.0, 5.0); CC = ya / (xa**mm - Kth**mm)
+       f = lambda a: 1.0 / (CC * (dK(a)**mm - Kth_a(a)**mm))
+       return mm, CC, quad(f, ai, af, limit=200)[0]
+   for lab, args in [("decoy crossings (8, 5e-9) and (20, 1e-7)", (8, 5e-9, 20, 1e-7)),
+                     ("decoy crossings (10, 1e-8) and (100, 1e-5)", (10, 1e-8, 100, 1e-5)),
+                     ("decoy crossings (5, 1e-9) and (20, 1e-7)", (5, 1e-9, 20, 1e-7)),
+                     ("decoy crossings (10, 1e-8) and (20, 1e-7)", (10, 1e-8, 20, 1e-7)),
+                     ("decoy crossings (7, 5e-9) and (30, 5e-7)", (7, 5e-9, 30, 5e-7)),
+                     ("right first point, decoy second (6, 2e-9) and (10, 1e-8)", (6, 2e-9, 10, 1e-8))]:
+       mm, CC, N = life_from(*args); print(f"Misreading: {lab}: m = {mm:.3f}, C = {CC:.3e}, N = {N:.3e}")
+   mm, CC, N = life_from(6, 2e-9, 20, 1e-7, paris=True)
+   print(f"Wrong route: both points treated as Paris-law points (threshold ignored in the fit): m = {mm:.3f}, C = {CC:.3e}, N = {N:.3e}")
+   print("Wrong route: pure Paris integral with the right C and m, no threshold:", f"{quad(lambda a: 1/(C*dK(a)**m), ai, af)[0]:.3e}")
+   a_s = (Kth / (Y * ds))**2 / np.pi
+   print("Wrong route: long-crack threshold kept; Delta K at the pore is below 4.0 so growth is predicted not to start;",
+         f"starting the integral where Delta K reaches 4.0 (a = {a_s*1e6:.1f} um) gives",
+         f"{quad(lambda a: 1/(C*(dK(a)**m-Kth**m)), a_s*1.000001, af)[0]:.3e}")
+   a0amp = (Kth / (Y * dsw / 2))**2 / np.pi
+   print("Wrong route: a0 from the stress amplitude instead of the range:",
+         f"{quad(lambda a: 1/(C*(dK(a)**m-(Kth*np.sqrt(a/(a+a0amp)))**m)), ai, af)[0]:.3e}")
+
+
+   Output:
+
+   m = 2.9586  (root of (20^m - 4^m)/(6^m - 4^m) = 50), C = 1.4273e-11 m/cycle (MPa m^0.5)^-m
+   check: C (6^m - 4^m) = 2.000e-09, C (20^m - 4^m) = 1.000e-07
+      m = 2.9: ratio = 47.04 (target 50)
+      m = 2.95: ratio = 49.55 (target 50)
+      m = 2.96: ratio = 50.07 (target 50)
+      m = 2.959: ratio = 50.02 (target 50)
+   a0 = 48.22 um
+   Delta K at the pore = 3.666 MPa m^0.5, long-crack threshold 4.0, size-corrected threshold 2.854
+   Kitagawa fatigue limit (stress range) for a 50 um pore = 350.3 MPa
+   Route 1, adaptive quadrature: N = 140891.0 (error estimate 3.6e-05)
+   Simpson nodes (a in um, integrand a/(da/dN) in cycles):
+      a =    50.00 um   g =     143402.0
+      a =    66.68 um   g =     105096.9
+      a =    88.91 um   g =      80312.2
+      a =   118.57 um   g =      63418.7
+      a =   158.11 um   g =      51382.7
+      a =   210.85 um   g =      42466.4
+      a =   281.17 um   g =      35629.5
+      a =   374.95 um   g =      30228.8
+      a =   500.00 um   g =      25855.2
+   Route 2, Simpson in ln a, 8 intervals: N = 140913.3
+   Route 2, Simpson in ln a, 2000 intervals: N = 140891.0
+   Answer key: 1.409e+05 cycles (two significant figures: 140000)
+   Misreading: decoy crossings (8, 5e-9) and (20, 1e-7): m = 3.145, C = 8.136e-12, N = 1.749e+05
+   Misreading: decoy crossings (10, 1e-8) and (100, 1e-5): m = 2.970, C = 1.146e-11, N = 1.717e+05
+   Misreading: decoy crossings (5, 1e-9) and (20, 1e-7): m = 2.772, C = 2.502e-11, N = 1.141e+05
+   Misreading: decoy crossings (10, 1e-8) and (20, 1e-7): m = 3.255, C = 5.862e-12, N = 1.988e+05
+   Misreading: decoy crossings (7, 5e-9) and (30, 5e-7): m = 3.026, C = 1.697e-11, N = 1.045e+05
+   Misreading: right first point, decoy second (6, 2e-9) and (10, 1e-8): m = 2.469, C = 3.788e-11, N = 1.351e+05
+   Wrong route: both points treated as Paris-law points (threshold ignored in the fit): m = 3.249, C = 5.924e-12, N = 1.986e+05
+   Wrong route: pure Paris integral with the right C and m, no threshold: 1.046e+05
+   Wrong route: long-crack threshold kept; Delta K at the pore is below 4.0 so growth is predicted not to start; starting the integral where Delta K reaches 4.0 (a = 59.5 um) gives 6.975e+05
+   Wrong route: a0 from the stress amplitude instead of the range: 1.142e+05
+

@@ -1,4 +1,4 @@
-# Summit tasks (Mathematics)
+# Summit tasks (Mathematics, and Engineering from 2026-10-17)
 
 One folder per task under tasks/. Each folder has the Import .zip (task.json + image.png + reference.txt at the top level), the README with the paste text for the References box ("Verify field"), the figure, and verify_key.py which recomputes the answer key.
 
@@ -14,6 +14,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task08 | Engineering: fatigue crack growth life of a MIM Ti-6Al-7Nb plate at R = 0.4, closure level read from da/dN curves at R = 0.1 and 0.7 (the two mathematics packages that used this folder, fractional chromatic number 13/4 and 35/11, are archived in v1/ and v2-math/) | 1.04 x 10^6 cycles | tasks/task08-fractional-chromatic-number/crack-growth-closure-two-load-ratios.zip |
 | task09 | Rooted pebbling number of a 10-vertex graph (target double-circled) | 13 | tasks/task09-pebbling-number/graph-rooted-pebbling-number-ten-vertices.zip |
 | task09 v2 | Rooted pebbling number of a 13-vertex graph (revision of SUM-MVBG0GO3, target double-circled) | 25 | tasks/task09-pebbling-number/v2-thirteen/graph-rooted-pebbling-number-thirteen-vertices.zip |
+| task05 v5 | ENGINEERING replacement for SUM-MVB7DTW7: propagation life of a fatigue crack from a 50 um surface pore in MIM Ti-6Al-7Nb, Klesnil-Lukas constants read from a self-drawn da/dN curve (crossings at 6 and 20 MPa m^1/2), El Haddad short-crack threshold | 1.4 x 10^5 cycles | tasks/task05-bandwidth/v5-crack-growth-pore/pore-crack-propagation-life-mim-titanium.zip |
 | task06 v3 | Revision of task06: bandwidth of a 16-vertex, 27-edge graph, no short lower bound, unique optimal numbering | 5 | tasks/task06-bandwidth-fourteen/v3-sixteen/graph-bandwidth-sixteen-vertices.zip |
 
 Submission: Import .zip, open every section and check it, open References, make sure verification_notes.txt is attached (upload reference.txt by hand if not), paste the Verify field text from the task README into the explanation box, Submit.
@@ -22,6 +23,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task05 v5 (ENGINEERING replacement for SUM-MVB7DTW7, crack growth from a pore, Category must be Engineering): https://github.com/miroslav833/summit-tasks/raw/main/zips/pore-crack-propagation-life-mim-titanium.zip
 - task09 v2 rooted pebbling number (13 vertices, revision; edit the returned entry field by field with v2-thirteen/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-thirteen-vertices.zip
 - task07 crossing number (10 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-crossing-number-ten-vertices.zip
 - task06 v3 (revision of task06, 16 vertices, hard instance): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-sixteen-vertices.zip
@@ -41,6 +43,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task05 v5: Section 1 of verification_notes.txt states the two gridline crossings the fitted curve was drawn through (6, 2e-9) and (20, 1e-7), the distance of the curve from the nearest gridline at every other labelled abscissa, and solves the two constants m = 2.959 and C = 1.427e-11 from them; section 2 gives the El Haddad length 48.2 um and the thresholds at the pore; section 3 gives the two independent integrations of the life (adaptive quadrature 140891 cycles and Simpson's rule in ln a with the nodes printed, 140913 cycles); section 4 gives the life from each near-miss reading and from each wrong route; section 6 embeds the program verify_key.py with its full output.
 
 task09 v2: Sections 1 to 3 of verification_notes.txt give the graph, the trivial bounds, the twenty-four-pebble configuration (eleven pebbles on 1, eleven on 13, one on 2, one on 10, target 9) with the reduction argument and the exhaustive enumeration of the 61,608 configurations reachable from it, none with a pebble on 9; section 4 gives the two independent exact computations showing that every configuration of 25 pebbles reaches 9 (the layer recursion in two implementations and a direct search over move sequences for all 28 maximal failing configurations, their 311 one-pebble extensions and 60,000 random configurations), and the template bounds; section 5 embeds the program verify_key.py with its full output.
 
