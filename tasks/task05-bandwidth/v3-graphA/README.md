@@ -1,4 +1,4 @@
-# task07: bandwidth of a 13-vertex graph (Graph A from the Summit review)
+# task05 v3: revision of SUM-MVB7DTW7 with the reviewer's Graph A (13 vertices)
 
 Domain: Mathematics. Subdomain: Graph theory: graph layout problems (bandwidth of a graph)
 

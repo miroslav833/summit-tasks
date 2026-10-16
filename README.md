@@ -18,7 +18,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
-- task07 bandwidth, Graph A (13 vertices, reviewer's graph): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-thirteen-vertices.zip
+- task05 v3 (revision of SUM-MVB7DTW7 with the reviewer's Graph A, 13 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-thirteen-vertices.zip
 
 - task06 v2 (count of optimal numberings, 14 vertices, new figure): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-optimal-numberings-count.zip
 - task08 fractional chromatic number (12 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/fractional-chromatic-number-twelve-vertices.zip
@@ -32,7 +32,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Text for the References box (paste after the file is attached)
 
-task07: Section 2 of verification_notes.txt gives the two independent exact computations showing no numbering of width 4 exists (the pruned placement search with its tree printed to depth 3, and a dynamic programme) and the check that every cheap lower bound stops at 4; section 3 gives the explicit width-5 numbering with every edge stretch; section 6 embeds the program verify_key.py with its full output.
+task05 v3: Section 2 of verification_notes.txt gives the two independent exact computations showing no numbering of width 4 exists (the pruned placement search with its tree printed to depth 3, and a dynamic programme) and the check that every cheap lower bound stops at 4; section 3 gives the explicit width-5 numbering with every edge stretch; section 6 embeds the program verify_key.py with its full output.
 
 task08: Sections 3 and 4 of verification_notes.txt give the two certificates: the vertex weighting of total 13/4 (1/2 on vertices 1, 9, 10 and 1/4 on vertices 2, 3, 4, 5, 8, 11, 12) with the weight of every maximal independent set listed, and the nine weighted independent sets of total 13/4 that cover every vertex exactly once. Section 5 solves the linear programme exactly by a rational simplex and numerically by HiGHS, both giving 13/4. Section 7 embeds the program verify_key.py with its full output.
 
