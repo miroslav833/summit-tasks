@@ -1,59 +1,71 @@
 {
   "schema_version": "summit-task-package-v1",
   "task": {
-    "domain": "mathematics",
-    "subdomain": "Graph theory: topological graph theory (crossing number of a graph)",
+    "domain": "engineering",
+    "subdomain": "Fatigue and fracture of titanium alloys",
     "modality": "image_reference",
-    "taskType": "image_multistep_discrete_reasoning",
-    "imageCreationTool": "matplotlib (original straight-line drawing of the graph, coordinates chosen by hand and by a layout search)",
-    "imageNecessityExplanation": "The graph is given only by the figure; the twenty-one edges are not listed in the text, and the answer depends on the exact edge set (adding or removing one edge changes which edge pairs can be deleted to leave a planar graph and changes the optimal drawing). The figure also fixes the drawing with four crossings that the question refers to.",
-    "questionText": "The figure shows a graph $G$ with $10$ vertices, labelled $1$ to $10$, and $21$ edges, drawn with straight edges. The drawing in the figure has four crossings, and it is only one of many drawings of $G$.\n\nA drawing of $G$ in the plane places the vertices at distinct points and represents each edge by a simple curve between its two endpoints that passes through no other vertex. A crossing is a point that lies in the interior of two edges. Only drawings in which no three edges pass through one point are considered, so every crossing is a crossing of exactly two edges. The crossing number $\\mathrm{cr}(G)$ is the smallest number of crossings over all drawings of $G$.\n\nTwo facts about $G$ may be used without proof. Deleting any single edge of $G$ leaves a non-planar graph. Deleting the two edges $\\{1, 2\\}$ and $\\{6, 7\\}$ leaves a planar graph, deleting the two edges $\\{1, 5\\}$ and $\\{6, 7\\}$ leaves a planar graph, and no other pair of edges has this property.\n\nWhat is $\\mathrm{cr}(G)$? Give a single integer.",
+    "taskType": "graph_extraction_computation",
+    "imageCreationTool": "matplotlib (original plot generated from a stated crack-growth model; Python script kept)",
+    "imageNecessityExplanation": "The Paris constants and the closure factor at R = 0.1 exist only in the figure: the stem gives no value of C, n or U, and the answer depends on reading the two fit lines (their slope, and the horizontal shift of the R = 0.1 line relative to the R = 0.5 line) off the logarithmic axes.",
+    "questionText": "The figure shows fatigue crack growth data for a powder injection moulded alpha plus beta titanium alloy: the crack growth rate $\\mathrm{d}a/\\mathrm{d}N$ against the stress intensity factor range $\\Delta K$ on logarithmic axes, measured on compact tension specimens at the load ratios $R = 0.1$ (filled circles) and $R = 0.5$ (open squares). The two straight lines are the Paris fits of the data above the threshold region, the solid line for $R = 0.5$ and the dashed line for $R = 0.1$. Each line passes exactly through its two crosses, and every cross sits on an intersection of gridlines.\n\nTake the following as given. Crack growth in this alloy is governed by the effective range $\\Delta K_{\\mathrm{eff}} = U \\, \\Delta K$, where the closure factor $U$ depends only on the load ratio, and in the Paris regime $\\mathrm{d}a/\\mathrm{d}N = C \\, (\\Delta K_{\\mathrm{eff}})^{n}$ with the same $C$ and $n$ at every load ratio. The $R = 0.5$ data are free of crack closure, so $U = 1$ at $R = 0.5$, and $U$ varies linearly with $R$ between $R = 0.1$ and $R = 0.5$.\n\nA plate of this alloy of width $W = 20$ mm carries a remote tensile stress that cycles with the stress range $\\Delta\\sigma = 250$ MPa at the load ratio $R = 0.3$. A surface pore has started a through-thickness edge crack of depth $a_0 = 0.6$ mm. The stress intensity factor of the edge crack is $K = Y \\sigma \\sqrt{\\pi a}$ with $Y = 1.12 - 0.231\\,(a/W) + 10.55\\,(a/W)^2 - 21.72\\,(a/W)^3 + 30.39\\,(a/W)^4$. The plate fails when the maximum stress intensity factor in a cycle reaches the fracture toughness $K_{\\mathrm{IC}} = 60$ MPa$\\sqrt{\\mathrm{m}}$. Neglect the threshold, so that the Paris law applies from $a_0$ onwards.\n\nHow many load cycles does the plate survive from the crack depth $a_0$ to failure? Give the number of cycles to two significant figures.",
     "answerType": "exact_match",
     "finalAnswer": [
-      "3"
+      "$1.1 \\times 10^{5}$"
     ],
     "acceptableAnswerVariants": [
-      "$3$",
-      "$\\mathrm{cr}(G) = 3$",
-      "crossing number 3"
+      "1.1e5",
+      "110000",
+      "110,000",
+      "$1.1 \\cdot 10^{5}$",
+      "1.1e5 cycles",
+      "110000 cycles",
+      "0.11 million cycles"
     ],
     "multipleChoiceOptions": [],
     "answerPrecision": {
-      "kind": "none"
+      "kind": "significant_figures",
+      "digits": 2
     },
-    "solution": "Step 1: Read the graph off the figure.\nWrite $uv$ for the edge joining the vertices $u$ and $v$. The edges are $12$, $15$, $19$, $1\\,10$, $23$, $24$, $26$, $35$, $36$, $38$, $39$, $45$, $46$, $48$, $4\\,10$, $56$, $67$, $78$, $79$, $7\\,10$, $8\\,10$. The degrees are $5$ (vertices $3$, $4$ and $6$), $4$ (vertices $1$, $2$, $5$, $7$, $8$ and $10$) and $3$ (vertex $9$). The bound from Euler's formula gives nothing, since $21 \\le 3 \\cdot 10 - 6 = 24$. The graph is not planar: it contains a subdivision of $K_{3,3}$ with the vertices $3$, $4$, $7$ on one side and $6$, $8$, $9$ on the other, the nine connections being the edges $36$, $38$, $39$, $46$, $48$, $67$, $78$, $79$ and the path $4\\,5\\,1\\,9$. The drawing in the figure shows that $\\mathrm{cr}(G) \\le 4$.\n\nStep 2: No drawing has one crossing.\nIf a drawing had a single crossing, between the edges $a$ and $b$, then deleting $a$ would leave a crossing-free drawing of $G - a$, so $G - a$ would be planar. By the first given fact no single edge deletion is planar, so $\\mathrm{cr}(G) \\ge 2$.\n\nStep 3: No drawing has two crossings.\nSuppose a drawing of $G$ has exactly two crossings, one between the edges $a$ and $b$ and one between the edges $c$ and $d$. If an edge took part in both crossings, say $a = c$, deleting $a$ would leave a crossing-free drawing of $G - a$, which is impossible by Step 2. So $a$, $b$, $c$, $d$ are four distinct edges. Deleting $a$ and $c$ removes both crossings, so $G - \\{a, c\\}$ is planar; in the same way $G - \\{a, d\\}$, $G - \\{b, c\\}$ and $G - \\{b, d\\}$ are planar. These are four distinct pairs of edges whose deletion leaves a planar graph, but by the second given fact only two such pairs exist, $\\{12, 67\\}$ and $\\{15, 67\\}$. Hence $\\mathrm{cr}(G) \\ge 3$. In particular the two edges $12$ and $67$ cannot be put back into a planar drawing of $G - \\{12, 67\\}$ with one crossing each, although two deleted edges are enough to make $G$ planar.\n\nThe same conclusion can be read off the planar subgraphs directly. $G - \\{12, 67\\}$ is $3$-connected, so it has a single embedding in the sphere, with faces $2\\,3\\,6$, $3\\,5\\,6$, $8\\,4\\,10$, $6\\,5\\,4$, $1\\,10\\,4\\,5$, $5\\,3\\,9\\,1$, $7\\,8\\,10$, $4\\,8\\,3\\,2$, $6\\,4\\,2$, $9\\,3\\,8\\,7$ and $10\\,1\\,9\\,7$. No face containing vertex $1$ shares an edge with a face containing vertex $2$, so the edge $12$ needs at least two crossings in this embedding, and the same holds for $67$. For $G - \\{15, 67\\}$ the faces are $2\\,3\\,9\\,1$, $8\\,10\\,7$, $8\\,7\\,9\\,3$, $5\\,3\\,6$, $10\\,8\\,4$, $1\\,9\\,7\\,10$, $10\\,4\\,2\\,1$, $3\\,2\\,6$, $6\\,2\\,4$, $4\\,8\\,3\\,5$ and $6\\,4\\,5$, and again neither missing edge can be added with one crossing. Starting from a planar subgraph with $19$ edges therefore costs two crossings per missing edge, four in all.\n\nStep 4: A drawing with three crossings.\nIn the figure the edges $38$ and $48$ both cross edges at vertex $7$, namely $79$ and $7\\,10$. Keep every vertex where it is and move vertex $7$ down and to the right, below the edge $8\\,10$ and to the right of vertex $8$, so that its three edges $78$, $79$ and $7\\,10$ no longer meet $38$ and $48$; the edge $67$ then crosses $38$ once. With integer coordinates: $1 \\mapsto (0, 1)$, $2 \\mapsto (0, 20)$, $3 \\mapsto (17, 17)$, $4 \\mapsto (6, 7)$, $5 \\mapsto (6, 13)$, $6 \\mapsto (12, 12)$, $7 \\mapsto (13, 1)$, $8 \\mapsto (12, 3)$, $9 \\mapsto (19, 0)$, $10 \\mapsto (4, 3)$, every edge a straight segment. No vertex lies on a segment that is not incident to it, and the only pairs of segments that cross are $15$ with $24$, $26$ with $35$, and $38$ with $67$. Equivalently, the subgraph $G - \\{15, 26, 38\\}$ with $18$ edges is planar, with the ten faces $4\\,6\\,5$, $8\\,10\\,7$, $8\\,7\\,6\\,4$, $10\\,8\\,4$, $4\\,5\\,3\\,2$, $3\\,5\\,6$, $2\\,3\\,9\\,1$, $7\\,10\\,1\\,9$, $10\\,4\\,2\\,1$ and $9\\,3\\,6\\,7$, and each deleted edge joins two faces that share one edge: $15$ goes from the face $10\\,4\\,2\\,1$ across $24$ into $4\\,5\\,3\\,2$, $26$ from $4\\,5\\,3\\,2$ across $35$ into $3\\,5\\,6$, and $38$ from $9\\,3\\,6\\,7$ across $67$ into $8\\,7\\,6\\,4$; the coordinates show that the three new edges can be drawn without meeting each other. So $\\mathrm{cr}(G) \\le 3$. The three crossed edges $15$, $26$, $38$ are not one of the two pairs that make $G$ planar when deleted: the better drawing does not come from a planar subgraph with $19$ edges, and it crosses $67$ instead of deleting it.\n\nStep 5: Conclusion.\n$\\mathrm{cr}(G) \\ge 3$ by Step 3 and $\\mathrm{cr}(G) \\le 3$ by Step 4, so $\\mathrm{cr}(G) = 3$. Two deleted edges make $G$ planar, yet no drawing has two crossings: the number of edges that must be deleted for planarity is one less than the crossing number of this graph.\n\nAnswer: $3$.",
-    "references": "The crossing number and its basic properties, including the fact that in a drawing with the fewest crossings adjacent edges do not cross and two edges cross at most once: M. Schaefer, The graph crossing number and its variants: a survey, Electronic Journal of Combinatorics, Dynamic Survey DS21 (2013, updated). NP-completeness of the crossing number, which is why the value needs a certificate on each side: M. R. Garey and D. S. Johnson, Crossing number is NP-complete, SIAM Journal on Algebraic and Discrete Methods 4 (1983), 312-316. The planarity algorithm used for the independent check: G. Demoucron, Y. Malgrange and R. Pertuiset, Graphes planaires: reconnaissance et construction de representations planaires topologiques, Revue Francaise de Recherche Operationnelle 8 (1964), 33-47. The uploaded file verification_notes.txt verifies the two facts stated in the question (no single edge deletion and exactly two pair deletions leave a planar graph, by two different planarity tests) and the answer key by two independent routes: an exhaustive enumeration of all crossing sets with up to three crossings (planarity of every planarization), and a library-free route with its own planarity test that gives the faces of the two planar subgraphs, the drawing of the figure with its four crossings, and a straight-line drawing with exactly three crossings (the figure with one vertex moved) checked by exact integer arithmetic; the program is embedded with its output.",
+    "solution": "Step 1: Read the Paris constants from the $R = 0.5$ line.\nThe solid line passes through $(\\Delta K, \\mathrm{d}a/\\mathrm{d}N) = (5, 10^{-9})$ and $(50, 10^{-6})$, in MPa$\\sqrt{\\mathrm{m}}$ and m/cycle. A factor $10$ in $\\Delta K$ gives a factor $10^{3}$ in rate, so $n = \\log(10^{3}) / \\log(10) = 3$. Since $U = 1$ at $R = 0.5$, $C = 10^{-9} / 5^{3} = 8 \\times 10^{-12}$ m/cycle per (MPa$\\sqrt{\\mathrm{m}}$)$^{3}$.\n\nStep 2: Read the closure factor at $R = 0.1$ from the dashed line.\nThe dashed line passes through $(10, 10^{-9})$ and $(100, 10^{-6})$, so it has the same slope $n = 3$ and reaches a given rate at twice the $\\Delta K$ of the $R = 0.5$ line. The same rate means the same $\\Delta K_{\\mathrm{eff}}$, so $U(0.1) \\cdot 10 = 1 \\cdot 5$ and $U(0.1) = 0.5$.\n\nStep 3: Closure factor at the service load ratio.\nWith $U$ linear in $R$ between $U(0.1) = 0.5$ and $U(0.5) = 1$, at $R = 0.3$ (the midpoint) $U = 0.5 + \\dfrac{0.3 - 0.1}{0.5 - 0.1}\\,(1 - 0.5) = 0.75$. The growth law in service is therefore $\\mathrm{d}a/\\mathrm{d}N = 8 \\times 10^{-12}\\,(0.75\\,\\Delta K)^{3}$ with $\\Delta K = Y \\Delta\\sigma \\sqrt{\\pi a}$.\n\nStep 4: Critical crack depth.\nThe maximum stress in the cycle is $\\sigma_{\\max} = \\Delta\\sigma / (1 - R) = 250 / 0.7 = 357.1$ MPa. Failure occurs when $Y \\sigma_{\\max} \\sqrt{\\pi a} = K_{\\mathrm{IC}} = 60$ MPa$\\sqrt{\\mathrm{m}}$. At $a = 4.40$ mm, $a/W = 0.220$, $Y = 1.4197$, $\\sqrt{\\pi a} = 0.11757$ $\\sqrt{\\mathrm{m}}$ and $K_{\\max} = 59.6$; at $a = 4.50$ mm, $Y = 1.4326$, $\\sqrt{\\pi a} = 0.11890$ and $K_{\\max} = 60.8$. Interpolating, $a_c = 4.43$ mm ($a_c/W = 0.222$, $Y = 1.424$).\n\nStep 5: Integrate the growth law.\n$N = \\displaystyle\\int_{a_0}^{a_c} \\frac{\\mathrm{d}a}{C\\,(U Y \\Delta\\sigma \\sqrt{\\pi a})^{3}} = \\frac{1}{C\\,(U \\Delta\\sigma)^{3}\\,\\pi^{3/2}} \\int_{a_0}^{a_c} \\frac{\\mathrm{d}a}{Y^{3} a^{3/2}}$, and $C\\,(U\\Delta\\sigma)^{3}\\,\\pi^{3/2} = 8 \\times 10^{-12} \\cdot 187.5^{3} \\cdot 5.5683 = 2.9364 \\times 10^{-4}$ m$^{-1/2}$.\nWith the substitution $a = u^{2}$ the integral becomes $\\displaystyle\\int_{u_0}^{u_c} \\frac{2\\,\\mathrm{d}u}{Y^{3} u^{2}}$ with $u_0 = \\sqrt{0.0006} = 0.02449$ and $u_c = \\sqrt{0.004432} = 0.06657$. Simpson's rule on eight panels ($h = 0.005260$) uses the integrand values $2/(Y^{3}u^{2})$ at $a = 0.600, 0.885, 1.226, 1.622, 2.073, 2.580, 3.142, 3.759, 4.432$ mm, where $Y = 1.1220, 1.1287, 1.1409, 1.1604, 1.1887, 1.2275, 1.2784, 1.3430, 1.4238$ and the integrand is $2359.9, 1571.1, 1098.5, 789.2, 574.3, 419.1, 304.7, 219.6, 156.4$; the rule gives $32.38$ (the exact value of the integral is $32.36$). Hence $N = 32.36 / (2.9364 \\times 10^{-4}) = 1.10 \\times 10^{5}$ cycles.\n\nStep 6: Result.\nThe plate survives $1.1 \\times 10^{5}$ cycles. Using the $R = 0.1$ line as it stands ($U = 0.5$) gives $3.7 \\times 10^{5}$ cycles, using the $R = 0.5$ line as it stands ($U = 1$) gives $4.6 \\times 10^{4}$, and holding $Y$ at $1.12$ throughout gives $1.3 \\times 10^{5}$; only the closure factor interpolated to $R = 0.3$ together with the varying $Y$ gives the stated result.\n\nAnswer: $1.1 \\times 10^{5}$ cycles.",
+    "references": "Crack closure and the effective stress intensity range: W. Elber, The significance of fatigue crack closure, in Damage Tolerance in Aircraft Structures, ASTM STP 486 (1971), 230-242. The Paris relation: P. C. Paris and F. Erdogan, A critical analysis of crack propagation laws, Journal of Basic Engineering 85 (1963), 528-534. The edge-crack geometry factor used in the stem is the standard single-edge-notch polynomial, for instance in H. Tada, P. C. Paris and G. R. Irwin, The Stress Analysis of Cracks Handbook, 3rd edition, ASME Press (2000). Closure effects and load-ratio dependence of crack growth in titanium alloys: R. O. Ritchie, Mechanisms of fatigue-crack propagation in ductile and brittle solids, International Journal of Fracture 100 (1999), 55-83. The uploaded file verification_notes.txt gives the model from which the figure was generated (the two fit lines are exact, through the marked anchors), recomputes the Paris constants and the closure factors from the anchors, solves for the critical crack depth, integrates the growth law by two independent routes (scipy adaptive quadrature; mpmath tanh-sinh quadrature at 30 digits plus a composite Simpson rule with Richardson extrapolation), evaluates every plausible wrong route, and embeds the program with its output.",
     "rubric": {
       "criteria": [
         {
           "id": "c1",
-          "description": "Gives $3$.",
+          "description": "Gives $1.1 \\times 10^{5}$ cycles (110000 to two significant figures).",
           "points": 5,
           "isFinalAnswer": true
         },
         {
           "id": "c2",
-          "description": "Exhibits a drawing of $G$ with exactly three crossings (explicit coordinates, or a planar subgraph with $18$ edges together with the three missing edges each added with one crossing, such as $15$ crossing $24$, $26$ crossing $35$ and $38$ crossing $67$, which is the figure with vertex $7$ moved).",
-          "points": 2,
+          "description": "Reads the Paris exponent $n = 3$ and the constant $C = 8 \\times 10^{-12}$ m/cycle per (MPa$\\sqrt{\\mathrm{m}}$)$^{3}$ from the $R = 0.5$ line.",
+          "points": 1,
           "isFinalAnswer": false
         },
         {
           "id": "c3",
-          "description": "Proves that no drawing with two crossings exists by a valid argument, for instance: the two crossings would involve four distinct edges and deleting one edge from each crossing in all four ways would give four distinct pairs whose deletion leaves a planar graph, against the two that exist; or shows that in the unique embedding of $G - \\{12, 67\\}$ (and of $G - \\{15, 67\\}$) neither missing edge can be added with one crossing.",
+          "description": "Obtains the closure factor $U(0.1) = 0.5$ from the horizontal shift between the two lines and interpolates to $U = 0.75$ at $R = 0.3$.",
           "points": 2,
           "isFinalAnswer": false
         },
         {
           "id": "c4",
-          "description": "States and justifies $\\mathrm{cr}(G) \\ge 2$ from the fact that no single edge deletion leaves a planar graph.",
+          "description": "Finds the critical crack depth $a_c = 4.4$ mm (accept 4.3 to 4.5 mm) from $K_{\\max} = K_{\\mathrm{IC}}$ with $\\sigma_{\\max} = \\Delta\\sigma/(1 - R) = 357$ MPa.",
+          "points": 1,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c5",
+          "description": "Integrates $\\mathrm{d}a/\\mathrm{d}N = C (U Y \\Delta\\sigma \\sqrt{\\pi a})^{3}$ from $a_0$ to $a_c$ with $Y$ varying along the integration (numerically or by a stated quadrature), not held constant.",
           "points": 1,
           "isFinalAnswer": false
         }
       ],
       "commonWrongAnswers": [
-        "2",
-        "4",
-        "1"
+        "$3.7 \\times 10^{5}$",
+        "$4.6 \\times 10^{4}$",
+        "$2.0 \\times 10^{5}$",
+        "$1.3 \\times 10^{5}$"
       ]
     },
     "image": {

@@ -1,383 +1,135 @@
-"""Verification of the answer key: the crossing number of the graph in the figure is 3.
+"""Verification of the answer key: fatigue life of the edge-cracked plate, 1.1e5 cycles (two significant
+figures; the exact model value is printed).
 
-Self-contained, standard library plus networkx (route A only).  Run: python3 verify_key.py
+Self-contained.  Route A needs scipy; route B uses only the standard library and mpmath (both in the
+venv).  Run: python3 verify_key.py
 
-Route A (exhaustive, networkx planarity).  A drawing with k crossings in which adjacent edges do not
-  cross and two edges cross at most once is the same thing as a planar embedding of the planarization
-  (each crossing replaced by a degree-4 vertex, an edge with several crossings split in the order in
-  which they occur along it).  Optimal drawings have both properties, so cr(G) is the least k for
-  which some set of k independent edge pairs, with some order of the crossings along each edge, has a
-  planar planarization.  The program enumerates k = 1, 2 (no planar planarization) and k = 3 (planar
-  planarizations exist and are counted).  It also lists every pair of edges whose removal leaves a
-  planar graph (skewness 2) and the value of the greedy "maximum planar subgraph plus shortest-path
-  insertion" construction.
+The figure is generated from the model stated here, so the key is a property of the model:
+  da/dN = C (U dK)^n with the R = 0.5 fit through (5, 1e-9) and (50, 1e-6): n = 3, C = 8e-12;
+  the R = 0.1 fit through (10, 1e-9) and (100, 1e-6): same n, shifted by a factor 2 in dK, so U(0.1) = 1/2
+  with U(0.5) = 1; U linear in R gives U(0.3) = 3/4.
+  Component: edge crack, W = 20 mm, a0 = 0.6 mm, dsigma = 250 MPa, R = 0.3, so sigma_max = 250/0.7 MPa,
+  Y(a/W) = 1.12 - 0.231 x + 10.55 x^2 - 21.72 x^3 + 30.39 x^4, failure at K_max = K_IC = 60 MPa sqrt(m).
+  N = integral from a0 to a_c of da / (C (U Y dsigma sqrt(pi a))^n).
 
-Route B (independent, no graph library).  Planarity and embeddings by the Demoucron-Malgrange-
-  Pertuiset algorithm written from scratch.  Lower bound: in a drawing with two crossings the two
-  crossing pairs are edge-disjoint (a shared edge e would make G - e planar, but no single edge
-  removal is planar), so removing one edge from each pair leaves an embedded planar subgraph H with
-  m - 2 edges into which each removed edge is inserted with exactly one crossing of an H-edge.  For
-  every H = G - {x, y} that is planar, H is 3-connected, so its embedding is unique (Whitney); the
-  program prints the faces and shows that x or y has its endpoints on faces at dual distance at
-  least 2, so no drawing with two crossings exists.  Upper bound: explicit integer coordinates for
-  a straight-line drawing, checked by exact orientation tests, with exactly three crossing pairs.
+Route A: a_c by bisection, N by scipy.integrate.quad.
+Route B: a_c by bisection in mpmath at 30 digits, N by mpmath.quad (tanh-sinh) and, as a third check,
+         a composite Simpson rule on 2000 and 4000 panels with Richardson extrapolation.
+Both routes also evaluate the plausible wrong routes (R = 0.1 line as it stands, R = 0.5 line as it
+stands, Elber's U = 0.5 + 0.4R, constant Y = 1.12, a_c from dsigma instead of sigma_max).
 """
-import itertools, sys
-from itertools import permutations, product, combinations
-from collections import deque
-from fractions import Fraction
+import math
 
-EDGES = [(1, 2), (1, 5), (1, 9), (1, 10), (2, 3), (2, 4), (2, 6), (3, 5), (3, 6), (3, 8), (3, 9), (4, 5), (4, 6), (4, 8), (4, 10), (5, 6), (6, 7), (7, 8), (7, 9), (7, 10), (8, 10)]
-VERTS = sorted({v for e in EDGES for v in e}); N = len(VERTS); M = len(EDGES)
-FIG_COORDS = {1: (0, 1), 2: (0, 20), 3: (17, 17), 4: (6, 7), 5: (6, 13), 6: (12, 12), 7: (10, 7), 8: (12, 3), 9: (19, 0), 10: (4, 3)}
-COORDS = {1: (0, 1), 2: (0, 20), 3: (17, 17), 4: (6, 7), 5: (6, 13), 6: (12, 12), 7: (13, 1), 8: (12, 3), 9: (19, 0), 10: (4, 3)}
+# ---- the model (every number the solver reads or is given) ----
+ANCH05 = ((5.0, 1e-9), (50.0, 1e-6))     # R = 0.5 fit anchors (dK in MPa sqrt m, da/dN in m/cycle)
+ANCH01 = ((10.0, 1e-9), (100.0, 1e-6))   # R = 0.1 fit anchors
+W = 0.020; a0 = 0.0006; dsigma = 250.0; Rc = 0.3; KIC = 60.0
 
-print("vertices", N, "edges", M)
-print("degrees", {v: sum(v in e for e in EDGES) for v in VERTS})
-print("Euler bound m - 3n + 6 =", M - 3 * N + 6)
-
-# ============================ Route A ============================
-import networkx as nx
-
-
-def independent_pairs(edges):
-    return [(i, j) for i in range(len(edges)) for j in range(i + 1, len(edges)) if not set(edges[i]) & set(edges[j])]
+# ---- reading the figure: n, C, U(0.1) ----
+(k1, r1), (k2, r2) = ANCH05
+n = math.log(r2 / r1) / math.log(k2 / k1)
+C = r1 / k1 ** n
+(q1, s1), (q2, s2) = ANCH01
+n01 = math.log(s2 / s1) / math.log(q2 / q1)
+U01 = (k1 / q1)  # same rate at dK = 5 (R = 0.5) and dK = 10 (R = 0.1): U(0.1) * 10 = 1 * 5
+U05 = 1.0
+print("Paris exponent from the R = 0.5 anchors: n =", n, "; from the R = 0.1 anchors:", n01)
+print("C =", C, "m/cycle per (MPa sqrt m)^n")
+print("closure factor U(0.1) =", U01, "(horizontal shift of the two parallel fits), U(0.5) = 1")
 
 
-def planarization(edges, pairs, orders):
-    H = nx.Graph(); H.add_nodes_from(v for e in edges for v in e)
-    for i, (u, v) in enumerate(edges):
-        chain = [u] + [("x", p) for p in orders.get(i, ())] + [v]
-        H.add_edges_from(zip(chain, chain[1:]))
-    return H
+def U_of_R(R):
+    return U01 + (U05 - U01) * (R - 0.1) / (0.5 - 0.1)
 
 
-def planar_crossing_sets(edges, k, first_only=False):
-    pairs = independent_pairs(edges); found = []
-    for chosen in combinations(range(len(pairs)), k):
-        per_edge = {}
-        for p in chosen:
-            for i in pairs[p]:
-                per_edge.setdefault(i, []).append(p)
-        multi = [i for i, ps in per_edge.items() if len(ps) > 1]
-        for perms in product(*[list(permutations(per_edge[i])) for i in multi]):
-            orders = {i: tuple(ps) for i, ps in per_edge.items() if len(ps) == 1}
-            orders.update(dict(zip(multi, perms)))
-            if nx.check_planarity(planarization(edges, [pairs[p] for p in chosen], orders))[0]:
-                found.append(([pairs[p] for p in chosen], orders))
-                if first_only:
-                    return found
-                break
-    return found
+U = U_of_R(Rc)
+print("U at the service ratio R = 0.3 (linear interpolation):", U)
+smax = dsigma / (1 - Rc)
+print("sigma_max = dsigma / (1 - R) =", smax, "MPa")
 
 
-G = nx.Graph(EDGES)
-print("\nRoute A")
-print("planar:", nx.check_planarity(G)[0], "; vertex connectivity:", nx.node_connectivity(G))
-print("independent edge pairs:", len(independent_pairs(EDGES)))
-one = [i for i in range(M) if nx.check_planarity(nx.Graph([e for j, e in enumerate(EDGES) if j != i]))[0]]
-two = [(i, j) for i, j in combinations(range(M), 2) if nx.check_planarity(nx.Graph([e for k, e in enumerate(EDGES) if k not in (i, j)]))[0]]
-print("single edges whose removal gives a planar graph:", [EDGES[i] for i in one])
-print("edge pairs whose removal gives a planar graph (skewness 2):", [(EDGES[i], EDGES[j]) for i, j in two])
-for k in (1, 2):
-    f = planar_crossing_sets(EDGES, k, first_only=True)
-    print(f"drawings with {k} crossings:", "exist" if f else "none")
-    assert not f
-f3 = planar_crossing_sets(EDGES, 3)
-print("drawings with 3 crossings: crossing sets with a planar planarization:", len(f3))
-assert f3
-for pairs, orders in f3[:5]:
-    print("   crossing pairs", [(EDGES[i], EDGES[j]) for i, j in pairs])
+def Y(a):
+    x = a / W
+    return 1.12 - 0.231 * x + 10.55 * x ** 2 - 21.72 * x ** 3 + 30.39 * x ** 4
 
 
-def faces_of(emb):
-    seen = set(); faces = []
-    for u, v in emb.edges():
-        if (u, v) not in seen:
-            faces.append(emb.traverse_face(u, v, mark_half_edges=seen))
-    return faces
+def a_crit(s, lo=1e-6, hi=W * 0.999):
+    f = lambda a: Y(a) * s * math.sqrt(math.pi * a) - KIC
+    assert f(lo) < 0 < f(hi)
+    for _ in range(200):
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if f(mid) < 0 else (lo, mid)
+    return 0.5 * (lo + hi)
 
 
-def dual_path(faces, u, v):
-    edge_faces = {}
-    for fi, face in enumerate(faces):
-        for a, b in zip(face, face[1:] + face[:1]):
-            edge_faces.setdefault(frozenset((a, b)), []).append(fi)
-    D = nx.Graph(); D.add_nodes_from(range(len(faces)))
-    for e, fs in edge_faces.items():
-        if len(fs) == 2 and fs[0] != fs[1] and not D.has_edge(*fs):
-            D.add_edge(fs[0], fs[1], via=e)
-    best = None
-    for s in [fi for fi, f in enumerate(faces) if u in f]:
-        paths = nx.single_source_shortest_path(D, s)
-        for t in [fi for fi, f in enumerate(faces) if v in f]:
-            if t in paths and (best is None or len(paths[t]) - 1 < len(best)):
-                best = [D.edges[a, b]["via"] for a, b in zip(paths[t], paths[t][1:])]
-    return best
+ac = a_crit(smax)
+print("a_c from K_max = K_IC: %.6f mm (a/W = %.4f, Y = %.4f)" % (ac * 1e3, ac / W, Y(ac)))
+print("dK at a0: %.4f MPa sqrt m; dK_eff at a0: %.4f; initial rate %.4e m/cycle" % (Y(a0) * dsigma * math.sqrt(math.pi * a0), U * Y(a0) * dsigma * math.sqrt(math.pi * a0), C * (U * Y(a0) * dsigma * math.sqrt(math.pi * a0)) ** n))
 
 
-def insert(pedges, u, v):
-    planar, emb = nx.check_planarity(nx.Graph(pedges)); assert planar
-    path = dual_path(faces_of(emb), u, v); new = list(pedges); prev = u
-    for idx, e in enumerate(path):
-        a, b = tuple(e); x = ("d", u, v, idx)
-        new.remove((a, b) if (a, b) in new else (b, a)); new += [(a, x), (x, b), (prev, x)]; prev = x
-    new.append((prev, v)); return new, len(path)
+def integrand(a, U=U, ds=dsigma, Yf=Y):
+    return 1.0 / (C * (U * Yf(a) * ds * math.sqrt(math.pi * a)) ** n)
 
 
-print("greedy construction: maximum planar subgraph, then shortest-path insertion of the two missing edges")
-best = None
-for i, j in two:
-    for order in ((i, j), (j, i)):
-        cur = [e for k, e in enumerate(EDGES) if k not in (i, j)]; tot = 0
-        for k in order:
-            cur, c = insert(cur, *EDGES[k]); tot += c
-        print(f"   remove {EDGES[i]}, {EDGES[j]}; insert {EDGES[order[0]]} then {EDGES[order[1]]}: {tot} crossings")
-        best = tot if best is None else min(best, tot)
-print("greedy construction minimum:", best)
-print("Route A result: cr(G) = 3")
+# ================= Route A =================
+from scipy.integrate import quad
+print("\nRoute A (scipy quad)")
+NA = quad(integrand, a0, ac, limit=200)[0]
+print("N = %.2f cycles" % NA)
 
-# ============================ Route B ============================
-print("\nRoute B")
+# ================= Route B =================
+import mpmath as mp
+mp.mp.dps = 30
+print("\nRoute B (mpmath, independent arithmetic)")
 
 
-def adj_of(edges):
-    adj = {}
-    for u, v in edges:
-        adj.setdefault(u, set()).add(v); adj.setdefault(v, set()).add(u)
-    return adj
+def Ymp(a):
+    x = a / mp.mpf(W)
+    return mp.mpf("1.12") - mp.mpf("0.231") * x + mp.mpf("10.55") * x ** 2 - mp.mpf("21.72") * x ** 3 + mp.mpf("30.39") * x ** 4
 
 
-def connected(adj, removed=()):
-    verts = [v for v in adj if v not in removed]
-    if not verts:
-        return True
-    seen = {verts[0]}; q = deque([verts[0]])
-    while q:
-        x = q.popleft()
-        for y in adj[x]:
-            if y not in removed and y not in seen:
-                seen.add(y); q.append(y)
-    return len(seen) == len(verts)
+def a_crit_mp(s):
+    f = lambda a: Ymp(a) * s * mp.sqrt(mp.pi * a) - KIC
+    lo, hi = mp.mpf("1e-6"), mp.mpf(W) * mp.mpf("0.999")
+    for _ in range(120):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if f(mid) < 0 else (lo, mid)
+    return (lo + hi) / 2
 
 
-def three_connected(adj):
-    return all(connected(adj, (a, b)) for a, b in combinations(adj, 2)) and len(adj) >= 4
+Cmp = mp.mpf(r1) / mp.mpf(k1) ** 3
+Ump = mp.mpf(3) / 4
+acmp = a_crit_mp(mp.mpf(dsigma) / (1 - mp.mpf(Rc)))
+print("a_c (mpmath): %s mm" % mp.nstr(acmp * 1000, 8))
+fmp = lambda a: 1 / (Cmp * (Ump * Ymp(a) * dsigma * mp.sqrt(mp.pi * a)) ** 3)
+NB = mp.quad(fmp, [mp.mpf(a0), acmp])
+print("N (tanh-sinh) = %s cycles" % mp.nstr(NB, 10))
 
 
-def find_cycle(adj):
-    start = next(iter(adj)); parent = {start: None}; stack = [start]
-    while stack:
-        v = stack.pop()
-        for w in adj[v]:
-            if w not in parent:
-                parent[w] = v; stack.append(w)
-            elif w != parent[v]:
-                pv = []; x = v
-                while x is not None: pv.append(x); x = parent[x]
-                pw = []; x = w
-                while x is not None: pw.append(x); x = parent[x]
-                c = next(x for x in pv if x in set(pw))
-                return pv[:pv.index(c) + 1] + pw[:pw.index(c)][::-1]
+def simpson(f, lo, hi, panels):
+    h = (hi - lo) / panels
+    s = f(lo) + f(hi)
+    for i in range(1, panels):
+        s += (4 if i % 2 else 2) * f(lo + i * h)
+    return s * h / 3
 
 
-def fragments(adj, Hv, He):
-    frags = []
-    for v in adj:
-        if v in Hv:
-            for w in adj[v]:
-                if w in Hv and v < w and frozenset((v, w)) not in He:
-                    frags.append(({frozenset((v, w))}, {v, w}))
-    seen = set()
-    for v in adj:
-        if v in Hv or v in seen:
-            continue
-        comp = set(); q = deque([v]); seen.add(v)
-        while q:
-            x = q.popleft(); comp.add(x)
-            for y in adj[x]:
-                if y not in Hv and y not in seen:
-                    seen.add(y); q.append(y)
-        es = set(); att = set()
-        for x in comp:
-            for y in adj[x]:
-                es.add(frozenset((x, y)))
-                if y in Hv: att.add(y)
-        frags.append((es, att))
-    return frags
+S1 = simpson(lambda a: integrand(float(a)), float(a0), float(acmp), 2000)
+S2 = simpson(lambda a: integrand(float(a)), float(a0), float(acmp), 4000)
+print("N (Simpson 2000 / 4000 panels, Richardson) = %.2f / %.2f / %.2f" % (S1, S2, S2 + (S2 - S1) / 15))
+assert abs(NA - float(NB)) / NA < 1e-6
+print("Both routes agree: N = %.0f cycles, which is 1.1e5 to two significant figures." % NA)
+print("Distance of the exact value from the nearest rounding boundary (1.05e5 or 1.15e5): %.1f%%" % (100 * min(NA - 1.05e5, 1.15e5 - NA) / NA))
 
-
-def frag_path(frag, a, b):
-    es, att = frag; fadj = {}
-    for e in es:
-        x, y = tuple(e); fadj.setdefault(x, set()).add(y); fadj.setdefault(y, set()).add(x)
-    parent = {a: None}; q = deque([a])
-    while q:
-        x = q.popleft()
-        if x == b: break
-        for y in fadj[x]:
-            if y not in parent and (y not in att or y == b):
-                parent[y] = x; q.append(y)
-    p = []; x = b
-    while x is not None: p.append(x); x = parent[x]
-    return p[::-1]
-
-
-def dmp_embedding(adj):
-    """Faces of a planar embedding of a 2-connected graph (Demoucron-Malgrange-Pertuiset), or None."""
-    m = sum(len(s) for s in adj.values()) // 2
-    cyc = find_cycle(adj); faces = [list(cyc), list(cyc)[::-1]]
-    Hv = set(cyc); He = {frozenset((cyc[i], cyc[(i + 1) % len(cyc)])) for i in range(len(cyc))}
-    while len(He) < m:
-        choice = None
-        for frag in fragments(adj, Hv, He):
-            adm = [i for i, f in enumerate(faces) if frag[1] <= set(f)]
-            if not adm: return None
-            if len(adm) == 1: choice = (frag, adm[0]); break
-            if choice is None: choice = (frag, adm[0])
-        frag, fi = choice; a, b = sorted(frag[1])[:2]; path = frag_path(frag, a, b)
-        face = faces[fi]; n = len(face); ia, ib = face.index(a), face.index(b)
-        seg1 = [face[(ia + k) % n] for k in range((ib - ia) % n + 1)]
-        seg2 = [face[(ib + k) % n] for k in range((ia - ib) % n + 1)]
-        faces[fi] = seg1 + path[1:-1][::-1]; faces.append(seg2 + path[1:-1])
-        for x, y in zip(path, path[1:]): He.add(frozenset((x, y))); Hv.add(x); Hv.add(y)
-    return faces
-
-
-def blocks(adj):
-    """Biconnected components as sets of edges (depth-first search with low-points)."""
-    index = {}; low = {}; stack = []; out = []; counter = [0]
-    def dfs(v, parent):
-        index[v] = low[v] = counter[0]; counter[0] += 1
-        for w in adj[v]:
-            if w == parent: continue
-            if w not in index:
-                stack.append((v, w)); dfs(w, v); low[v] = min(low[v], low[w])
-                if low[w] >= index[v]:
-                    comp = set()
-                    while True:
-                        e = stack.pop(); comp.add(frozenset(e))
-                        if e == (v, w): break
-                    out.append(comp)
-            elif index[w] < index[v]:
-                stack.append((v, w)); low[v] = min(low[v], index[w])
-    for v in adj:
-        if v not in index: dfs(v, None)
-    return out
-
-
-def dmp_planar(adj):
-    """Planarity of any graph: every block with at least three edges must be planar."""
-    for comp in blocks(adj):
-        if len(comp) < 3: continue
-        sub = {}
-        for e in comp:
-            x, y = tuple(e); sub.setdefault(x, set()).add(y); sub.setdefault(y, set()).add(x)
-        if dmp_embedding(sub) is None: return False
-    return True
-
-
-def check_faces(adj, faces):
-    n = len(adj); m = sum(len(s) for s in adj.values()) // 2; seen = {}
-    for f in faces:
-        for x, y in zip(f, f[1:] + f[:1]):
-            assert y in adj[x]; seen[(x, y)] = seen.get((x, y), 0) + 1
-    assert all(c == 1 for c in seen.values()) and len(seen) == 2 * m and n - m + len(faces) == 2
-
-
-def dual_distance(faces, u, v):
-    """Smallest number of H-edges a curve from u to v must cross: BFS in the dual from faces at u."""
-    edge_faces = {}
-    for fi, f in enumerate(faces):
-        for a, b in zip(f, f[1:] + f[:1]):
-            edge_faces.setdefault(frozenset((a, b)), []).append(fi)
-    nbr = {fi: set() for fi in range(len(faces))}
-    for fs in edge_faces.values():
-        if len(fs) == 2: nbr[fs[0]].add(fs[1]); nbr[fs[1]].add(fs[0])
-    dist = {fi: 0 for fi, f in enumerate(faces) if u in f}; q = deque(dist)
-    while q:
-        x = q.popleft()
-        for y in nbr[x]:
-            if y not in dist: dist[y] = dist[x] + 1; q.append(y)
-    return min(dist[fi] for fi, f in enumerate(faces) if v in f)
-
-
-adj = adj_of(EDGES)
-print("G planar by DMP:", dmp_planar(adj))
-print("G 3-connected:", three_connected(adj))
-removable_single = [e for e in EDGES if dmp_planar(adj_of([f for f in EDGES if f != e]))]
-print("single edges whose removal gives a planar graph (DMP):", removable_single)
-assert not removable_single
-print("Lower bound: every planar G - {x, y}, its unique embedding, and the insertion distance of x and y")
-pairs_planar = []
-for x, y in combinations(EDGES, 2):
-    H = [e for e in EDGES if e not in (x, y)]; hadj = adj_of(H)
-    if not dmp_planar(hadj):
-        continue
-    pairs_planar.append((x, y))
-    assert three_connected(hadj), "embedding would not be unique"
-    faces = dmp_embedding(hadj); check_faces(hadj, faces)
-    dx, dy = dual_distance(faces, *x), dual_distance(faces, *y)
-    print(f"   H = G - {{{x}, {y}}}: 3-connected, faces:")
-    for f in faces:
-        print("      ", "-".join(str(v) for v in f))
-    print(f"      insertion distance of {x}: {dx};  of {y}: {dy};  sum {dx + dy}")
-    assert max(dx, dy) >= 2
-print("   planar pairs found:", len(pairs_planar), "; in every case one missing edge needs at least 2 crossings, so cr(G) >= 3")
-print("Shorter argument: a drawing with two crossings {a,b} and {c,d} has four distinct edges (a shared edge e would")
-print("   leave G - e planar, and no single deletion is planar), and deleting a,c or a,d or b,c or b,d leaves a planar")
-print("   graph, so there would be four distinct planar pairs; only", len(pairs_planar), "exist:", pairs_planar)
-assert len(pairs_planar) < 4
-# faces of the planar subgraph behind the three-crossing drawing: G minus the crossed edges 1-5, 2-6, 3-8
-Hp = [e for e in EDGES if e not in [(1, 5), (2, 6), (3, 8)]]; hp = adj_of(Hp); fp = dmp_embedding(hp); check_faces(hp, fp)
-print("Planar subgraph G - {1-5, 2-6, 3-8} (18 edges), faces of an embedding (DMP):")
-for f in fp: print("      ", "-".join(str(v) for v in f))
-for x in [(1, 5), (2, 6), (3, 8)]:
-    print("   insertion distance of", x, "into this embedding:", dual_distance(fp, *x))
-
-def straight_line_crossings(P, label):
-    """Exact check of a straight-line drawing: returns the list of crossing pairs."""
-    assert len(set(P.values())) == N
-    for (u, v) in EDGES:
-        for w in VERTS:
-            assert w in (u, v) or not on_segment(P[u], P[v], P[w]), "vertex on an edge"
-    crossing_pairs = []; points = {}
-    for e, f in combinations(EDGES, 2):
-        p1, p2, q1, q2 = P[e[0]], P[e[1]], P[f[0]], P[f[1]]
-        if set(e) & set(f):
-            s = (set(e) & set(f)).pop(); a = [x for x in e if x != s][0]; b = [x for x in f if x != s][0]
-            assert not (orient(P[s], P[a], P[b]) == 0 and (P[a][0] - P[s][0]) * (P[b][0] - P[s][0]) + (P[a][1] - P[s][1]) * (P[b][1] - P[s][1]) > 0), "overlapping adjacent edges"
-            continue
-        d = [orient(q1, q2, p1), orient(q1, q2, p2), orient(p1, p2, q1), orient(p1, p2, q2)]
-        assert 0 not in d or not any(on_segment(q1, q2, p) for p in (p1, p2)) and not any(on_segment(p1, p2, q) for q in (q1, q2)), "touching edges"
-        if (d[0] > 0) != (d[1] > 0) and (d[2] > 0) != (d[3] > 0) and 0 not in d:
-            den = (p1[0] - p2[0]) * (q1[1] - q2[1]) - (p1[1] - p2[1]) * (q1[0] - q2[0])
-            t = Fraction((p1[0] - q1[0]) * (q1[1] - q2[1]) - (p1[1] - q1[1]) * (q1[0] - q2[0]), den)
-            pt = (p1[0] + t * (p2[0] - p1[0]), p1[1] + t * (p2[1] - p1[1]))
-            points.setdefault(pt, []).append((e, f)); crossing_pairs.append((e, f))
-    assert all(len(l) == 1 for l in points.values()), "three edges through one point"
-    print(f"   {label}: coordinates", P)
-    print(f"   {label}: crossing pairs", crossing_pairs)
-    return crossing_pairs
-
-
-def orient(a, b, c):
-    return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
-
-
-def on_segment(a, b, p):
-    return orient(a, b, p) == 0 and min(a[0], b[0]) <= p[0] <= max(a[0], b[0]) and min(a[1], b[1]) <= p[1] <= max(a[1], b[1])
-
-
-print("The drawing in the figure (straight lines, integer coordinates)")
-fig_cross = straight_line_crossings(FIG_COORDS, "figure")
-assert len(fig_cross) == 4
-print("   the figure has exactly 4 crossings, as the question says")
-moved = [v for v in VERTS if FIG_COORDS[v] != COORDS[v]]
-print("   vertices at a different place in the three-crossing drawing below:", moved)
-print("Upper bound: straight-line drawing with three crossings")
-crossing_pairs = straight_line_crossings(COORDS, "drawing")
-assert len(crossing_pairs) == 3
-print("   exactly 3 crossings, so cr(G) <= 3")
-print("Route B result: cr(G) = 3")
-print("\nBoth routes agree: the crossing number is 3.")
+# ================= plausible wrong routes =================
+print("\nPlausible wrong routes (route A integrator)")
+wrong = {
+    "R = 0.1 line used as it stands (U = 0.5)": quad(lambda a: integrand(a, U=0.5), a0, ac, limit=200)[0],
+    "R = 0.5 line used as it stands (U = 1)": quad(lambda a: integrand(a, U=1.0), a0, ac, limit=200)[0],
+    "Elber's U = 0.5 + 0.4 R = 0.62": quad(lambda a: integrand(a, U=0.5 + 0.4 * Rc), a0, ac, limit=200)[0],
+    "Y held at 1.12": quad(lambda a: integrand(a, Yf=lambda x: 1.12), a0, ac, limit=200)[0],
+    "a_c from dsigma instead of sigma_max (a_c = %.3f mm)" % (a_crit(dsigma) * 1e3): quad(integrand, a0, a_crit(dsigma), limit=200)[0],
+    "no closure correction and no interpolation, dK_eff = dK with the R = 0.1 constants (C/8)": quad(lambda a: 1.0 / (C / 8 * (Y(a) * dsigma * math.sqrt(math.pi * a)) ** n), a0, ac, limit=200)[0],
+}
+for k, v in wrong.items():
+    print("   %s: N = %.0f (%.2g)" % (k, v, v))

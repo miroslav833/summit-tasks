@@ -1,30 +1,56 @@
-"""Figure for the crossing-number task: a straight-line drawing of the graph with exactly four
-crossings (coordinates chosen by a layout search for clarity).  Writes image.png (300 dpi) and
+"""Figure for the crack-growth task: log-log da/dN against delta K for two load ratios, generated from
+the model in work/model.py.  The straight lines are the Paris fits; each passes exactly through the
+two anchor points marked with crosses on gridline intersections.  Writes image.png (300 dpi) and
 image.pdf next to this script."""
-import pathlib, itertools
+import pathlib, math, sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
 
 HERE = pathlib.Path(__file__).resolve().parent
-EDGES = [(1, 2), (1, 5), (1, 9), (1, 10), (2, 3), (2, 4), (2, 6), (3, 5), (3, 6), (3, 8), (3, 9), (4, 5), (4, 6), (4, 8), (4, 10), (5, 6), (6, 7), (7, 8), (7, 9), (7, 10), (8, 10)]
-COORDS = {1: (0, 1), 2: (0, 20), 3: (17, 17), 4: (6, 7), 5: (6, 13), 6: (12, 12), 7: (10, 7), 8: (12, 3), 9: (19, 0), 10: (4, 3)}
+sys.path.insert(0, str(HERE / "work"))
+import model as M
+
+rng = np.random.default_rng(7)
 
 
-def draw(pos=COORDS, edges=EDGES, outstem="image"):
-    xs = [p[0] for p in pos.values()]; ys = [p[1] for p in pos.values()]
-    w, h = max(xs) - min(xs), max(ys) - min(ys)
-    fig, ax = plt.subplots(figsize=(6.0, 6.0 * (h + 2.4) / (w + 2.4)), dpi=300)
-    for u, v in edges:
-        (x1, y1), (x2, y2) = pos[u], pos[v]
-        ax.plot([x1, x2], [y1, y2], color="0.25", lw=1.2, zorder=1, solid_capstyle="round")
-    r = 0.55
-    for v, (x, y) in pos.items():
-        ax.add_patch(plt.Circle((x, y), r, facecolor="white", edgecolor="black", lw=1.2, zorder=3))
-        ax.text(x, y, str(v), ha="center", va="center", fontsize=10.5, zorder=4)
-    ax.set_xlim(min(xs) - 1.2, max(xs) + 1.2); ax.set_ylim(min(ys) - 1.2, max(ys) + 1.2)
-    ax.set_aspect("equal"); ax.axis("off")
-    fig.subplots_adjust(0, 0, 1, 1)
+def points(U, dK_values):
+    """Model rates with a near-threshold knee and small scatter, for the plotted data symbols."""
+    out = []
+    for k in dK_values:
+        ke = U * k
+        if ke <= M.dKth_eff:
+            continue
+        rate = M.C * ke ** M.n * (1 - (M.dKth_eff / ke) ** 2) ** 1.5
+        rate *= math.exp(rng.normal(0, 0.06))
+        out.append((k, rate))
+    return out
+
+
+def draw(outstem="image"):
+    fig, ax = plt.subplots(figsize=(6.4, 5.6), dpi=300)
+    k05 = [2.8, 3.0, 3.3, 3.6, 4.0, 4.5, 5, 6, 7, 8, 10, 12, 15, 18, 22, 27, 33, 40]
+    k01 = [5.5, 6.0, 6.5, 7.2, 8, 9, 10, 12, 14, 17, 20, 24, 29, 35]
+    p05 = points(M.U05, k05); p01 = points(M.U01, k01)
+    ax.loglog([p[0] for p in p01], [p[1] for p in p01], "o", ms=5.5, mfc="black", mec="black", label="$R = 0.1$", zorder=4)
+    ax.loglog([p[0] for p in p05], [p[1] for p in p05], "s", ms=5.5, mfc="white", mec="black", mew=1.1, label="$R = 0.5$", zorder=4)
+    # Paris fit lines over the Paris regime, through the anchors
+    kk = np.array([3.6, 60.0])
+    ax.loglog(kk, M.C * (M.U05 * kk) ** M.n, "-", color="0.2", lw=1.1, zorder=3, label="Paris fit, $R = 0.5$")
+    kk1 = np.array([7.0, 100.0])
+    ax.loglog(kk1, M.C * (M.U01 * kk1) ** M.n, "--", color="0.2", lw=1.1, zorder=3, label="Paris fit, $R = 0.1$")
+    anchors = [(5, 1e-9), (50, 1e-6), (10, 1e-9), (100, 1e-6)]
+    ax.loglog([a[0] for a in anchors], [a[1] for a in anchors], "+", color="black", ms=11, mew=1.6, zorder=5, label="fit anchors (on gridlines)")
+    ax.set_xlim(2, 120); ax.set_ylim(1e-11, 1e-5)
+    ax.set_xlabel(r"$\Delta K$  (MPa$\sqrt{\mathrm{m}}$)")
+    ax.set_ylabel(r"$\mathrm{d}a/\mathrm{d}N$  (m/cycle)")
+    ax.set_xticks([2, 3, 5, 10, 20, 30, 50, 100]); ax.set_xticklabels(["2", "3", "5", "10", "20", "30", "50", "100"])
+    ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+    ax.grid(True, which="major", color="0.75", lw=0.6)
+    ax.grid(True, which="minor", color="0.9", lw=0.4)
+    ax.legend(loc="upper left", frameon=False)
+    fig.tight_layout()
     fig.savefig(HERE / f"{outstem}.png", dpi=300, facecolor="white")
     fig.savefig(HERE / f"{outstem}.pdf", facecolor="white")
     plt.close(fig)
@@ -32,4 +58,4 @@ def draw(pos=COORDS, edges=EDGES, outstem="image"):
 
 if __name__ == "__main__":
     draw()
-    print("drawn", len(EDGES), "edges")
+    print("figure written")
