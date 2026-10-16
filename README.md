@@ -13,6 +13,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task06 v2 | Number of optimal numberings of a 14-vertex, 29-edge graph (counting version of task06, two edges added) | 6 | tasks/task06-bandwidth-fourteen/v2-count/graph-bandwidth-fourteen-optimal-numberings-count.zip |
 | task08 | Fractional chromatic number of a 20-vertex planar 4-regular graph (revision of SUM-MVBCQZWW; the 12-vertex version, key 13/4, came back too easy and is kept in v1/) | 35/11 | tasks/task08-fractional-chromatic-number/fractional-chromatic-number-twenty-vertices.zip |
 | task09 | Rooted pebbling number of a 10-vertex graph (target double-circled) | 13 | tasks/task09-pebbling-number/graph-rooted-pebbling-number-ten-vertices.zip |
+| task09 v2 | Rooted pebbling number of a 13-vertex graph (revision of SUM-MVBG0GO3, target double-circled) | 25 | tasks/task09-pebbling-number/v2-thirteen/graph-rooted-pebbling-number-thirteen-vertices.zip |
 | task10 | Bandwidth of a 16-vertex, 27-edge graph: no short lower bound, unique optimal numbering | 5 | tasks/task10-bandwidth-sixteen/graph-bandwidth-sixteen-vertices.zip |
 
 Submission: Import .zip, open every section and check it, open References, make sure verification_notes.txt is attached (upload reference.txt by hand if not), paste the Verify field text from the task README into the explanation box, Submit.
@@ -21,6 +22,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task09 v2 rooted pebbling number (13 vertices, revision; edit the returned entry field by field with v2-thirteen/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-thirteen-vertices.zip
 - task07 crossing number (10 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-crossing-number-ten-vertices.zip
 - task10 bandwidth (16 vertices, hard instance): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-sixteen-vertices.zip
 - task05 v4 (revision of SUM-MVB7DTW7, 14-vertex graph with a late-dying width-4 search): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-vertices-v4.zip
@@ -39,6 +41,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task09 v2: Sections 1 to 3 of verification_notes.txt give the graph, the trivial bounds, the twenty-four-pebble configuration (eleven pebbles on 1, eleven on 13, one on 2, one on 10, target 9) with the reduction argument and the exhaustive enumeration of the 61,608 configurations reachable from it, none with a pebble on 9; section 4 gives the two independent exact computations showing that every configuration of 25 pebbles reaches 9 (the layer recursion in two implementations and a direct search over move sequences for all 28 maximal failing configurations, their 311 one-pebble extensions and 60,000 random configurations), and the template bounds; section 5 embeds the program verify_key.py with its full output.
 
 task07: Section 2 of verification_notes.txt checks the two facts given in the question (no single edge deletion and only the pairs 1-2 with 6-7 and 1-5 with 6-7 leave a planar graph) and gives the four-pairs argument that rules out two crossings; section 3 gives the figure's drawing with its four crossings and the straight-line drawing with three crossings, both with integer coordinates and the list of crossing pairs; section 4 is the exhaustive enumeration of crossing sets (none with one or two crossings, four with three); section 6 embeds the program verify_key.py with its full output, including an independent planarity test that does not use a graph library.
 
