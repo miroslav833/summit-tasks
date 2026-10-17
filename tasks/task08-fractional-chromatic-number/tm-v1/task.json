@@ -1,0 +1,68 @@
+{
+  "schema_version": "summit-task-package-v1",
+  "task": {
+    "domain": "engineering",
+    "subdomain": "Materials testing: design of a fatigue test programme (pairwise covering test matrices with constraints)",
+    "modality": "image_reference",
+    "taskType": "image_multistep_discrete_reasoning",
+    "imageCreationTool": "matplotlib (original table figure of the factors, levels and unavailable combinations)",
+    "imageNecessityExplanation": "The factors, their levels and above all the five unavailable level combinations are given only in the figure; the minimum number of specimens depends on exactly which combinations are unavailable (without them the answer would be 9, and other sets of five give 10 or 12).",
+    "questionText": "A fatigue test programme on metal injection moulded Ti-6Al-7Nb varies the five factors listed in the figure, each at three levels: the powder, the specimen geometry, the space-holder content, the oxygen content and the load ratio. Every specimen is made and tested at one level of each factor. The five level combinations listed in the lower table of the figure cannot be produced or tested; a specimen containing any of them is not available.\n\nThe programme must cover every admissible pair of levels of two different factors, which is to say that for any two factors and any level of the first with any level of the second, unless that combination is one of the five unavailable ones, at least one specimen must carry both levels. No other requirement is imposed.\n\nFind the smallest number of specimens with which this can be done. Give a single integer.",
+    "answerType": "exact_match",
+    "finalAnswer": [
+      "11"
+    ],
+    "acceptableAnswerVariants": [
+      "$11$",
+      "11 specimens",
+      "eleven"
+    ],
+    "multipleChoiceOptions": [],
+    "answerPrecision": {
+      "kind": "none"
+    },
+    "solution": "Step 1: Set up the counting objects.\nWrite the factors as $A$ (powder), $B$ (specimen geometry), $C$ (space-holder content), $D$ (oxygen content), $E$ (load ratio), with levels $0, 1, 2$ in the order of the figure, so that the unavailable combinations are $A_0C_1$, $A_0C_2$ (TiH$_2$-derived powder with $15$ and $30$ vol% space holder), $A_1D_0$ (HDH powder with $0.15$ wt% oxygen), $A_2B_1$ (gas-atomised powder with the flat geometry) and $B_0D_1$ (round bar with $0.30$ wt% oxygen). A specimen is a choice of one level per factor containing none of these five; there are $243 - 129 = 114$ admissible specimens. The pairs to be covered are the $90 - 5 = 85$ admissible level pairs. Each specimen carries exactly one level pair for each of the ten factor pairs.\n\nStep 2: The bound that comes first, and why it is not the answer.\nTwo factors with $9$ admissible level pairs between them ($A$ and $E$, for instance, or $C$ and $D$) force at least $9$ specimens, since one specimen covers one level pair of a given factor pair. No specimen covers two different level pairs of the same two factors, so this bound cannot be improved by looking at one factor pair at a time. The unavailable combinations, however, also make pairs from different factor pairs incompatible, and that is what pushes the minimum up.\n\nStep 3: Lower bound $11$ from eleven pairwise incompatible level pairs.\nCall two admissible level pairs incompatible if no admissible specimen contains both. Two pairs are incompatible when they need the same factor at different levels, when their union contains an unavailable combination, or when every completion of their union to a full specimen contains one. Consider the eleven level pairs\n$$A_0B_0,\\ A_0B_2,\\ A_1B_0,\\ A_1B_2,\\ A_2D_1,\\ A_2D_2,\\ B_1E_0,\\ B_1E_1,\\ B_1E_2,\\ C_1D_0,\\ C_2D_0 .$$\nThey are pairwise incompatible. The four pairs $A_iB_j$ with $i \\in \\{0,1\\}$, $j \\in \\{0,2\\}$ and the two pairs $A_2D_m$ disagree on $A$ with one another whenever their $A$ levels differ, and $A_2D_1$, $A_2D_2$ disagree on $D$; the three pairs $B_1E_n$ disagree on $E$ with one another and on $B$ with the four $A_iB_j$; $C_1D_0$ and $C_2D_0$ disagree on $C$ with each other and on $D$ with $A_2D_1$, $A_2D_2$. The remaining couples contain an unavailable combination or force one: $A_0B_j$ with $C_1D_0$ or $C_2D_0$ contains $A_0C_1$ or $A_0C_2$; $A_1B_j$ with $C_1D_0$ or $C_2D_0$ contains $A_1D_0$; $A_2D_m$ with $B_1E_n$ contains $A_2B_1$; and $B_1E_n$ with $C_1D_0$ or $C_2D_0$ fixes $B_1$, $C_1$ or $C_2$, $D_0$ and $E_n$, after which no level of $A$ is admissible, because $A_0$ is unavailable with $C_1$ and $C_2$, $A_1$ with $D_0$, and $A_2$ with $B_1$. Since each of the eleven pairs must be covered and no specimen covers two of them, every programme that covers all admissible pairs has at least $11$ specimens.\n\nStep 4: Upper bound $11$ from an explicit programme.\nThe eleven specimens\n$A_0B_0C_0D_2E_1$, $A_0B_1C_0D_0E_2$, $A_0B_2C_0D_1E_0$, $A_1B_0C_1D_2E_2$, $A_1B_1C_1D_1E_1$, $A_1B_1C_2D_2E_0$, $A_1B_2C_0D_2E_1$, $A_2B_0C_0D_2E_0$, $A_2B_0C_2D_0E_1$, $A_2B_2C_1D_0E_0$, $A_2B_2C_2D_1E_2$\nare all admissible (none contains $A_0C_1$, $A_0C_2$, $A_1D_0$, $A_2B_1$ or $B_0D_1$). Listing the level pairs they carry, factor pair by factor pair, gives all $8$ admissible $AB$ pairs, all $7$ $AC$ pairs, all $8$ $AD$ pairs, all $9$ $AE$ pairs, all $9$ $BC$ pairs, all $8$ $BD$ pairs, all $9$ $BE$ pairs, all $9$ $CD$ pairs, all $9$ $CE$ pairs and all $9$ $DE$ pairs: for instance the $AB$ pairs are $A_0B_0$, $A_0B_1$, $A_0B_2$, $A_1B_0$, $A_1B_1$ (twice), $A_1B_2$, $A_2B_0$ (twice), $A_2B_2$ (twice), and the $CD$ pairs are $C_0D_2$ (three times), $C_0D_0$, $C_0D_1$, $C_1D_2$, $C_1D_1$, $C_2D_2$, $C_2D_0$, $C_1D_0$, $C_2D_1$. All $85$ admissible pairs are covered, so $11$ specimens suffice.\n\nStep 5: Conclusion.\nSteps 3 and 4 give the minimum $11$. The bound $9$ of Step 2 is not attainable, and neither is $10$. Constructions that extend a $3 \\times 3$ array for two of the factors, or that add specimens one at a time covering as many new pairs as possible, end at $12$ or more; there are only $24$ programmes with $11$ specimens, which are $4$ programmes up to renaming the three load ratios, which no unavailable combination distinguishes.\n\nAnswer: $11$.",
+    "references": "Pairwise covering test suites (covering arrays of strength two) with constraints between factor levels, and the practice of building them greedily: D. M. Cohen, S. R. Dalal, M. L. Fredman and G. C. Patton, The AETG system: an approach to testing based on combinatorial design, IEEE Transactions on Software Engineering 23 (1997), 437-444. Covering arrays in general, their lower bounds and the hardness of finding minimum ones: C. J. Colbourn, Combinatorial aspects of covering arrays, Le Matematiche 59 (2004), 125-172. The uploaded file verification_notes.txt lists the 114 admissible specimens and the 85 admissible pairs, checks the set of 11 pairwise incompatible pairs against every admissible specimen with the reason for each incompatible couple, checks the 11-specimen programme pair by pair, confirms the minimum by an integer programme and enumerates all 24 optimal programmes; the program is embedded with its output.",
+    "rubric": {
+      "criteria": [
+        {
+          "id": "c1",
+          "description": "Gives $11$.",
+          "points": 5,
+          "isFinalAnswer": true
+        },
+        {
+          "id": "c2",
+          "description": "Exhibits an explicit programme of $11$ admissible specimens covering every admissible level pair (equivalently, a correct $11$-row test matrix).",
+          "points": 2,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c3",
+          "description": "Proves that $10$ specimens are not enough by a valid argument, for instance a set of $11$ admissible level pairs no two of which fit into one admissible specimen (such as $A_0B_0$, $A_0B_2$, $A_1B_0$, $A_1B_2$, $A_2D_1$, $A_2D_2$, $B_1E_0$, $B_1E_1$, $B_1E_2$, $C_1D_0$, $C_2D_0$), or an exhaustive search whose state space is described.",
+          "points": 2,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c4",
+          "description": "States the bound of $9$ specimens from a factor pair with $9$ admissible level pairs and recognises that the unavailable combinations make it unattainable.",
+          "points": 1,
+          "isFinalAnswer": false
+        }
+      ],
+      "commonWrongAnswers": [
+        "9",
+        "10",
+        "12",
+        "13"
+      ]
+    },
+    "image": {
+      "entry": "image.png"
+    },
+    "referenceFile": {
+      "entry": "reference.txt",
+      "fileName": "verification_notes.txt"
+    }
+  }
+}

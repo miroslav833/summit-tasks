@@ -1,66 +1,43 @@
-"""Draws the figure for task08 (engineering, constant-K_op version): long-crack fatigue crack growth data of a MIM
-Ti-6Al-7Nb alloy at R = 0.1 and R = 0.7 on log-log axes, generated from the stated model.  The dashed line is the Paris
-fit to the straight part of the R = 0.7 data; the thin solid line through the R = 0.1 data is the closure model.
-Produces image.png (300 dpi) and image.pdf.  Run: python3 draw_figure.py"""
+"""Draws the figure for task08 (test-matrix version 3): the six factors of the fatigue programme with their three levels,
+and the ten level combinations that are not available.  Produces image.png (300 dpi) and image.pdf.
+Run: python3 draw_figure.py"""
 import pathlib
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.ticker import LogLocator, NullFormatter, FuncFormatter
 
-C = 1.0e-12; M = 3; DK_TH_EFF = 2.5; KOP = 6.0          # K_op in MPa sqrt m, the same at every load ratio
-DK_EFF_POINTS = [3.0, 3.5, 4.0, 5.0, 6.0, 8.0, 10.0, 14.0, 20.0, 24.0, 30.0, 34.0, 44.0, 50.0, 70.0, 100.0]
-
-def intrinsic(dk_eff):
-    return C * dk_eff ** M * (1 - (DK_TH_EFF / dk_eff) ** 4)
-def dk_applied(dk_eff, R):
-    """applied range at load ratio R for a given effective range: K_max - K_op = dk_eff while K_min < K_op."""
-    kmax_closure = dk_eff + KOP                       # closure present: dK_eff = K_max - K_op
-    if R * kmax_closure < KOP: return (1 - R) * kmax_closure
-    return dk_eff                                     # K_min >= K_op: closure absent, dK_eff = dK
-def data():
-    r07 = [(dk_applied(d, 0.7), intrinsic(d)) for d in DK_EFF_POINTS]
-    r01 = [(dk_applied(d, 0.1), intrinsic(d)) for d in DK_EFF_POINTS]
-    return r01, r07
-def curve01(n=400):
-    import math
-    out = []
-    for i in range(n + 1):
-        d = 2.6 * (200 / 2.6) ** (i / n)
-        out.append((dk_applied(d, 0.1), intrinsic(d)))
-    return out
+FACTORS = [("Powder", ["TiH$_2$-derived", "HDH", "gas-atomised"]),
+           ("Specimen geometry", ["round bar", "flat", "notched"]),
+           ("Space-holder content", ["0 vol%", "15 vol%", "30 vol%"]),
+           ("Oxygen content", ["0.15 wt%", "0.30 wt%", "0.45 wt%"]),
+           ("Load ratio $R$", ["$-1$", "0.1", "0.5"]),
+           ("Environment", ["laboratory air", "Ringer's solution", "Ringer's, H-charged"])]
+# forbidden pairs as (factor index, level index) couples: A0B0, A0C0, A0D2, A0F1, A1B2, B1E0, C0D0, C1E2, D1F0, D2F1
+FORBIDDEN = [((0, 0), (1, 0)), ((0, 0), (2, 0)), ((0, 0), (3, 2)), ((0, 0), (5, 1)), ((0, 1), (1, 2)), ((1, 1), (4, 0)), ((2, 0), (3, 0)), ((2, 1), (4, 2)), ((3, 1), (5, 0)), ((3, 2), (5, 1))]
 
 def draw(out="image"):
-    r01, r07 = data()
-    fig, ax = plt.subplots(figsize=(7.0, 6.2))
-    xs = [2.0, 300.0]
-    ax.plot(xs, [C * x ** M for x in xs], "k--", lw=1.0, label="Paris fit, $R = 0.7$", zorder=2)
-    cv = curve01(); ax.plot([d for d, _ in cv], [r for _, r in cv], "-", color="0.45", lw=0.9, zorder=2)
-    ax.plot([d for d, _ in r01], [r for _, r in r01], "o", mfc="white", mec="black", ms=6.5, mew=1.2, label="$R = 0.1$", zorder=3)
-    ax.plot([d for d, _ in r07], [r for _, r in r07], "s", mfc="black", mec="black", ms=5.5, label="$R = 0.7$", zorder=3)
-    ax.set_xscale("log"); ax.set_yscale("log")
-    ax.set_xlim(2, 300); ax.set_ylim(1e-12, 1e-5)
-    ax.set_xlabel(r"$\Delta K$  (MPa$\sqrt{\mathrm{m}}$)", fontsize=12)
-    ax.set_ylabel(r"$da/dN$  (m/cycle)", fontsize=12)
-    ax.xaxis.set_major_locator(LogLocator(base=10, numticks=10))
-    ax.xaxis.set_minor_locator(LogLocator(base=10, subs=range(2, 10), numticks=20))
-    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, p: f"{v:g}"))
-    ax.xaxis.set_minor_formatter(FuncFormatter(lambda v, p: f"{v:g}" if v in (2, 3, 4, 5, 6, 8, 20, 30, 40, 50, 60, 80, 200) else ""))
-    ax.yaxis.set_major_locator(LogLocator(base=10, numticks=10))
-    ax.yaxis.set_minor_locator(LogLocator(base=10, subs=range(2, 10), numticks=20))
-    ax.yaxis.set_minor_formatter(NullFormatter())
-    ax.grid(True, which="major", color="0.55", lw=0.8)
-    ax.grid(True, which="minor", color="0.85", lw=0.5)
-    ax.tick_params(axis="both", which="both", labelsize=9)
-    ax.legend(loc="upper left", fontsize=11, frameon=True)
-    ax.text(0.98, 0.03, "MIM Ti-6Al-7Nb, long cracks, lab air", transform=ax.transAxes, ha="right", va="bottom", fontsize=10)
-    fig.tight_layout(pad=0.4)
+    fig, ax = plt.subplots(figsize=(10.0, 8.6)); ax.axis("off")
+    ax.text(0.0, 0.985, "Factors and levels of the fatigue test programme (MIM Ti-6Al-7Nb)", fontsize=12.5, fontweight="bold", va="top")
+    cells = [[name] + lv for name, lv in FACTORS]
+    t1 = ax.table(cellText=cells, colLabels=["Factor", "Level 1", "Level 2", "Level 3"], loc="upper left", bbox=[0.0, 0.60, 1.0, 0.35], cellLoc="center")
+    t1.auto_set_font_size(False); t1.set_fontsize(11.5)
+    for (r, c), cell in t1.get_celld().items():
+        cell.set_edgecolor("black"); cell.set_linewidth(0.8)
+        if r == 0: cell.set_text_props(fontweight="bold"); cell.set_facecolor("0.9")
+        if c == 0 and r > 0: cell.set_text_props(ha="left"); cell.get_text().set_x(0.03)
+    ax.text(0.0, 0.54, "Level combinations that are not available", fontsize=12.5, fontweight="bold", va="top")
+    rows = []
+    for (fi, li), (fj, lj) in FORBIDDEN:
+        rows.append([f"{FACTORS[fi][0]} = {FACTORS[fi][1][li]}", f"{FACTORS[fj][0]} = {FACTORS[fj][1][lj]}"])
+    t2 = ax.table(cellText=rows, colLabels=["Level of one factor", "Level of another factor"], loc="upper left", bbox=[0.0, 0.0, 1.0, 0.50], cellLoc="left", colWidths=[0.5, 0.5])
+    t2.auto_set_font_size(False); t2.set_fontsize(11.5)
+    for (r, c), cell in t2.get_celld().items():
+        cell.set_edgecolor("black"); cell.set_linewidth(0.8); cell.get_text().set_x(0.03)
+        if r == 0: cell.set_text_props(fontweight="bold"); cell.set_facecolor("0.9")
+    fig.tight_layout(pad=0.3)
     here = pathlib.Path(__file__).parent
     fig.savefig(here / f"{out}.png", dpi=300, facecolor="white"); fig.savefig(here / f"{out}.pdf", facecolor="white"); plt.close(fig)
     print("wrote", out + ".png", out + ".pdf")
 
 if __name__ == "__main__":
-    r01, r07 = data()
-    print("R = 0.7 points (dK, da/dN):", [(round(d, 3), f"{r:.3e}") for d, r in r07])
-    print("R = 0.1 points (dK, da/dN):", [(round(d, 3), f"{r:.3e}") for d, r in r01])
     draw()

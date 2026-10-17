@@ -10,7 +10,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task05 | Bandwidth of a 12-vertex graph | 4 | tasks/task05-bandwidth/graph-bandwidth-twelve-vertices.zip |
 | task06 | Bandwidth of a 14-vertex graph | 5 | tasks/task06-bandwidth-fourteen/graph-bandwidth-fourteen-vertices.zip |
 | task06 v2 | Number of optimal numberings of a 14-vertex, 29-edge graph (counting version of task06, two edges added) | 6 | tasks/task06-bandwidth-fourteen/v2-count/graph-bandwidth-fourteen-optimal-numberings-count.zip |
-| task08 | Engineering: fatigue crack growth life of a MIM Ti-6Al-7Nb plate at R = 0.4, closure level read from da/dN curves at R = 0.1 and 0.7 (the two mathematics packages that used this folder, fractional chromatic number 13/4 and 35/11, are archived in v1/ and v2-math/) | 1.04 x 10^6 cycles | tasks/task08-fractional-chromatic-number/crack-growth-closure-two-load-ratios.zip |
+| task08 | Engineering: smallest pairwise-covering fatigue test matrix with unavailable level combinations (six factors, ten unavailable; five-factor versions in tm-v1/ and tm-v2/, crack-growth versions in eng-v1/ to eng-v3/, mathematics versions in v1/ and v2-math/) | 11 | tasks/task08-fractional-chromatic-number/fatigue-test-matrix-six-factors.zip |
 | task09 | Rooted pebbling number of a 10-vertex graph (target double-circled) | 13 | tasks/task09-pebbling-number/graph-rooted-pebbling-number-ten-vertices.zip |
 | task09 v2 | Rooted pebbling number of a 13-vertex graph (revision of SUM-MVBG0GO3, target double-circled) | 25 | tasks/task09-pebbling-number/v2-thirteen/graph-rooted-pebbling-number-thirteen-vertices.zip |
 | task09 v3 | Kitagawa diagram, internal pore in MIM Ti-6Al-7Nb (Engineering replacement for SUM-MVBG0GO3) | 200 MPa | tasks/task09-pebbling-number/v3-kitagawa-internal-pore/kitagawa-internal-pore-titanium.zip |
@@ -37,7 +37,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task05 v3 (revision of SUM-MVB7DTW7 with the reviewer's Graph A, 13 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-thirteen-vertices.zip
 
 - task06 v2 (count of optimal numberings, 14 vertices, new figure): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-optimal-numberings-count.zip
-- task08 crack growth with closure (Engineering): https://github.com/miroslav833/summit-tasks/raw/main/zips/crack-growth-closure-two-load-ratios.zip
+- task08 fatigue test matrix (Engineering, six factors): https://github.com/miroslav833/summit-tasks/raw/main/zips/fatigue-test-matrix-six-factors.zip
 - task05 v2 (count of optimal numberings, revision of the returned task05): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-optimal-numberings-count.zip
 
 - task06 bandwidth (14 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-vertices.zip
@@ -67,7 +67,7 @@ task09: Sections 1 to 3 of verification_notes.txt give the graph, the trivial bo
 
 task05 v3: Section 2 of verification_notes.txt gives the two independent exact computations showing no numbering of width 4 exists (the pruned placement search with its tree printed to depth 3, and a dynamic programme) and the check that every cheap lower bound stops at 4; section 3 gives the explicit width-5 numbering with every edge stretch; section 6 embeds the program verify_key.py with its full output.
 
-task08: Section 1 of verification_notes.txt gives the growth law and closure model that generated the figure and the coordinates of every plotted point, so the fits can be checked against the plot (the R = 0.7 fit passes through 1e-9 m/cycle at 10 MPa sqrt m and 1e-6 at 100). Section 2 derives K_op/K_max = 0.30 from the displacement factor 9/7 of the two curves and shows that K_min exceeds K_op at R = 0.4. Section 3 computes a_c = 4.80 mm and the life 1,040,685 cycles by the closed form, by composite Simpson integration and by scipy quad. Section 4 lists the wrong routes with their values. Section 5 embeds the program verify_key.py with its output.
+task08: Section 3 of verification_notes.txt gives the lower-bound certificate: sixteen admissible level pairs with weights 1/2 and 1 adding to 21/2, checked against all 223 admissible specimens so that none carries more than weight 1; Section 2 shows that no set of pairwise incompatible pairs has more than 10 members, so the half weights are needed. Section 4 gives the 11-specimen programme and checks that it covers all 125 admissible pairs. Section 5 confirms the minimum 11 by an integer programme (scipy HiGHS) and lists the four optimal programmes found by enumeration with no-good cuts. Section 6 shows that randomised greedy constructions reach only 13 to 17 specimens. Section 7 embeds the program verify_key.py with its output.
 
 task06 v2: Sections 2 to 5 of verification_notes.txt give the proof that the bandwidth is 5, the complete list of the six numberings of width 5 with the top of the search tree and the reason every dead branch dies, an independent count by a dynamic programme, and the structural facts shared by all six (the ends are 2 and 5 by a distance-2 ball count, 8 and 9 next to them); section 6 embeds the program with its output.
 
