@@ -26,7 +26,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
-- task11 renewal residual life (Mathematics, new question, plot-reading lever): https://github.com/miroslav833/summit-tasks/raw/main/zips/renewal-residual-life-log-logistic.zip
+- task11 renewal residual life (Mathematics; v4 consistency fixes applied 10-17; IMPORT AS A NEW SUBMISSION, not as a revision of SUM-MVB7DTW7, or the old bandwidth references come back): https://github.com/miroslav833/summit-tasks/raw/main/zips/renewal-residual-life-log-logistic.zip
 - task09 v9 two S-N curves block loading (Engineering candidate, strongest local tally; edit sheet in v9-two-sn-curves-mid/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/two-sn-curves-block-loading-titanium-b.zip
 - task09 v6 S-N block loading (Engineering candidate; edit sheet in v6-sn-haibach/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/sn-curve-haibach-block-loading-titanium.zip
 - task09 v3 Kitagawa internal pore (Engineering; edit the returned entry with v3-kitagawa-internal-pore/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/kitagawa-internal-pore-titanium.zip

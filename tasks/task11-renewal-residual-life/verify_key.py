@@ -35,8 +35,13 @@ print(f"Route 3, Beta function: E[X] = {b1:.5f}, E[X^2] = {b2:.5f}, ratio = {b2/
 # E[r(t)] is int t S(t) dt / m = E[X^2]/(2 m); checked by quadrature of t S(t)/m
 m = I1; lim_r = quad(lambda t: t * S(t) / m, 0, np.inf, limit=500)[0]
 print(f"Route 4, equilibrium residual-life density S(t)/m: lim E[r(t)] = {lim_r:.5f}, over m = {lim_r/m:.5f}")
-print("Note: a direct simulation of r(t) at a fixed large t converges slowly here, because r has tail index k - 1 < 2 and")
-print("      so infinite variance; it is not used as a check.")
+# Moments of X and of the equilibrium residual life, for the record
+for r in (1, 2, 3):
+    print(f"E[X^{r}] = {lam**r * (math.pi*r/k)/math.sin(math.pi*r/k):.5f} (finite, r < k = {k:.4f})")
+print(f"The first divergent integer moment of X is the fourth, since 4 > k.")
+E2r = quad(lambda t: t*t*S(t)/m, 0, np.inf, limit=500)[0]
+print(f"Equilibrium residual life: E[r] = {lim_r:.5f}, E[r^2] = {E2r:.5f}, variance = {E2r - lim_r**2:.5f}")
+print(f"   (finite because the equilibrium density S(t)/m has tail index k - 1 = {k-1:.4f} > 2)")
 print(f"Answer key: {ratio_closed:.4f}, two significant figures {ratio_closed:.2g}")
 # Wrong routes
 print(f"Wrong: m/2 over m = 0.5; m over m = 1; E[X^2]/(2E[X]) itself (not divided by the mean) = {m2/(2*m1):.4f}")

@@ -21,8 +21,12 @@ Route 1, closed form: E[X] = 2.03015, E[X^2] = 6.57795, E[X^2]/(2 E[X]^2) = 0.79
 Route 2, quadrature of the survival function: E[X] = 2.03015, E[X^2] = 6.57795, ratio = 0.79800
 Route 3, Beta function: E[X] = 2.03015, E[X^2] = 6.57795, ratio = 0.79800
 Route 4, equilibrium residual-life density S(t)/m: lim E[r(t)] = 1.62007, over m = 0.79800
-Note: a direct simulation of r(t) at a fixed large t converges slowly here, because r has tail index k - 1 < 2 and
-      so infinite variance; it is not used as a check.
+E[X^1] = 2.03015 (finite, r < k = 3.0803)
+E[X^2] = 6.57795 (finite, r < k = 3.0803)
+E[X^3] = 182.50412 (finite, r < k = 3.0803)
+The first divergent integer moment of X is the fourth, since 4 > k.
+Equilibrium residual life: E[r] = 1.62007, E[r^2] = 29.96567, variance = 27.34105
+   (finite because the equilibrium density S(t)/m has tail index k - 1 = 2.0803 > 2)
 Answer key: 0.7980, two significant figures 0.8
 Wrong: m/2 over m = 0.5; m over m = 1; E[X^2]/(2E[X]) itself (not divided by the mean) = 1.6201
 Every pair of labelled abscissae read at the nearest gridline (true crossings kept at their true values):

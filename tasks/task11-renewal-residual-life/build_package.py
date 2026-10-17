@@ -2,16 +2,16 @@ import json, zipfile, pathlib, textwrap, subprocess, sys
 HERE = pathlib.Path(__file__).parent
 SLUG = "renewal-residual-life-log-logistic"
 HINT = r", one of them $t = 6$"
-question = r"""The figure shows, on logarithmic axes, the survival function $S(t) = P(X > t)$ of the inter-arrival time $X$ of a renewal process. $X$ has a log-logistic distribution, $S(t) = 1/(1 + (t/\lambda)^k)$ for $t > 0$, with $\lambda > 0$ and $k > 0$ not given. The curve is drawn so that it passes exactly through gridline crossings at two of the $t$ values labelled on the axisHINT. Determine $\lambda$ and $k$ from the figure.
+question = r"""The figure shows, on logarithmic axes, the survival function $S(t) = P(X > t)$ of the inter-arrival time $X$ of a renewal process. $X$ has a log-logistic distribution, $S(t) = 1/(1 + (t/\lambda)^k)$ for $t > 0$, with $\lambda > 0$ and $k > 0$ not given. The curve is drawn so that it passes exactly through gridline crossings at two of the $t$ values labelled on the axisHINT; reading those two crossings fixes $\lambda$ and $k$.
 
-Let $m = E[X]$ and let $r(t)$ be the residual life at time $t$, the time from $t$ until the next arrival of the process. Find $\lim_{t \to \infty} E[r(t)]\,/\,m$ to two significant figures.""".replace("HINT", HINT)
+Let $m = E[X]$ and let $r(t)$ be the residual life at time $t$, the time from $t$ until the next arrival of the process. Using the $\lambda$ and $k$ fixed by the figure, find $\lim_{t \to \infty} E[r(t)]\,/\,m$ to two significant figures. Give only this number as the answer.""".replace("HINT", HINT)
 final_answer = "0.80"
 variants = ["0.8", "0.798", "0.7980", "80 percent of the mean"]
 solution = r"""Step 1: The parameters from the figure.
 The gridlines of the vertical axis sit at $1$, $2$ and $5$ in every decade. Checking the curve at each labelled $t$, it passes through a gridline crossing at exactly two of them, $(6, 0.02)$ and $(20, 0.0005)$; everywhere else it runs between lines (at $t = 4$ it is at about $0.066$, at $t = 8$ about $0.0083$, at $t = 10$ about $0.0042$, at $t = 15$ about $0.0012$). Since $(t/\lambda)^k = 1/S(t) - 1$, the two crossings give $(6/\lambda)^k = 49$ and $(20/\lambda)^k = 1999$, so $(10/3)^k = 1999/49 = 40.80$, $k = \ln 40.80/\ln(10/3) = 3.7087/1.2040 = 3.080$, and $\lambda = 6/49^{1/k} = 6/3.538 = 1.696$.
 
 Step 2: The moments of $X$.
-For the log-logistic distribution $E[X^r] = \lambda^r\,\Gamma(1 + r/k)\,\Gamma(1 - r/k) = \lambda^r\,\dfrac{\pi r/k}{\sin(\pi r/k)}$, finite for $r < k$. Here $k = 3.080 > 2$, so the second moment exists (the third does not). With $\pi/k = 1.0200$: $E[X] = 1.696 \times 1.0200/\sin 1.0200 = 1.696 \times 1.0200/0.85221 = 2.030$; with $2\pi/k = 2.0400$: $E[X^2] = 1.696^2 \times 2.0400/\sin 2.0400 = 2.8766 \times 2.0400/0.89212 = 6.578$.
+For the log-logistic distribution $E[X^r] = \lambda^r\,\Gamma(1 + r/k)\,\Gamma(1 - r/k) = \lambda^r\,\dfrac{\pi r/k}{\sin(\pi r/k)}$, finite for $r < k$. Here $k = 3.080 > 2$, so the second moment exists (the first integer moment that diverges is the fourth, since $4 > k$). With $\pi/k = 1.0200$: $E[X] = 1.696 \times 1.0200/\sin 1.0200 = 1.696 \times 1.0200/0.85221 = 2.030$; with $2\pi/k = 2.0400$: $E[X^2] = 1.696^2 \times 2.0400/\sin 2.0400 = 2.8766 \times 2.0400/0.89212 = 6.578$.
 
 Step 3: The limiting residual life.
 For a renewal process whose inter-arrival time has a finite second moment and a non-lattice distribution, the residual life $r(t)$ converges in distribution to the equilibrium distribution with density $S(t)/m$, and $E[r(t)] \to \int_0^\infty t\,S(t)\,dt/m = E[X^2]/(2m)$. This is the inspection paradox: the limit is not $m/2$, and for a heavy-tailed $X$ it can be close to or above $m$. Hence $\lim E[r(t)]/m = E[X^2]/(2m^2) = 6.578/(2 \times 2.030^2) = 6.578/8.243 = 0.798$. In closed form, $\dfrac{E[X^2]}{2E[X]^2} = \dfrac{(2\pi/k)\sin^2(\pi/k)}{2(\pi/k)^2 \sin(2\pi/k)} = \dfrac{k}{2\pi}\tan\dfrac{\pi}{k} = 0.49024 \times 1.6278 = 0.798$, independent of $\lambda$.
@@ -23,8 +23,8 @@ Taking the curve through near misses instead of the true crossings gives other a
 
 Answer: $0.80$."""
 rubric = [
-    dict(id="c1", description=r"Gives $0.80$ (any value that rounds to $0.80$ at two significant figures, such as $0.798$).", points=4, isFinalAnswer=True),
-    dict(id="c2", description=r"Identifies the crossings $(6, 0.02)$ and $(20, 0.0005)$ as the two the curve passes through and obtains $k = 3.08$ and $\lambda = 1.70$ from $(t/\lambda)^k = 1/S - 1$ (not a near miss such as $(4, 0.05)$, $(8, 0.01)$, $(10, 0.005)$ or $(15, 0.001)$).", points=2, isFinalAnswer=False),
+    dict(id="c1", description=r"Gives $0.80$ as the final answer (any value that rounds to $0.80$ at two significant figures, such as $0.798$).", points=4, isFinalAnswer=True),
+    dict(id="c2", description=r"Identifies the crossings $(6, 0.02)$ and $(20, 0.0005)$ as the two the curve passes through and obtains the intermediate values $k = 3.08$ and $\lambda = 1.70$ from $(t/\lambda)^k = 1/S - 1$ (not a near miss such as $(4, 0.05)$, $(8, 0.01)$, $(10, 0.005)$ or $(15, 0.001)$).", points=2, isFinalAnswer=False),
     dict(id="c3", description=r"Uses the limit $E[r(t)] \to E[X^2]/(2E[X])$ (equilibrium residual-life distribution with density $S(t)/m$), not $m/2$ or $m$, and notes that it requires $k > 2$.", points=2, isFinalAnswer=False),
     dict(id="c4", description=r"Computes the log-logistic moments through $\Gamma(1 + r/k)\Gamma(1 - r/k) = (\pi r/k)/\sin(\pi r/k)$ or the equivalent Beta integral, reaching $E[X] = 2.03$ and $E[X^2] = 6.58$ (or the closed form $(k/2\pi)\tan(\pi/k)$).", points=2, isFinalAnswer=False),
 ]
@@ -62,7 +62,10 @@ Answer key: 0.80 (0.7980 before rounding).
 3. The answer, four ways: closed form (k/2pi) tan(pi/k) = 0.79800; quadrature of the survival function for
    E[X] = int S and E[X^2] = 2 int t S, ratio 0.79800; the Beta function E[X^r] = lambda^r B(1 + r/k, 1 - r/k),
    ratio 0.79800; quadrature of the equilibrium residual-life density S(t)/m, limit 1.62007, over m 0.79800.
-   The limit exists because k > 2 (finite second moment) and the distribution is non-lattice.
+   The limit exists because k > 2 (finite second moment) and the distribution is non-lattice. For the record the
+   program also prints E[X^1], E[X^2] and E[X^3], all finite since r < k, the first divergent integer moment of X
+   being the fourth; and the equilibrium residual life has E[r] = 1.62007, E[r^2] = 29.96567 and variance 27.34105,
+   finite because the equilibrium density S(t)/m has tail index k - 1 = 2.0803 > 2.
 4. Near-miss readings and wrong routes: the program lists every pair of labelled abscissae read at the nearest
    gridline (43 pairs) with the k and the ratio each pair gives; none of them rounds to 0.80. Among them
    (4, 0.05)+(10, 0.005) 1.13, (4, 0.05)+(20, 0.0005) 0.87, (3, 0.2)+(8, 0.01) 0.74, (3, 0.2)+(15, 0.001) 0.71,
@@ -81,7 +84,7 @@ Answer key: 0.80 (0.7980 before rounding).
 """
     (HERE / "reference.txt").write_text(txt); print("reference.txt written")
 def build_readme():
-    lines = ["task11 renewal residual life", "", "Domain: Mathematics. Subdomain: " + task["task"]["subdomain"], "",
+    lines = ["task11 renewal residual life", "", "SUBMIT AS A NEW SUBMISSION (Import .zip on the Submit page), not as a revision of SUM-MVB7DTW7: the revision editor keeps the old bandwidth references text, which was the first blocking problem on the v4 consistency check.", "", "Domain: Mathematics. Subdomain: " + task["task"]["subdomain"], "",
              "## Question", "", question, "", "## Answer", "", final_answer, "", "## Solution", "", solution, "", "## Rubric", ""]
     for c in rubric: lines.append(f"- {c['id']} ({c['points']} pts{', final answer' if c['isFinalAnswer'] else ''}): {c['description']}")
     lines += ["", "Common wrong answers: " + ", ".join(wrong), "", "## References box", "", references, "",
