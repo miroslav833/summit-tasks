@@ -1,32 +1,34 @@
-"""Verification of the answer key: the pebbling number of the 14-vertex, 20-edge graph in the figure with
-target r = 1 (the double-circled vertex) is 27.
+"""Checks answer key for the graph in the figure: rooted pebbling number of the 14-vertex, 20-edge graph with
+target r = 1 (vertex with double circle) is 27.
 
-Self-contained, Python standard library only.  Run: python3 verify_key.py   (about four minutes)
+Only Python standard library is used. Run: python3 verify_key.py (it takes about four minutes).
 
-Definitions.  A configuration c assigns c(v) >= 0 pebbles to each vertex.  A pebbling move removes two
-pebbles from a vertex u and adds one pebble to a neighbour of u.  The target r is reachable from c if some
-sequence of moves puts a pebble on r.  pi(G, r) is the least k such that every configuration of k pebbles
-reaches r.
+Definitions. Configuration c puts c(v) >= 0 pebbles on each vertex v. One pebbling move takes two pebbles
+off vertex u and puts one pebble on a neighbour of u. Target r is reachable from c when there is a sequence
+of moves which puts a pebble on r, and pi(G, r) is the smallest k such that r is reachable from each
+configuration of k pebbles.
 
-Route A (layer recursion, integer-encoded configurations).  Let U_k be the set of configurations of k
-  pebbles, none on r, from which r is not reachable.  U_0 = {0}.  Adding a pebble never destroys
-  reachability, so every member of U_k is a member of U_{k-1} plus one pebble; a candidate c belongs to U_k
-  iff no move from c lands on r and every move from c leads into U_{k-1}.  A configuration with two
-  pebbles on a neighbour of r reaches r in one move, so candidates with two pebbles on a neighbour of r
-  are skipped.  pi(G, r) = 1 + max{k : U_k nonempty}.  Prints |U_k| for every k.
-Route B (independent implementation).  The same recursion written separately with tuple-encoded
-  configurations and without the neighbour shortcut; the layer sizes must agree exactly.
-Certificates.  (i) Direct depth-first search over move sequences: every one of the 20 configurations of 26
-  pebbles in U_26 is confirmed unreachable, and every configuration obtained from one of them by adding one
-  pebble on a vertex other than r (20 x 13 = 260 configurations of 27 pebbles, fewer after removing duplicates) is confirmed reachable.
-  (ii) Random cross-check: 20,000 random configurations of each size 25, 26, 27 with at most one pebble on
-  each neighbour of r are tested by direct search and compared with membership in U_k.
-  (iii) The configuration C of the solution (fifteen pebbles on 7, seven on 11, three on 14, one on 13): all
-  configurations reachable from C are enumerated by breadth-first search; none has a pebble on 1, and the
-  largest number of pebbles ever present on each vertex is printed (never two on 2 or 3).
-  (iv) Template bounds: the largest failing configuration with at most one vertex holding two or more
-  pebbles (one pile plus single pebbles), with at most two such vertices, and with at most three.
-  (v) The trivial bounds n = 14 and 2^ecc(r) = 16, distances from r, degrees.
+Route A, layer recursion with configurations stored as integers. U_k is the set of configurations of k
+  pebbles with no pebble on r, from which r is not reachable, and U_0 = {0}. Adding a pebble never makes
+  r unreachable, so each member of U_k is a member of U_{k-1} with one more pebble, and candidate c is in
+  U_k when no move from c lands on r and each move from c goes into U_{k-1}. When a neighbour of r holds
+  two pebbles, r is reached in one move, so such candidates are skipped. Then pi(G, r) = 1 + max{k : U_k
+  nonempty}, and the program prints |U_k| for each k.
+Route B, same recursion written again separately, with configurations stored as tuples and without the
+  neighbour shortcut. Layer sizes have to be identical to Route A.
+Certificates. (i) Direct depth-first search over move sequences checks that each of the 20 configurations
+  of 26 pebbles in U_26 is unreachable, and that each configuration made from one of them by adding one
+  pebble on a vertex other than r is reachable.
+  (ii) Random check: 20,000 random configurations of each size 25, 26 and 27, with at most one pebble on
+  each neighbour of r, are tested by direct search and compared with membership in U_k.
+  (iii) Configuration C of the solution (fifteen pebbles on 7, seven on 11, three on 14, one on 13): breadth
+  first search lists each configuration reachable from C, and none of them has a pebble on 1. Then a
+  dynamic programme over the same configurations gives the largest number of moves along chosen edges over
+  all move sequences, for C and also for the pocket {11: 7} alone and the left part {7: 15, 14: 3, 13: 1}
+  alone.
+  (iv) Pile bounds: largest failing configuration where at most one vertex holds two or more pebbles (one
+  pile and single pebbles), at most two such vertices, and at most three.
+  (v) Trivial bounds n = 14 and 2^ecc(r) = 16, distances from r, degrees.
 """
 import sys, collections, random, time
 sys.setrecursionlimit(1000000)
@@ -179,6 +181,10 @@ L_out = ((9, 5), (13, 8)); R_out = ((11, 4), (11, 10))
 print("  maximum number of moves from the left part {7,9,12,13,14} into {5,8} over all sequences:", best(C, L_out))
 print("  maximum number of moves out of 11 over all sequences:", best(C, R_out))
 print("  maximum number of pebbles arriving at 2:", best(C, tuple((u, 2) for u in adj[2] if u != R)), " at 3:", best(C, tuple((u, 3) for u in adj[3] if u != R)))
+for nm, part in (("pocket {11: 7} alone", {11: 7}), ("left part {7: 15, 14: 3, 13: 1} alone", {7: 15, 14: 3, 13: 1})):
+    P = enc(part)
+    print(f"  {nm}: most pebbles arriving at 2:", best(P, tuple((u, 2) for u in adj[2] if u != R)), " at 3:", best(P, tuple((u, 3) for u in adj[3] if u != R)), " moves 8->6:", best(P, ((8, 6),)))
+print("  for C: moves 8->6 at most", best(C, ((8, 6),)), " moves 6->3 at most", best(C, ((6, 3),)))
 print("  maximum number of pebbles arriving at 5:", best(C, tuple((u, 5) for u in adj[5])), " at 8:", best(C, tuple((u, 8) for u in adj[8])), " at 4:", best(C, tuple((u, 4) for u in adj[4])), " at 6:", best(C, tuple((u, 6) for u in adj[6])), " at 10:", best(C, tuple((u, 10) for u in adj[10])))
 
 # ------------------------------------------------------------ Certificate (iv): template bounds

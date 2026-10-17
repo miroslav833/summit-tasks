@@ -1,75 +1,77 @@
-VERIFICATION NOTES: rooted pebbling number of the graph in the figure (target: the double-circled vertex 1)
+VERIFICATION NOTES: rooted pebbling number of the graph in the figure (target is vertex 1 with double circle)
 
 Answer key: 27.
 
-1. The graph (from the figure). Vertices 1 to 14, edges 1-2, 1-3, 2-5, 2-8, 3-4, 3-6, 3-10, 4-10, 4-11,
-   5-8, 5-9, 6-8, 6-10, 7-9, 7-12, 8-13, 9-12, 10-11, 12-14, 13-14. Target r = 1, neighbours 2 and 3.
-   Distances from 1: 1 for 2, 3; 2 for 4, 5, 6, 8, 10; 3 for 9, 11, 13; 4 for 7, 12, 14. Eccentricity of 1
-   is 4. The graph is planar and 2-connected. Trivial lower bounds: 2^4 = 16 and n = 14. The left part
-   L = {7, 9, 12, 13, 14} meets the rest only through the edges 9-5 and 13-8; the pocket {4, 10, 11}
-   hangs off 3 and 6, with 11 of degree 2 at distance 3.
+1. Graph from the figure. Vertices 1 to 14, edges 1-2, 1-3, 2-5, 2-8, 3-4, 3-6, 3-10, 4-10, 4-11, 5-8,
+   5-9, 6-8, 6-10, 7-9, 7-12, 8-13, 9-12, 10-11, 12-14, 13-14. Target r = 1 has neighbours 2 and 3.
+   Distances from 1 are 1 for 2 and 3, 2 for 4, 5, 6, 8, 10, 3 for 9, 11, 13 and 4 for 7, 12, 14, so
+   eccentricity of 1 is 4. Graph is planar and 2-connected, and trivial lower bounds are 2^4 = 16 and
+   n = 14. Left part L = {7, 9, 12, 13, 14} is joined to the rest only by edges 9-5 and 13-8, and the
+   pocket {4, 10, 11} hangs on 3 and 6, with 11 of degree 2 at distance 3.
 
-2. Lower bound 27: the configuration C with fifteen pebbles on 7, seven on 11, three on 14, one on 13
-   (twenty-six pebbles) does not reach 1. Reduction (Step 3 of the solution): a pebble reaches 1 only
-   from 2 or 3 holding two pebbles, so two pebbles must arrive at 2 (from 5 or 8) or at 3 (from 4, 6 or
-   10). Certificate: breadth-first enumeration of every configuration reachable from C (187,805
-   configurations, program section 5, certificate (iii)); none has a pebble on 1 and none has two pebbles
-   on 2 or on 3. A dynamic programme over the same configurations gives the largest number of moves into
-   each vertex over all move sequences: at most one pebble ever arrives at 2 and at most one at 3; at most
-   five pebbles leave L, at most four leave 11 (counting re-entries). Structure: the pocket's pile of seven
-   is worth one pebble at 3, the pile of fifteen on 7 is worth one pebble at 2, and the three on 14 with
-   the one on 13 add a single stranded pebble on 8 or 12.
+2. Lower bound 27. Configuration C with fifteen pebbles on 7, seven on 11, three on 14 and one on 13 has
+   twenty-six pebbles and 1 is not reachable from it. A pebble gets to 1 only from 2 or 3 holding two
+   pebbles, so two pebbles have to arrive at 2 (from 5 or 8) or at 3 (from 4, 6 or 10). Breadth first
+   search lists every configuration reachable from C (187,805 of them, program section 5, certificate
+   (iii)), and none of them has a pebble on 1 or two pebbles on 2 or on 3. Dynamic programme over the
+   same configurations gives the largest number of moves along chosen edges over all move sequences.
+   For C, at most one pebble ever arrives at 2 and at most one at 3, edge 8->6 is used at most once and
+   edge 6->3 at most once. The pocket alone ({11: 7}) puts at most one pebble on 3, and the left part
+   alone ({7: 15, 14: 3, 13: 1}) puts at most one pebble on 2 and uses 8->6 at most once. Odd pile of
+   fifteen on 7 keeps one pebble at each level, and small pile of three on 14 with one on 13 gives only one
+   pebble on 8 or 12.
 
-3. Why this configuration and not the pile patterns. The largest failing configurations with a single
-   pile have 22 pebbles (fifteen on 7 or on 12 and single pebbles on seven other vertices), suggesting
-   23; the largest with two piles have 25 (fifteen on 7, seven on 11, singles on 12, 13, 14, and four
-   relatives), suggesting 26. The 20 failing configurations of 26 pebbles all have seven on 11 and nineteen
-   pebbles in L in twelve shapes, every one with at least three piles; they are listed in the Route A
-   output.
+3. Pile bounds. Largest failing configurations with one pile and single pebbles have 22 pebbles (fifteen
+   on 7 or 12 and single pebbles on seven other vertices). Largest with at most two piles have 25 (fifteen
+   on 7, seven on 11 and single pebbles on 12, 13, 14, and four similar ones). All 20 failing
+   configurations of 26 pebbles have seven on 11 and nineteen pebbles in L, in twelve shapes, and each has
+   at least three piles. They are listed in the Route A output.
 
-4. Upper bound 27: Route A (layer recursion over the sets U_k of unreachable configurations of k pebbles,
-   integer-encoded, with the shortcut that two pebbles on a neighbour of 1 reach 1) gives the layer sizes
+4. Upper bound 27. Route A (layer recursion over sets U_k of unreachable configurations of k pebbles,
+   stored as integers, with the shortcut that two pebbles on a neighbour of 1 reach 1) gives layer sizes
    1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222,
-   153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0; U_27 is empty. Route B (the
-   same recursion written independently with tuple-encoded configurations and without the shortcut) gives
-   identical sizes. Certificate (i): a memoised depth-first search over move sequences confirms that each
-   of the 20 configurations of 26 pebbles fails and that every configuration obtained by adding one pebble
-   reaches 1. Certificate (ii): 20,000 random configurations of each size 25, 26, 27 (at most one pebble
-   on each neighbour of 1) give the same verdict by direct search and by layer membership. Certificate
-   (iv): the template bounds 22 (one pile plus singles), 25 (two piles) and 26 (three piles).
+   153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0, and U_27 is empty. Route B
+   (same recursion written again separately, with tuples and without the shortcut) gives the same sizes.
+   Certificate (i): memoised depth-first search over move sequences confirms each of the 20 configurations
+   of 26 pebbles fails, and each configuration made by adding one pebble reaches 1. Certificate (ii):
+   20,000 random configurations of each size 25, 26, 27 (at most one pebble on each neighbour of 1) get
+   the same verdict from direct search and from layer membership. Certificate (iv): pile bounds 22, 25 and
+   26 for one, two and three piles.
 
-5. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py; standard library only,
+5. Program verify_key.py (run with Python 3.12.3, command python3 verify_key.py, standard library only,
    about four minutes)
 
-   """Verification of the answer key: the pebbling number of the 14-vertex, 20-edge graph in the figure with
-   target r = 1 (the double-circled vertex) is 27.
+   """Checks answer key for the graph in the figure: rooted pebbling number of the 14-vertex, 20-edge graph with
+   target r = 1 (vertex with double circle) is 27.
 
-   Self-contained, Python standard library only.  Run: python3 verify_key.py   (about four minutes)
+   Only Python standard library is used. Run: python3 verify_key.py (it takes about four minutes).
 
-   Definitions.  A configuration c assigns c(v) >= 0 pebbles to each vertex.  A pebbling move removes two
-   pebbles from a vertex u and adds one pebble to a neighbour of u.  The target r is reachable from c if some
-   sequence of moves puts a pebble on r.  pi(G, r) is the least k such that every configuration of k pebbles
-   reaches r.
+   Definitions. Configuration c puts c(v) >= 0 pebbles on each vertex v. One pebbling move takes two pebbles
+   off vertex u and puts one pebble on a neighbour of u. Target r is reachable from c when there is a sequence
+   of moves which puts a pebble on r, and pi(G, r) is the smallest k such that r is reachable from each
+   configuration of k pebbles.
 
-   Route A (layer recursion, integer-encoded configurations).  Let U_k be the set of configurations of k
-     pebbles, none on r, from which r is not reachable.  U_0 = {0}.  Adding a pebble never destroys
-     reachability, so every member of U_k is a member of U_{k-1} plus one pebble; a candidate c belongs to U_k
-     iff no move from c lands on r and every move from c leads into U_{k-1}.  A configuration with two
-     pebbles on a neighbour of r reaches r in one move, so candidates with two pebbles on a neighbour of r
-     are skipped.  pi(G, r) = 1 + max{k : U_k nonempty}.  Prints |U_k| for every k.
-   Route B (independent implementation).  The same recursion written separately with tuple-encoded
-     configurations and without the neighbour shortcut; the layer sizes must agree exactly.
-   Certificates.  (i) Direct depth-first search over move sequences: every one of the 20 configurations of 26
-     pebbles in U_26 is confirmed unreachable, and every configuration obtained from one of them by adding one
-     pebble on a vertex other than r (20 x 13 = 260 configurations of 27 pebbles, fewer after removing duplicates) is confirmed reachable.
-     (ii) Random cross-check: 20,000 random configurations of each size 25, 26, 27 with at most one pebble on
-     each neighbour of r are tested by direct search and compared with membership in U_k.
-     (iii) The configuration C of the solution (fifteen pebbles on 7, seven on 11, three on 14, one on 13): all
-     configurations reachable from C are enumerated by breadth-first search; none has a pebble on 1, and the
-     largest number of pebbles ever present on each vertex is printed (never two on 2 or 3).
-     (iv) Template bounds: the largest failing configuration with at most one vertex holding two or more
-     pebbles (one pile plus single pebbles), with at most two such vertices, and with at most three.
-     (v) The trivial bounds n = 14 and 2^ecc(r) = 16, distances from r, degrees.
+   Route A, layer recursion with configurations stored as integers. U_k is the set of configurations of k
+     pebbles with no pebble on r, from which r is not reachable, and U_0 = {0}. Adding a pebble never makes
+     r unreachable, so each member of U_k is a member of U_{k-1} with one more pebble, and candidate c is in
+     U_k when no move from c lands on r and each move from c goes into U_{k-1}. When a neighbour of r holds
+     two pebbles, r is reached in one move, so such candidates are skipped. Then pi(G, r) = 1 + max{k : U_k
+     nonempty}, and the program prints |U_k| for each k.
+   Route B, same recursion written again separately, with configurations stored as tuples and without the
+     neighbour shortcut. Layer sizes have to be identical to Route A.
+   Certificates. (i) Direct depth-first search over move sequences checks that each of the 20 configurations
+     of 26 pebbles in U_26 is unreachable, and that each configuration made from one of them by adding one
+     pebble on a vertex other than r is reachable.
+     (ii) Random check: 20,000 random configurations of each size 25, 26 and 27, with at most one pebble on
+     each neighbour of r, are tested by direct search and compared with membership in U_k.
+     (iii) Configuration C of the solution (fifteen pebbles on 7, seven on 11, three on 14, one on 13): breadth
+     first search lists each configuration reachable from C, and none of them has a pebble on 1. Then a
+     dynamic programme over the same configurations gives the largest number of moves along chosen edges over
+     all move sequences, for C and also for the pocket {11: 7} alone and the left part {7: 15, 14: 3, 13: 1}
+     alone.
+     (iv) Pile bounds: largest failing configuration where at most one vertex holds two or more pebbles (one
+     pile and single pebbles), at most two such vertices, and at most three.
+     (v) Trivial bounds n = 14 and 2^ecc(r) = 16, distances from r, degrees.
    """
    import sys, collections, random, time
    sys.setrecursionlimit(1000000)
@@ -222,6 +224,10 @@ Answer key: 27.
    print("  maximum number of moves from the left part {7,9,12,13,14} into {5,8} over all sequences:", best(C, L_out))
    print("  maximum number of moves out of 11 over all sequences:", best(C, R_out))
    print("  maximum number of pebbles arriving at 2:", best(C, tuple((u, 2) for u in adj[2] if u != R)), " at 3:", best(C, tuple((u, 3) for u in adj[3] if u != R)))
+   for nm, part in (("pocket {11: 7} alone", {11: 7}), ("left part {7: 15, 14: 3, 13: 1} alone", {7: 15, 14: 3, 13: 1})):
+       P = enc(part)
+       print(f"  {nm}: most pebbles arriving at 2:", best(P, tuple((u, 2) for u in adj[2] if u != R)), " at 3:", best(P, tuple((u, 3) for u in adj[3] if u != R)), " moves 8->6:", best(P, ((8, 6),)))
+   print("  for C: moves 8->6 at most", best(C, ((8, 6),)), " moves 6->3 at most", best(C, ((6, 3),)))
    print("  maximum number of pebbles arriving at 5:", best(C, tuple((u, 5) for u in adj[5])), " at 8:", best(C, tuple((u, 8) for u in adj[8])), " at 4:", best(C, tuple((u, 4) for u in adj[4])), " at 6:", best(C, tuple((u, 6) for u in adj[6])), " at 10:", best(C, tuple((u, 10) for u in adj[10])))
 
    # ------------------------------------------------------------ Certificate (iv): template bounds
@@ -244,7 +250,7 @@ Answer key: 27.
    trivial lower bounds: n = 14  2^ecc = 16
 
    ROUTE A: layer sizes |U_k| for k = 0, 1, ...: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]
-   ROUTE A: pi(G, 1) = 27   (77 s)
+   ROUTE A: pi(G, 1) = 27   (58 s)
      the 20 unreachable configurations of 26 pebbles:
         {7: 7, 11: 7, 12: 7, 14: 5}
         {7: 9, 11: 7, 12: 5, 14: 5}
@@ -267,14 +273,14 @@ Answer key: 27.
         {7: 15, 11: 7, 13: 1, 14: 3}
         {7: 3, 9: 1, 11: 7, 14: 15}
 
-   ROUTE B: layer sizes: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]   (91 s)
+   ROUTE B: layer sizes: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]   (48 s)
    ROUTE B: identical layer sizes, pi(G, 1) = 27
 
-   CERTIFICATE (i): direct search confirms the 20 configurations of 26 pebbles are unreachable and all 253 one-pebble extensions reach 1   (9 s)
+   CERTIFICATE (i): direct search confirms the 20 configurations of 26 pebbles are unreachable and all 253 one-pebble extensions reach 1   (5 s)
    CERTIFICATE (ii): size 25: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
    CERTIFICATE (ii): size 26: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
    CERTIFICATE (ii): size 27: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
-      (8 s)
+      (5 s)
 
    CERTIFICATE (iii): configurations reachable from C = {7: 15, 11: 7, 14: 3, 13: 1}: 187805
      largest number of pebbles ever on each vertex: {1: 0, 2: 1, 3: 1, 4: 3, 5: 3, 6: 2, 7: 15, 8: 2, 9: 7, 10: 3, 11: 7, 12: 8, 13: 4, 14: 6}
@@ -282,6 +288,9 @@ Answer key: 27.
      maximum number of moves from the left part {7,9,12,13,14} into {5,8} over all sequences: 5
      maximum number of moves out of 11 over all sequences: 4
      maximum number of pebbles arriving at 2: 1  at 3: 1
+     pocket {11: 7} alone: most pebbles arriving at 2: 0  at 3: 1  moves 8->6: 0
+     left part {7: 15, 14: 3, 13: 1} alone: most pebbles arriving at 2: 1  at 3: 0  moves 8->6: 1
+     for C: moves 8->6 at most 1  moves 6->3 at most 1
      maximum number of pebbles arriving at 5: 5  at 8: 3  at 4: 4  at 6: 3  at 10: 5
 
    CERTIFICATE (iv): largest unreachable configuration with one pile plus single pebbles has 22 pebbles: [{3: 1, 4: 1, 7: 1, 10: 1, 11: 1, 12: 15, 13: 1, 14: 1}, {3: 1, 4: 1, 7: 15, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1}, {3: 1, 4: 1, 7: 15, 8: 1, 10: 1, 11: 1, 12: 1, 14: 1}, {3: 1, 4: 1, 6: 1, 7: 15, 10: 1, 11: 1, 12: 1, 14: 1}]

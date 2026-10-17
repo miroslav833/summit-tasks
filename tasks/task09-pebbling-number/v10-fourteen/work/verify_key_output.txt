@@ -5,7 +5,7 @@ distances from r: {1: 0, 2: 1, 3: 1, 4: 2, 5: 2, 6: 2, 8: 2, 10: 2, 9: 3, 11: 3,
 trivial lower bounds: n = 14  2^ecc = 16
 
 ROUTE A: layer sizes |U_k| for k = 0, 1, ...: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]
-ROUTE A: pi(G, 1) = 27   (77 s)
+ROUTE A: pi(G, 1) = 27   (58 s)
   the 20 unreachable configurations of 26 pebbles:
      {7: 7, 11: 7, 12: 7, 14: 5}
      {7: 9, 11: 7, 12: 5, 14: 5}
@@ -28,14 +28,14 @@ ROUTE A: pi(G, 1) = 27   (77 s)
      {7: 15, 11: 7, 13: 1, 14: 3}
      {7: 3, 9: 1, 11: 7, 14: 15}
 
-ROUTE B: layer sizes: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]   (91 s)
+ROUTE B: layer sizes: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]   (48 s)
 ROUTE B: identical layer sizes, pi(G, 1) = 27
 
-CERTIFICATE (i): direct search confirms the 20 configurations of 26 pebbles are unreachable and all 253 one-pebble extensions reach 1   (9 s)
+CERTIFICATE (i): direct search confirms the 20 configurations of 26 pebbles are unreachable and all 253 one-pebble extensions reach 1   (5 s)
 CERTIFICATE (ii): size 25: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
 CERTIFICATE (ii): size 26: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
 CERTIFICATE (ii): size 27: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
-   (8 s)
+   (5 s)
 
 CERTIFICATE (iii): configurations reachable from C = {7: 15, 11: 7, 14: 3, 13: 1}: 187805
   largest number of pebbles ever on each vertex: {1: 0, 2: 1, 3: 1, 4: 3, 5: 3, 6: 2, 7: 15, 8: 2, 9: 7, 10: 3, 11: 7, 12: 8, 13: 4, 14: 6}
@@ -43,6 +43,9 @@ CERTIFICATE (iii): configurations reachable from C = {7: 15, 11: 7, 14: 3, 13: 1
   maximum number of moves from the left part {7,9,12,13,14} into {5,8} over all sequences: 5
   maximum number of moves out of 11 over all sequences: 4
   maximum number of pebbles arriving at 2: 1  at 3: 1
+  pocket {11: 7} alone: most pebbles arriving at 2: 0  at 3: 1  moves 8->6: 0
+  left part {7: 15, 14: 3, 13: 1} alone: most pebbles arriving at 2: 1  at 3: 0  moves 8->6: 1
+  for C: moves 8->6 at most 1  moves 6->3 at most 1
   maximum number of pebbles arriving at 5: 5  at 8: 3  at 4: 4  at 6: 3  at 10: 5
 
 CERTIFICATE (iv): largest unreachable configuration with one pile plus single pebbles has 22 pebbles: [{3: 1, 4: 1, 7: 1, 10: 1, 11: 1, 12: 15, 13: 1, 14: 1}, {3: 1, 4: 1, 7: 15, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1}, {3: 1, 4: 1, 7: 15, 8: 1, 10: 1, 11: 1, 12: 1, 14: 1}, {3: 1, 4: 1, 6: 1, 7: 15, 10: 1, 11: 1, 12: 1, 14: 1}]
