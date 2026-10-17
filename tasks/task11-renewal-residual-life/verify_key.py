@@ -1,64 +1,168 @@
-# Limiting mean residual life of a renewal process with log-logistic inter-arrival times, over the mean.
-# Run: python3 verify_key.py (needs numpy and scipy)
-import math, numpy as np
+# Expected number of renewals by time t = 6 for a renewal process with log-logistic inter-arrival times,
+# the parameters taken from two gridline crossings of the drawn survival function.
+# Run: python3 verify_key.py   (needs numpy and scipy)
+import math
+import numpy as np
 from scipy.integrate import quad
-# Step 1: parameters from the two gridline crossings the curve passes through
+
+# Step 1: the two gridline crossings the curve passes through, and the parameters they fix
 t1, S1 = 6.0, 0.02
 t2, S2 = 20.0, 0.0005
 k = math.log((1/S2 - 1) / (1/S1 - 1)) / math.log(t2 / t1)
 lam = t1 / (1/S1 - 1)**(1/k)
-print(f"k = {k:.4f}, lambda = {lam:.4f}  (from (t/lam)^k = 1/S - 1 at the two crossings)")
-S = lambda t: 1.0 / (1.0 + (t / lam)**k)
-print(f"check: S({t1:g}) = {S(t1):.4f}, S({t2:g}) = {S(t2):.4f}")
+print(f"k = {k:.4f}  (root of (20/6)^k = 1999/49 = {1999/49:.3f}), lambda = {lam:.4f}")
+print(f"check: S({t1:g}) = {1/(1+(t1/lam)**k):.4f}, S({t2:g}) = {1/(1+(t2/lam)**k):.6f}")
+for kk in (3.0, 3.05, 3.08, 3.0803):
+    print(f"   hand iteration: k = {kk}: (20/6)^k = {(20/6)**kk:.2f} (target {1999/49:.2f})")
+
 labelled = [1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100]
+S = lambda t: 1.0 / (1.0 + (t / lam)**k)
 print("curve at every labelled t and the distance to the nearest gridline (lines at 1, 2, 5 of each decade):")
 for t in labelled:
     y = S(t)
-    if y < 1e-4: print(f"   t = {t:3d}: S = {y:.3e} (below the axis)"); continue
-    e = 10**math.floor(math.log10(y)); mant = y / e
-    cands = [c*e for c in (1, 2, 5, 10)]
-    nearest = min(cands, key=lambda v: abs(math.log10(y / v)))
+    if y < 1e-4:
+        print(f"   t = {t:3d}: S = {y:.3e} (below the axis)"); continue
+    e = 10**math.floor(math.log10(y))
+    nearest = min([c*e for c in (1, 2, 5, 10)], key=lambda v: abs(math.log10(y / v)))
     print(f"   t = {t:3d}: S = {y:.4g}, nearest line {nearest:g}, off by {abs(y/nearest-1)*100:.0f} percent")
-# Step 2: closed form. E[X^r] = lam^r * (pi r/k) / sin(pi r/k) for r < k.
-m1 = lam * (math.pi / k) / math.sin(math.pi / k)
-m2 = lam**2 * (2*math.pi / k) / math.sin(2*math.pi / k)
-ratio_closed = (k / (2*math.pi)) * math.tan(math.pi / k)
-print(f"Route 1, closed form: E[X] = {m1:.5f}, E[X^2] = {m2:.5f}, E[X^2]/(2 E[X]^2) = {m2/(2*m1*m1):.5f}, (k/2pi) tan(pi/k) = {ratio_closed:.5f}")
-# Step 3: numerical moments from the survival function: E[X] = int S, E[X^2] = 2 int t S
-I1 = quad(S, 0, np.inf, limit=500)[0]; I2 = 2 * quad(lambda t: t * S(t), 0, np.inf, limit=500)[0]
-print(f"Route 2, quadrature of the survival function: E[X] = {I1:.5f}, E[X^2] = {I2:.5f}, ratio = {I2/(2*I1*I1):.5f}")
-# Step 4: the same moments through the Beta function, E[X^r] = lam^r B(1 + r/k, 1 - r/k), with scipy's beta
-from scipy.special import beta as B
-b1 = lam * B(1 + 1/k, 1 - 1/k); b2 = lam**2 * B(1 + 2/k, 1 - 2/k)
-print(f"Route 3, Beta function: E[X] = {b1:.5f}, E[X^2] = {b2:.5f}, ratio = {b2/(2*b1*b1):.5f}")
-# Step 5: the limit itself from renewal theory: the equilibrium residual-life density is S(t)/m, so the limit of
-# E[r(t)] is int t S(t) dt / m = E[X^2]/(2 m); checked by quadrature of t S(t)/m
-m = I1; lim_r = quad(lambda t: t * S(t) / m, 0, np.inf, limit=500)[0]
-print(f"Route 4, equilibrium residual-life density S(t)/m: lim E[r(t)] = {lim_r:.5f}, over m = {lim_r/m:.5f}")
-# Moments of X and of the equilibrium residual life, for the record
-for r in (1, 2, 3):
-    print(f"E[X^{r}] = {lam**r * (math.pi*r/k)/math.sin(math.pi*r/k):.5f} (finite, r < k = {k:.4f})")
-print(f"The first divergent integer moment of X is the fourth, since 4 > k.")
-E2r = quad(lambda t: t*t*S(t)/m, 0, np.inf, limit=500)[0]
-print(f"Equilibrium residual life: E[r] = {lim_r:.5f}, E[r^2] = {E2r:.5f}, variance = {E2r - lim_r**2:.5f}")
-print(f"   (finite because the equilibrium density S(t)/m has tail index k - 1 = {k-1:.4f} > 2)")
-print(f"Answer key: {ratio_closed:.4f}, two significant figures {ratio_closed:.2g}")
-# Wrong routes
-print(f"Wrong: m/2 over m = 0.5; m over m = 1; E[X^2]/(2E[X]) itself (not divided by the mean) = {m2/(2*m1):.4f}")
-def ratio_of(ta, Sa, tb, Sb):
+
+F = lambda t: 1.0 - S(t)
+f = lambda t: (k/lam) * (t/lam)**(k-1) / (1.0 + (t/lam)**k)**2
+T = 6.0
+
+# Route 1: the renewal equation M = F + M * f, solved on a uniform grid by product integration
+def renewal_M(T, n):
+    h = T / n
+    t = np.linspace(0, T, n + 1)
+    Fv = F(t); fv = f(t)
+    M = np.zeros(n + 1)
+    for i in range(1, n + 1):
+        w = np.full(i + 1, h); w[0] = w[-1] = h / 2
+        M[i] = Fv[i] + np.dot(w[1:] * fv[1:i+1], M[i-1::-1])
+    return M[-1]
+for n in (1000, 2000, 4000, 8000):
+    print(f"Route 1, renewal equation on {n:5d} intervals: M({T:g}) = {renewal_M(T, n):.6f}")
+M1 = renewal_M(T, 8000)
+
+# Route 2: the convolution series M(t) = sum_{j>=1} F^{*j}(t), the convolutions taken numerically
+def series_M(T, n=4000, jmax=40):
+    h = T / n
+    t = np.linspace(0, T, n + 1)
+    fv = f(t)
+    dens = fv.copy()          # density of the first arrival
+    total = 0.0
+    for j in range(1, jmax + 1):
+        w = np.full(n + 1, h); w[0] = w[-1] = h / 2
+        total += np.dot(w, dens)          # P(S_j <= T)
+        new = np.zeros(n + 1)             # convolve dens with f
+        for i in range(1, n + 1):
+            wi = np.full(i + 1, h); wi[0] = wi[-1] = h / 2
+            new[i] = np.dot(wi[1:] * fv[1:i+1], dens[i-1::-1])
+        dens = new
+        if np.dot(np.full(n+1, h), dens) < 1e-12: break
+    return total
+M2 = series_M(T)
+print(f"Route 2, convolution series sum_j P(S_j <= {T:g}): M({T:g}) = {M2:.6f}")
+
+# Route 3: simulation
+rng = np.random.default_rng(20261017)
+N = 400000
+U = rng.random((N, 30))
+X = lam * (U / (1 - U))**(1/k)          # log-logistic inverse cdf
+counts = (np.cumsum(X, axis=1) <= T).sum(axis=1)
+se = counts.std() / math.sqrt(N)
+print(f"Route 3, simulation of {N} paths: E[N({T:g})] = {counts.mean():.4f} (standard error {se:.4f})")
+
+# The discretisation trap: the discrete (Lotka) renewal recursion with cell masses converges only
+# like O(h) from below, so a hand-sized step lands in the wrong bin unless it is refined or extrapolated.
+def lotka(T, h):
+    n = int(round(T/h)); t = np.linspace(0, T, n+1)
+    Fv = F(t); p = np.diff(Fv); M = np.zeros(n+1)
+    for i in range(1, n+1):
+        M[i] = Fv[i] + sum(p[j-1]*M[i-j] for j in range(1, i+1))
+    return M[-1]
+# The same quantity by the trapezoidal product rule on dF, implicit in M_i: second order, right on a coarse grid
+def trap_dF(T, h):
+    n = int(round(T/h)); t = np.linspace(0, T, n+1); Fv = F(t); dF = np.diff(Fv); M = np.zeros(n+1)
+    for i in range(1, n+1):
+        acc = sum(dF[j-1]*(M[i-j] + M[i-j+1])/2 for j in range(2, i+1))
+        M[i] = (Fv[i] + acc + dF[0]*M[i-1]/2) / (1 - dF[0]/2)
+    return M[-1]
+print("Scheme comparison, trapezoidal product rule on dF (second order, implicit):")
+for h in (1.0, 0.5, 0.25):
+    print(f"   h = {h:<6}: M({T:g}) = {trap_dF(T, h):.4f} (two significant figures {float(f'{trap_dF(T, h):.2g}')})")
+print("   This form rounds to the key even at a coarse step, so the difficulty is the choice of scheme,")
+print("   not the amount of arithmetic: the right-endpoint recursion below needs refinement or extrapolation.")
+
+# Midpoint / lattice rule: converges to the same limit from ABOVE, and a coarse Richardson step overshoots
+def midpoint(T, h):
+    n = int(round(T/h))
+    q0 = F(h/2); q = [F(j*h + h/2) - F(j*h - h/2) for j in range(1, n+1)]
+    G = [F(j*h + h/2) for j in range(0, n+1)]
+    M = np.zeros(n+1)
+    for j in range(1, n+1):
+        M[j] = (G[j] + sum(q[i-1]*M[j-i] for i in range(1, j+1))) / (1 - q0)
+    return M[-1]
+print("Midpoint / lattice rule (converges from above):")
+mv = {}
+for h in (1.0, 0.5, 0.25, 0.125, 0.0625):
+    mv[h] = midpoint(T, h)
+    print(f"   h = {h:<7}: M({T:g}) = {mv[h]:.4f} (two significant figures {float(f'{mv[h]:.2g}')})")
+print(f"   Richardson on its two coarsest values overshoots: {mv[0.5] + (mv[0.5]-mv[1.0])/3:.4f}, which rounds to 2.8.")
+print("   The two hand schemes therefore straddle the answer; only a refined or correctly extrapolated one lands on 2.7.")
+
+print("Discretisation trap, discrete renewal recursion with right-endpoint cell masses:")
+prev = None
+for h in (1.0, 0.5, 0.25, 0.125, 0.0625):
+    v = lotka(T, h)
+    extra = f", Richardson with the previous step: {2*v-prev:.4f}" if prev is not None else ""
+    print(f"   h = {h:<7}: M({T:g}) = {v:.4f} (two significant figures {float(f'{v:.2g}')}){extra}")
+    prev = v
+print("   The scheme converges from below at first order, so a step of 1 or 0.5 gives 2.2 or 2.4, not 2.7;")
+print("   it needs h of about 0.06, or Richardson extrapolation of two steps, to reach the key.")
+
+# The rounding trap: forcing k to the round value 3
+k3, l3 = 3.0, 4.0**(1/3)
+S3 = lambda t: 1.0/(1.0 + (t/l3)**k3)
+print(f"Rounding trap: with k = 3 and lambda = 4^(1/3) = {l3:.4f}, S(6) = {S3(6):.6f} against the drawn 0.0200")
+print(f"   (nine per cent low) and S(10) = {S3(10):.6f} against the curve's {1/(1+(10/lam)**k):.6f}.")
+def M_params(kk, ll, T, n=4000):
+    Fx = lambda t: 1.0 - 1.0/(1.0 + (t/ll)**kk)
+    fx = lambda t: (kk/ll)*(t/ll)**(kk-1)/(1.0 + (t/ll)**kk)**2
+    h = T/n; t = np.linspace(0, T, n+1); Fv = Fx(t); fv = fx(t); M = np.zeros(n+1)
+    for i in range(1, n+1):
+        w = np.full(i+1, h); w[0] = w[-1] = h/2
+        M[i] = Fv[i] + np.dot(w[1:]*fv[1:i+1], M[i-1::-1])
+    return M[-1]
+print(f"   That law would give M(6) = {M_params(k3, l3, T):.4f}, which rounds to {float(f'{M_params(k3, l3, T):.2g}')}.")
+print("   The key is unchanged under honest rounding of the true parameters:")
+for kk, ll in ((3.08, 1.696), (3.1, 1.70), (3.08, 1.70)):
+    print(f"      k = {kk}, lambda = {ll}: M(6) = {M_params(kk, ll, T):.4f}")
+
+print(f"Answer key: {M1:.4f}, two significant figures {float(f'{M1:.2g}')}")
+
+# The shortcuts that do not work
+m = lam * (math.pi/k) / math.sin(math.pi/k)
+E2 = lam**2 * (2*math.pi/k) / math.sin(2*math.pi/k)
+print(f"E[X] = {m:.5f}, E[X^2] = {E2:.5f} (both finite, r < k; the first divergent integer moment is the fourth)")
+print(f"Wrong route: elementary renewal theorem alone, t/m = {T/m:.4f}")
+print(f"Wrong route: asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = {T/m + (E2-2*m*m)/(2*m*m):.4f}")
+print(f"   (it is still 1.8 percent above the true value at t = {T:g}, because t is only about 3 mean gaps)")
+print(f"Wrong route: t/m - 1/2 = {T/m - 0.5:.4f}")
+print(f"Wrong route: F({T:g}) = {F(T):.4f}, the probability of at least one renewal, not their expected number")
+
+def M_from(ta, Sa, tb, Sb):
     kk = math.log((1/Sb - 1) / (1/Sa - 1)) / math.log(tb / ta)
-    return kk, ((kk/(2*math.pi))*math.tan(math.pi/kk) if kk > 2 else float('inf'))
-near = {}
-for t in labelled:
-    y = S(t)
-    if 1e-4 <= y <= 0.95:
-        e = 10**math.floor(math.log10(y)); near[t] = min([c*e for c in (1, 2, 5, 10)], key=lambda v: abs(math.log10(y / v)))
-near[t1] = S1; near[t2] = S2
-import itertools
-print("Every pair of labelled abscissae read at the nearest gridline (true crossings kept at their true values):")
-for a, b in itertools.combinations(sorted(near), 2):
-    if (a, b) == (t1, t2): continue
-    try: kk, rr = ratio_of(a, near[a], b, near[b])
-    except (ValueError, ZeroDivisionError): continue
-    if kk <= 0: continue
-    print(f"   ({a:g}, {near[a]:g}) with ({b:g}, {near[b]:g}): k = {kk:.3f}, ratio = {'infinite' if rr == float('inf') else f'{rr:.4f}'}")
+    ll = ta / (1/Sa - 1)**(1/kk)
+    Sx = lambda t: 1.0/(1.0 + (t/ll)**kk)
+    Fx = lambda t: 1.0 - Sx(t)
+    fx = lambda t: (kk/ll) * (t/ll)**(kk-1) / (1.0 + (t/ll)**kk)**2
+    n = 4000; h = T/n; t = np.linspace(0, T, n+1); Fv = Fx(t); fv = fx(t); M = np.zeros(n+1)
+    for i in range(1, n+1):
+        w = np.full(i+1, h); w[0] = w[-1] = h/2
+        M[i] = Fv[i] + np.dot(w[1:]*fv[1:i+1], M[i-1::-1])
+    return kk, M[-1]
+print("Near-miss readings (the named crossing at 6 paired with a crossing the curve does not pass through):")
+for b, Sb in [(8, 0.01), (10, 0.005), (15, 0.001), (30, 0.0002), (4, 0.05), (3, 0.2), (2, 0.5), (10, 0.004), (2, 0.4)]:
+    kk, v = M_from(6, 0.02, b, Sb)
+    print(f"   (6, 0.02) with ({b:g}, {Sb:g}): k = {kk:.3f}, M({T:g}) = {v:.4f}")
