@@ -15,6 +15,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task09 v2 | Rooted pebbling number of a 13-vertex graph (revision of SUM-MVBG0GO3, target double-circled) | 25 | tasks/task09-pebbling-number/v2-thirteen/graph-rooted-pebbling-number-thirteen-vertices.zip |
 | task09 v3 | Kitagawa diagram, internal pore in MIM Ti-6Al-7Nb (Engineering replacement for SUM-MVBG0GO3) | 200 MPa | tasks/task09-pebbling-number/v3-kitagawa-internal-pore/kitagawa-internal-pore-titanium.zip |
 | task09 v6 | S-N curve with Haibach extension, block loading of MIM Ti-6Al-7Nb (Engineering replacement for SUM-MVBG0GO3; local screen Opus 2/3, Sonnet 0/1) | 5 blocks | tasks/task09-pebbling-number/v6-sn-haibach/sn-curve-haibach-block-loading-titanium.zip |
+| task09 v9 | Two S-N curves (R = -1 and R = 0.1), block loading with Haibach extension (Engineering replacement candidate; local screen Opus 1/3, Sonnet 1/1) | 7 blocks | tasks/task09-pebbling-number/v9-two-sn-curves-mid/two-sn-curves-block-loading-titanium-b.zip |
 | task05 v5 | ENGINEERING replacement for SUM-MVB7DTW7: propagation life of a fatigue crack from a 50 um surface pore in MIM Ti-6Al-7Nb, Klesnil-Lukas constants read from a self-drawn da/dN curve (crossings at 6 and 20 MPa m^1/2), El Haddad short-crack threshold | 1.4 x 10^5 cycles | tasks/task05-bandwidth/v5-crack-growth-pore/pore-crack-propagation-life-mim-titanium.zip |
 | task06 v3 | Revision of task06: bandwidth of a 16-vertex, 27-edge graph, no short lower bound, unique optimal numbering | 5 | tasks/task06-bandwidth-fourteen/v3-sixteen/graph-bandwidth-sixteen-vertices.zip |
 
@@ -24,6 +25,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task09 v9 two S-N curves block loading (Engineering candidate, strongest local tally; edit sheet in v9-two-sn-curves-mid/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/two-sn-curves-block-loading-titanium-b.zip
 - task09 v6 S-N block loading (Engineering candidate; edit sheet in v6-sn-haibach/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/sn-curve-haibach-block-loading-titanium.zip
 - task09 v3 Kitagawa internal pore (Engineering; edit the returned entry with v3-kitagawa-internal-pore/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/kitagawa-internal-pore-titanium.zip
 - task05 v5 (ENGINEERING replacement for SUM-MVB7DTW7, crack growth from a pore, Category must be Engineering): https://github.com/miroslav833/summit-tasks/raw/main/zips/pore-crack-propagation-life-mim-titanium.zip
@@ -45,6 +47,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task09 v9: Section 1 of verification_notes.txt states the two fits the figure was generated from (R = -1: k = 12.05, A = 624 MPa, limit 163.8 MPa; R = 0.1: k = 13.60, A = 414 MPa, limit 126.6 MPa) and lists where each drawn curve crosses every horizontal gridline with the distance to the nearest vertical line, showing the only exact crossings are (1e5, 240), (5e5, 210) and (2e4, 200), (1e6, 150); section 2 derives the block count by two routes (closed form, and a numerical reconstruction of both curves with the crossings and lives found by bisection), both 7.68 blocks; section 3 evaluates the wrong crossings on either curve (8 or 6 blocks), the wrong damage rules (8 and 6) and the rounding robustness of the integer; section 4 embeds the program verify_key.py with its output.
 
 task09 v6: Section 1 of verification_notes.txt states the fit the figure was generated from (k = 12.36, A = 744 MPa, knee at 1e7 cycles, fatigue limit 201.9 MPa) and lists where the drawn curve crosses every horizontal gridline with the distance to the nearest vertical line, showing that (5e4, 310) and (2e6, 230) are the only exact crossings; section 2 derives the block count by two routes (closed form, and a numerical reconstruction of the curve with the crossings and lives found by bisection), both 5.53 blocks; section 3 evaluates the wrong crossings (4 or 6 blocks), the wrong damage rules (6 and 3) and the rounding robustness of the integer; section 4 embeds the program verify_key.py with its output.
 
