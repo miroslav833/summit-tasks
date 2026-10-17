@@ -1,0 +1,3 @@
+Mathematics version (5 columns over {0,1,2}, seven forbidden pairs, unique optimal array, key 10): Opus 3/3 correct (266 s, 384 s, 597 s), each with a counting proof that 9 rows fail (balanced columns forced by the unconstrained column pairs, then one count table runs out of room) and the unique 10-row array found by hand. Sonnet: the run was lost when the session restarted, no result.
+
+Same family, engineering wording (archived in work/tm-v1 to work/tm-v4): 5 columns key 11 Opus 3/3; 5 columns unique key 10 Opus 3/3; 5 columns gap two unique key 11 Opus 3/3 in 22 to 32 minutes (slack propagation through three count tables); 6 columns key 11 Opus 0/3 by cut-off. Sonnet never finished or overshot.

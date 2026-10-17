@@ -1,113 +1,91 @@
-VERIFICATION NOTES: smallest covering array with 5 columns over three symbols avoiding seven forbidden pairs
+VERIFICATION NOTES: smallest covering array with six columns (five ternary, one binary) avoiding ten forbidden pairs
 
 Answer key: 10.
 
-1. The instance (from the figure). Columns x1 to x5, written A to E in the program; symbols 0, 1, 2. Forbidden pairs
-   A0E1, A1B0, A1C2, A2B1, B1C1, B1D1, D0E0, that is (x1=0, x5=1), (x1=1, x2=0), (x1=1, x3=2), (x1=2, x2=1), (x2=1, x3=1),
-   (x2=1, x4=1), (x4=0, x5=0). A row is admissible if it contains none of them: 105 of the 243 words. Admissible symbol
-   pairs: 83 of 90; every admissible pair occurs in some admissible row, so a covering array exists.
-2. Trivial bound: the column pairs AD, BE, CD, CE each keep 9 admissible symbol pairs and one row covers one symbol pair
-   of a column pair, so at least 9 rows. The unconstrained covering array number CAN(2,5,3) is 11; it is neither a
-   lower nor an upper bound here, since the forbidden pairs remove requirements and remove rows at the same time.
-3. Lower bound 10 (certificate, hand-checkable): the ten pairs A0D0, A0D1, A0D2, A1E0, A1E2, A2E0, A2E2, B0E1, B1E1, B2E1
-   are pairwise incompatible (no admissible row contains two of them). The program checks this against all 105 rows
-   and classifies the 45 couples: 36 disagree in a column (16 in A, 14 in E, 3 in D, 3 in B); 9 contain the forbidden
-   pair A0E1. In words: three rows with x1 = 0 (one per symbol of x4), two rows with x1 = 1 and two with x1 = 2
-   (x5 = 0 and x5 = 2), three rows with x5 = 1 (one per symbol of x2) which cannot have x1 = 0 and are not among the
-   four just counted. Hence at least 10 rows. 47 different ten-pair certificates exist.
-4. Upper bound 10: the array 00102, 01220, 02012, 11001, 11022, 12110, 20020, 20211, 22121, 22202 (rows written
-   x1 x2 x3 x4 x5) is admissible and covers all 83 admissible pairs (checked pair by pair).
-5. Integer programme (scipy HiGHS, one binary variable per admissible row, one covering constraint per admissible
-   pair): minimum 10; enumeration with no-good cuts finds exactly one optimal array, the one in 4. So the bound is
-   easy to prove and the construction is the whole difficulty: among the C(105, 10) ten-row sets, one works.
-6. Wrong routes, computed: the trivial bound 9; 11, the unconstrained CAN(2,5,3), which a solver reports who recalls the
-   table value and does not use the forbidden pairs; randomised greedy constructions (add the admissible row covering
-   most uncovered pairs, ties broken at random, 200 runs) reach 12 in 24 runs, 13 in 88, 14 in 71, 15 in 17, never 10
-   or 11; 11 or 12 is what a solver reports who proves the bound 10, fails to find the unique array and settles for the
-   best construction found.
+1. The instance (from the figure). Columns x1 to x6, written A to F; x1..x5 over 0, 1, 2 and x6 over 0, 1. Forbidden pairs
+   A1B1, A1C2, A1E1, A2C0, A2D0, C0E0, C1F0, C2E1, D0E1, D2F0. Admissible rows: 136 of 486. Admissible symbol pairs: 110 of
+   120, each realised by some admissible row.
+2. Trivial bound: BC, BD, BE, CD keep 9 symbol pairs each, so at least 9 rows. Without forbidden pairs the minimum would be
+   11 (the covering array number for five ternary columns and one binary column).
+3. Lower bound 10: the pairs B0E1, B1E1, B2E1, C0D0, C1D0, C2D0, D1E0, D1E2, D2E0, D2E2 are pairwise incompatible; 36 couples
+   need one column with two different symbols, 9 couples (BjE1 with CiD0) contain the forbidden pair D0E1. Checked against
+   all 136 admissible rows by the program; 42 different ten-pair certificates exist.
+4. Upper bound 10: 001211, 010110, 011021, 022000, 100020, 101101, 120221, 202120, 212201, 221111 (rows written x1..x6),
+   checked column pair by column pair.
+5. Integer programme (scipy HiGHS): minimum 10; enumeration with no-good cuts gives exactly two optimal arrays.
+6. Wrong routes: 9 (trivial bound), 11 (unconstrained value, or the best construction found), greedy constructions 11 to 16.
 
 7. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py; standard library only, scipy optional
    for section 5; running time about a minute)
 
-   """Verification of the answer key: the smallest number of rows of a covering array with 5 columns over the symbols 0, 1, 2
-   that avoids the seven forbidden pairs of the figure is 10, and the 10-row array is unique.
+   """Verification of the answer key: the smallest covering array with six columns, x1..x5 over {0,1,2} and x6 over {0,1},
+   avoiding the ten forbidden pairs of the figure, has 10 rows; exactly two 10-row covering arrays exist.
 
    Self-contained, python3 standard library only (scipy, when installed, adds an integer-programming solve and the
-   enumeration of all optimal designs).  Run: python3 verify_key.py
+   enumeration of all optimal arrays).  Run: python3 verify_key.py
 
-   Columns x1 to x5 are written A to E here, symbols 0, 1, 2.  Forbidden pairs (no row may contain both entries):
-   A0E1, A1B0, A1C2, A2B1, B1C1, B1D1, D0E0, i.e. (x1=0, x5=1), (x2=0, x1=1), (x1=1, x3=2), (x1=2, x2=1), (x2=1, x3=1),
-   (x2=1, x4=1), (x4=0, x5=0).
-     (1) the admissible rows are enumerated: 105 of the 243 words of length 5 over {0,1,2}; the admissible pairs of
-         symbols in two different columns: 83 of 90;
-     (2) trivial lower bound: every pair of columns has at most 9 admissible symbol pairs, so at least 9 rows;
-     (3) lower bound 10: the 10 symbol pairs A0D0, A0D1, A0D2, A1E0, A1E2, A2E0, A2E2, B0E1, B1E1, B2E1 are pairwise exclusive,
-         no admissible row contains two of them (checked against all 105 rows, and explained pair by pair), so every
-         covering array needs at least 10 rows;
-     (4) upper bound 10 (the decisive step): an explicit array of 10 rows covers all 83 admissible pairs;
-     (5) with scipy: the integer programme confirms the minimum 10 and the enumeration of optimal arrays finds exactly
-         one; 47 different exclusive sets of size 10 exist, so the bound is easy and the construction is the hard part;
-     (6) wrong routes: the trivial bound 9; the unconstrained covering array number CAN(2,5,3) = 11; 200 randomised greedy
-         constructions never reach 10 (sizes 11 to 15).
+   Columns x1..x6 are written A..F.  Forbidden pairs: A1B1, A1C2, A1E1, A2C0, A2D0, C0E0, C1F0, C2E1, D0E1, D2F0.
+     (1) admissible rows: 136 of 486; admissible symbol pairs: 110 of 120;
+     (2) trivial lower bound 9 (column pairs BC, BD, BE, CD keep all 9 symbol pairs);
+     (3) lower bound 10: the pairs B0E1, B1E1, B2E1, C0D0, C1D0, C2D0, D1E0, D1E2, D2E0, D2E2 are pairwise incompatible;
+     (4) upper bound 10: an explicit 10-row covering array;
+     (5) integer programme: minimum 10, exactly two optimal arrays;
+     (6) wrong routes: the trivial bound 9, the unconstrained value CAN(2, 3^5 2^1) = 11, greedy constructions.
    """
    import itertools, random
 
-   LEVELS = [3, 3, 3, 3, 3]; k = 5; L = "ABCDE"
-   FORB = {((0, 0), (4, 1)), ((0, 1), (1, 0)), ((0, 1), (2, 2)), ((0, 2), (1, 1)), ((1, 1), (2, 1)), ((1, 1), (3, 1)), ((3, 0), (4, 0))}
+   LEVELS = [3, 3, 3, 3, 3, 2]; k = 6; L = "ABCDEF"
+   def P(s): return ((L.index(s[0]), int(s[1])), (L.index(s[2]), int(s[3])))
+   FORB = {P(s) for s in "A1B1 A1C2 A1E1 A2C0 A2D0 C0E0 C1F0 C2E1 D0E1 D2F0".split()}
    def name(p): return f"{L[p[0][0]]}{p[0][1]}{L[p[1][0]]}{p[1][1]}"
    def admissible(r): return all(((i, r[i]), (j, r[j])) not in FORB for i, j in itertools.combinations(range(k), 2))
    ROWS = [r for r in itertools.product(*[range(l) for l in LEVELS]) if admissible(r)]
-   PAIRS = [((i, a), (j, b)) for i, j in itertools.combinations(range(k), 2) for a in range(3) for b in range(3) if ((i, a), (j, b)) not in FORB]
+   PAIRS = [((i, a), (j, b)) for i, j in itertools.combinations(range(k), 2) for a in range(LEVELS[i]) for b in range(LEVELS[j]) if ((i, a), (j, b)) not in FORB]
    def covers(r, p): return r[p[0][0]] == p[0][1] and r[p[1][0]] == p[1][1]
-   print(f"admissible rows: {len(ROWS)} of 243; admissible symbol pairs: {len(PAIRS)} of 90; forbidden: {[name(p) for p in sorted(FORB)]}")
-   assert len(ROWS) == 105 and len(PAIRS) == 83
-   assert all(any(covers(r, p) for r in ROWS) for p in PAIRS), "every admissible pair must be realisable"
+   def word(r): return "".join(map(str, r))
+   print(f"admissible rows: {len(ROWS)} of 486; admissible symbol pairs: {len(PAIRS)} of 120; forbidden: {sorted(name(p) for p in FORB)}")
+   assert len(ROWS) == 136 and len(PAIRS) == 110
+   assert all(any(covers(r, p) for r in ROWS) for p in PAIRS)
 
-   # ---------- (2) trivial bound ----------
-   per_factor_pair = {(i, j): sum(1 for p in PAIRS if p[0][0] == i and p[1][0] == j) for i, j in itertools.combinations(range(k), 2)}
-   print("admissible symbol pairs per column pair:", {f"{L[i]}{L[j]}": v for (i, j), v in per_factor_pair.items()}, "-> trivial bound", max(per_factor_pair.values()))
+   per = {(i, j): sum(1 for p in PAIRS if p[0][0] == i and p[1][0] == j) for i, j in itertools.combinations(range(k), 2)}
+   print("admissible symbol pairs per column pair:", {f"{L[i]}{L[j]}": v for (i, j), v in per.items()}, "-> trivial bound", max(per.values()))
 
-   # ---------- (3) lower bound: 11 pairwise exclusive pairs ----------
-   EXCL = [((0, 0), (3, 0)), ((0, 0), (3, 1)), ((0, 0), (3, 2)), ((0, 1), (4, 0)), ((0, 1), (4, 2)), ((0, 2), (4, 0)),
-           ((0, 2), (4, 2)), ((1, 0), (4, 1)), ((1, 1), (4, 1)), ((1, 2), (4, 1))]
-   assert all(p in PAIRS for p in EXCL)
-   for r in ROWS:
-       assert sum(covers(r, p) for p in EXCL) <= 1, r
+   # ---------- (3) lower bound ----------
+   EXCL = [P(s) for s in "B0E1 B1E1 B2E1 C0D0 C1D0 C2D0 D1E0 D1E2 D2E0 D2E2".split()]
+   for r in ROWS: assert sum(covers(r, p) for p in EXCL) <= 1, r
    print("exclusive set:", [name(p) for p in EXCL])
-   print("CHECK 3: no admissible row contains two of the 10 pairs, so every covering array has at least 10 rows")
-   # why each couple is exclusive, for the written proof
    def why(p, q):
        d = {}
        for (f, l) in (p[0], p[1], q[0], q[1]):
-           if f in d and d[f] != l: return f"both need column {L[f]} at different levels"
+           if f in d and d[f] != l: return f"both need column {L[f]} with different symbols"
            d[f] = l
        bad = [((x, d[x]), (z, d[z])) for x, z in itertools.combinations(sorted(d), 2) if ((x, d[x]), (z, d[z])) in FORB]
        if bad: return "together they contain the forbidden pair " + name(bad[0])
-       # otherwise every completion of the free factors must hit a forbidden pair
-       free = [f for f in range(k) if f not in d]
-       return "every choice of the remaining column(s) " + ",".join(L[f] for f in free) + " creates a forbidden pair"
+       return "no admissible completion of the remaining columns " + ",".join(L[f] for f in range(k) if f not in d)
    reasons = {}
-   for p, q in itertools.combinations(EXCL, 2):
-       reasons.setdefault(why(p, q), []).append(f"{name(p)}/{name(q)}")
-   for reason, lst in reasons.items(): print(f"   {len(lst)} couples: {reason}" + (f": {lst}" if len(lst) <= 6 else ""))
+   for p, q in itertools.combinations(EXCL, 2): reasons.setdefault(why(p, q), []).append(f"{name(p)}/{name(q)}")
+   for reason, lst in reasons.items(): print(f"   {len(lst)} couples: {reason}: {lst}")
+   print("CHECK 3: no admissible row contains two of the 10 pairs, so every covering array has at least 10 rows")
 
-   # ---------- (4) upper bound: an explicit 11-specimen design ----------
-   DESIGN = [(0, 0, 1, 0, 2), (0, 1, 2, 2, 0), (0, 2, 0, 1, 2), (1, 1, 0, 0, 1), (1, 1, 0, 2, 2), (1, 2, 1, 1, 0),
-             (2, 0, 0, 2, 0), (2, 0, 2, 1, 1), (2, 2, 1, 2, 1), (2, 2, 2, 0, 2)]
+   # ---------- (4) upper bound ----------
+   DESIGN = [tuple(int(c) for c in w) for w in "001211 010110 011021 022000 100020 101101 120221 202120 212201 221111".split()]
    assert all(admissible(r) for r in DESIGN) and len(DESIGN) == 10
-   uncovered = [p for p in PAIRS if not any(covers(r, p) for r in DESIGN)]
-   print("array:", ["".join(f"{L[i]}{r[i]}" for i in range(k)) for r in DESIGN], "; uncovered admissible pairs:", uncovered)
-   assert not uncovered
-   print("CHECK 4: the 10-row array covers all 83 admissible pairs; with CHECK 3 the minimum is 10")
+   unc = [name(p) for p in PAIRS if not any(covers(r, p) for r in DESIGN)]
+   print("array:", [word(r) for r in DESIGN], "; uncovered admissible pairs:", unc)
+   assert not unc
+   for (i, j), v in per.items():
+       got = sorted({(r[i], r[j]) for r in DESIGN})
+       print(f"   column pair {L[i]}{L[j]}: {len(got)} of {v} admissible pairs present: {got}")
+   print("CHECK 4: the 10-row array covers all 110 admissible pairs; with CHECK 3 the minimum is 10")
 
-   # ---------- (5) integer programme and enumeration of optimal designs (scipy) ----------
+   # ---------- (5) integer programme ----------
    try:
        import numpy as np
        from scipy.optimize import milp, LinearConstraint, Bounds
        A = np.array([[1.0 if covers(r, p) else 0.0 for r in ROWS] for p in PAIRS])
        c = np.ones(len(ROWS)); cons = [LinearConstraint(A, lb=1, ub=np.inf)]
-       res = milp(c, constraints=cons, integrality=np.ones(len(ROWS)), bounds=Bounds(0, 1))
-       N = int(round(res.fun)); print("integer programme (HiGHS): minimum number of rows =", N); assert N == 10
+       N = int(round(milp(c, constraints=cons, integrality=np.ones(len(ROWS)), bounds=Bounds(0, 1)).fun))
+       print("integer programme (HiGHS): minimum number of rows =", N); assert N == 10
        sols = []
        while True:
            r2 = milp(c, constraints=cons, integrality=np.ones(len(ROWS)), bounds=Bounds(0, 1))
@@ -115,93 +93,97 @@ Answer key: 10.
            sel = [i for i in range(len(ROWS)) if r2.x[i] > 0.5]; sols.append(tuple(sorted(ROWS[i] for i in sel)))
            cut = np.zeros(len(ROWS)); cut[sel] = 1; cons.append(LinearConstraint(cut.reshape(1, -1), lb=-np.inf, ub=N - 1))
        print(f"all optimal arrays: {len(sols)}")
-       for s_ in sols: print("   ", ["".join(f"{L[i]}{r[i]}" for i in range(k)) for r in s_])
-       assert len(sols) == 1 and sols[0] == tuple(sorted(DESIGN))
-       # how many exclusive sets of size 10 exist (cliques in the conflict graph of pairs)
-       conflict = {p: set() for p in PAIRS}
-       for p, q in itertools.combinations(PAIRS, 2):
-           if not any(covers(r, p) and covers(r, q) for r in ROWS): conflict[p].add(q); conflict[q].add(p)
-       def cliques(cands, cur, out):
-           if len(cur) == 10: out.append(cur); return
-           for i, p in enumerate(cands):
-               cliques([q for q in cands[i + 1:] if q in conflict[p]], cur + [p], out)
-       found = []; cliques(PAIRS, [], found)
-       print(f"exclusive sets of size 10 (each one a complete lower-bound proof): {len(found)}")
-       print("CHECK 5: the integer programme agrees, the optimal array is unique, and the lower bound has many proofs")
+       for s_ in sols: print("   ", [word(r) for r in s_])
+       assert len(sols) == 2 and tuple(sorted(DESIGN)) in sols
+       print("CHECK 5: the integer programme agrees; exactly two 10-row covering arrays exist")
    except ImportError:
-       print("scipy not installed: integer programme and enumeration skipped (CHECK 3 and CHECK 4 are complete without them)")
+       print("scipy not installed: integer programme skipped (CHECK 3 and CHECK 4 are complete without it)")
 
    # ---------- (6) wrong routes ----------
    sizes = []
    for t in range(200):
-       rng = random.Random(t); unc = set(range(len(PAIRS))); used = 0
-       while unc:
-           best = max(sum(1 for pi in unc if covers(r, PAIRS[pi])) for r in ROWS)
-           cands = [r for r in ROWS if sum(1 for pi in unc if covers(r, PAIRS[pi])) == best]
-           r = rng.choice(cands); unc -= {pi for pi in unc if covers(r, PAIRS[pi])}; used += 1
+       rng = random.Random(t); unc_ = set(range(len(PAIRS))); used = 0
+       while unc_:
+           best = max(sum(1 for pi in unc_ if covers(r, PAIRS[pi])) for r in ROWS)
+           cands = [r for r in ROWS if sum(1 for pi in unc_ if covers(r, PAIRS[pi])) == best]
+           r = rng.choice(cands); unc_ -= {pi for pi in unc_ if covers(r, PAIRS[pi])}; used += 1
        sizes.append(used)
    print("randomised greedy construction (200 runs), sizes reached:", {s: sizes.count(s) for s in sorted(set(sizes))})
-   print("ALL CHECKS PASSED. Minimum number of rows 10, unique array; trivial bound 9; unconstrained CAN(2,5,3) = 11; greedy constructions 11 or more.")
+   print("ALL CHECKS PASSED. Minimum number of rows 10 (two optimal arrays); trivial bound 9; unconstrained value 11.")
 
 
    Output:
 
-   admissible rows: 105 of 243; admissible symbol pairs: 83 of 90; forbidden: ['A0E1', 'A1B0', 'A1C2', 'A2B1', 'B1C1', 'B1D1', 'D0E0']
-   admissible symbol pairs per column pair: {'AB': 7, 'AC': 8, 'AD': 9, 'AE': 8, 'BC': 8, 'BD': 8, 'BE': 9, 'CD': 9, 'CE': 9, 'DE': 8} -> trivial bound 9
-   exclusive set: ['A0D0', 'A0D1', 'A0D2', 'A1E0', 'A1E2', 'A2E0', 'A2E2', 'B0E1', 'B1E1', 'B2E1']
+   admissible rows: 136 of 486; admissible symbol pairs: 110 of 120; forbidden: ['A1B1', 'A1C2', 'A1E1', 'A2C0', 'A2D0', 'C0E0', 'C1F0', 'C2E1', 'D0E1', 'D2F0']
+   admissible symbol pairs per column pair: {'AB': 8, 'AC': 7, 'AD': 8, 'AE': 8, 'AF': 6, 'BC': 9, 'BD': 9, 'BE': 9, 'BF': 6, 'CD': 9, 'CE': 7, 'CF': 5, 'DE': 8, 'DF': 5, 'EF': 6} -> trivial bound 9
+   exclusive set: ['B0E1', 'B1E1', 'B2E1', 'C0D0', 'C1D0', 'C2D0', 'D1E0', 'D1E2', 'D2E0', 'D2E2']
+      3 couples: both need column B with different symbols: ['B0E1/B1E1', 'B0E1/B2E1', 'B1E1/B2E1']
+      6 couples: together they contain the forbidden pair D0E1: ['B0E1/C0D0', 'B0E1/C1D0', 'B1E1/C0D0', 'B1E1/C1D0', 'B2E1/C0D0', 'B2E1/C1D0']
+      3 couples: together they contain the forbidden pair C2E1: ['B0E1/C2D0', 'B1E1/C2D0', 'B2E1/C2D0']
+      14 couples: both need column E with different symbols: ['B0E1/D1E0', 'B0E1/D1E2', 'B0E1/D2E0', 'B0E1/D2E2', 'B1E1/D1E0', 'B1E1/D1E2', 'B1E1/D2E0', 'B1E1/D2E2', 'B2E1/D1E0', 'B2E1/D1E2', 'B2E1/D2E0', 'B2E1/D2E2', 'D1E0/D1E2', 'D2E0/D2E2']
+      3 couples: both need column C with different symbols: ['C0D0/C1D0', 'C0D0/C2D0', 'C1D0/C2D0']
+      16 couples: both need column D with different symbols: ['C0D0/D1E0', 'C0D0/D1E2', 'C0D0/D2E0', 'C0D0/D2E2', 'C1D0/D1E0', 'C1D0/D1E2', 'C1D0/D2E0', 'C1D0/D2E2', 'C2D0/D1E0', 'C2D0/D1E2', 'C2D0/D2E0', 'C2D0/D2E2', 'D1E0/D2E0', 'D1E0/D2E2', 'D1E2/D2E0', 'D1E2/D2E2']
    CHECK 3: no admissible row contains two of the 10 pairs, so every covering array has at least 10 rows
-      3 couples: both need column D at different levels: ['A0D0/A0D1', 'A0D0/A0D2', 'A0D1/A0D2']
-      16 couples: both need column A at different levels
-      9 couples: together they contain the forbidden pair A0E1
-      14 couples: both need column E at different levels
-      3 couples: both need column B at different levels: ['B0E1/B1E1', 'B0E1/B2E1', 'B1E1/B2E1']
-   array: ['A0B0C1D0E2', 'A0B1C2D2E0', 'A0B2C0D1E2', 'A1B1C0D0E1', 'A1B1C0D2E2', 'A1B2C1D1E0', 'A2B0C0D2E0', 'A2B0C2D1E1', 'A2B2C1D2E1', 'A2B2C2D0E2'] ; uncovered admissible pairs: []
-   CHECK 4: the 10-row array covers all 83 admissible pairs; with CHECK 3 the minimum is 10
+   array: ['001211', '010110', '011021', '022000', '100020', '101101', '120221', '202120', '212201', '221111'] ; uncovered admissible pairs: []
+      column pair AB: 8 of 8 admissible pairs present: [(0, 0), (0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1), (2, 2)]
+      column pair AC: 7 of 7 admissible pairs present: [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (2, 1), (2, 2)]
+      column pair AD: 8 of 8 admissible pairs present: [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2)]
+      column pair AE: 8 of 8 admissible pairs present: [(0, 0), (0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1), (2, 2)]
+      column pair AF: 6 of 6 admissible pairs present: [(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1)]
+      column pair BC: 9 of 9 admissible pairs present: [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+      column pair BD: 9 of 9 admissible pairs present: [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+      column pair BE: 9 of 9 admissible pairs present: [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+      column pair BF: 6 of 6 admissible pairs present: [(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1)]
+      column pair CD: 9 of 9 admissible pairs present: [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+      column pair CE: 7 of 7 admissible pairs present: [(0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 2)]
+      column pair CF: 5 of 5 admissible pairs present: [(0, 0), (0, 1), (1, 1), (2, 0), (2, 1)]
+      column pair DE: 8 of 8 admissible pairs present: [(0, 0), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+      column pair DF: 5 of 5 admissible pairs present: [(0, 0), (0, 1), (1, 0), (1, 1), (2, 1)]
+      column pair EF: 6 of 6 admissible pairs present: [(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1)]
+   CHECK 4: the 10-row array covers all 110 admissible pairs; with CHECK 3 the minimum is 10
    integer programme (HiGHS): minimum number of rows = 10
-   all optimal arrays: 1
-       ['A0B0C1D0E2', 'A0B1C2D2E0', 'A0B2C0D1E2', 'A1B1C0D0E1', 'A1B1C0D2E2', 'A1B2C1D1E0', 'A2B0C0D2E0', 'A2B0C2D1E1', 'A2B2C1D2E1', 'A2B2C2D0E2']
-   exclusive sets of size 10 (each one a complete lower-bound proof): 47
-   CHECK 5: the integer programme agrees, the optimal array is unique, and the lower bound has many proofs
-   randomised greedy construction (200 runs), sizes reached: {12: 24, 13: 88, 14: 71, 15: 17}
-   ALL CHECKS PASSED. Minimum number of rows 10, unique array; trivial bound 9; unconstrained CAN(2,5,3) = 11; greedy constructions 11 or more.
+   all optimal arrays: 2
+       ['001211', '010110', '011021', '022000', '100020', '101101', '120221', '202120', '212201', '221111']
+       ['002000', '010110', '011021', '021211', '100221', '120020', '121101', '201111', '212201', '222120']
+   CHECK 5: the integer programme agrees; exactly two 10-row covering arrays exist
+   randomised greedy construction (200 runs), sizes reached: {11: 2, 12: 18, 13: 69, 14: 82, 15: 26, 16: 3}
+   ALL CHECKS PASSED. Minimum number of rows 10 (two optimal arrays); trivial bound 9; unconstrained value 11.
 
 
 8. Figure script draw_figure.py (same Python; command: python3 draw_figure.py; needs matplotlib)
 
-   """Draws the figure for the covering-array task: a chart of the (column, symbol) cells with the forbidden pairs marked.
-   Produces image.png (300 dpi) and image.pdf.  Run: python3 draw_figure.py"""
-   import pathlib, sys
+   """Draws the figure for task08: chart of the forbidden symbol pairs of a six-column array (x1..x5 over {0,1,2}, x6 over
+   {0,1}).  Produces image.png (300 dpi) and image.pdf.  Run: python3 draw_figure.py"""
+   import pathlib
    import matplotlib
    matplotlib.use("Agg")
    import matplotlib.pyplot as plt
    from matplotlib.patches import Rectangle
 
-   K = 5; S = 3
-   FORBIDDEN = [((0, 0), (4, 1)), ((0, 1), (1, 0)), ((0, 1), (2, 2)), ((0, 2), (1, 1)), ((1, 1), (2, 1)), ((1, 1), (3, 1)), ((3, 0), (4, 0))]
+   LEVELS = [3, 3, 3, 3, 3, 2]
+   FORBIDDEN = [((0, 1), (1, 1)), ((0, 1), (2, 2)), ((0, 1), (4, 1)), ((0, 2), (2, 0)), ((0, 2), (3, 0)),
+                ((2, 0), (4, 0)), ((2, 1), (5, 0)), ((2, 2), (4, 1)), ((3, 0), (4, 1)), ((3, 2), (5, 0))]
 
    def draw(out="image"):
-       n = K * S
-       fig, ax = plt.subplots(figsize=(8.0, 8.0))
-       idx = lambda c, s: c * S + s
-       for i in range(n):
-           for j in range(n):
-               ci, cj = i // S, j // S
-               if ci == cj:
-                   ax.add_patch(Rectangle((j, n - 1 - i), 1, 1, facecolor="0.82", edgecolor="0.6", lw=0.5))
-               else:
-                   ax.add_patch(Rectangle((j, n - 1 - i), 1, 1, facecolor="white", edgecolor="0.6", lw=0.5))
-       for (ci, si), (cj, sj) in FORBIDDEN:
-           for (a, b) in ((idx(ci, si), idx(cj, sj)), (idx(cj, sj), idx(ci, si))):
-               ax.add_patch(Rectangle((b, n - 1 - a), 1, 1, facecolor="black", edgecolor="0.6", lw=0.5))
-               ax.text(b + 0.5, n - 1 - a + 0.5, "F", color="white", ha="center", va="center", fontsize=11, fontweight="bold")
-       for c in range(K + 1):
-           ax.plot([c * S, c * S], [0, n], color="black", lw=1.6); ax.plot([0, n], [c * S, c * S], color="black", lw=1.6)
-       labels = [f"$x_{c + 1} = {s}$" for c in range(K) for s in range(S)]
-       for i, lab in enumerate(labels):
+       cells = [(c, s) for c, l in enumerate(LEVELS) for s in range(l)]; n = len(cells); idx = {cs: i for i, cs in enumerate(cells)}
+       starts = [0]
+       for l in LEVELS: starts.append(starts[-1] + l)
+       fig, ax = plt.subplots(figsize=(8.4, 8.4))
+       for i, (ci, _) in enumerate(cells):
+           for j, (cj, _) in enumerate(cells):
+               ax.add_patch(Rectangle((j, n - 1 - i), 1, 1, facecolor="0.82" if ci == cj else "white", edgecolor="0.6", lw=0.5))
+       for a, b in FORBIDDEN:
+           for (p, q) in ((idx[a], idx[b]), (idx[b], idx[a])):
+               ax.add_patch(Rectangle((q, n - 1 - p), 1, 1, facecolor="black", edgecolor="0.6", lw=0.5))
+               ax.text(q + 0.5, n - 1 - p + 0.5, "F", color="white", ha="center", va="center", fontsize=11, fontweight="bold")
+       for s in starts:
+           ax.plot([s, s], [0, n], color="black", lw=1.6); ax.plot([0, n], [n - s, n - s], color="black", lw=1.6)
+       for i, (c, s) in enumerate(cells):
+           lab = f"$x_{c + 1} = {s}$"
            ax.text(-0.3, n - 1 - i + 0.5, lab, ha="right", va="center", fontsize=10)
            ax.text(i + 0.5, n + 0.3, lab, ha="center", va="bottom", fontsize=10, rotation=90)
-       ax.set_xlim(-3.2, n + 0.2); ax.set_ylim(-0.2, n + 3.2); ax.set_aspect("equal"); ax.axis("off")
-       ax.text(n / 2, -0.9, "F: forbidden pair of symbols (no row may contain both).  Grey: same column.", ha="center", va="top", fontsize=10.5)
+       ax.set_xlim(-3.2, n + 0.2); ax.set_ylim(-1.6, n + 3.2); ax.set_aspect("equal"); ax.axis("off")
+       ax.text(n / 2, -0.5, "F: forbidden pair of symbols (no row may contain both).  Grey: same column.", ha="center", va="top", fontsize=10.5)
        fig.tight_layout(pad=0.3)
        here = pathlib.Path(__file__).parent
        fig.savefig(here / f"{out}.png", dpi=300, facecolor="white"); fig.savefig(here / f"{out}.pdf", facecolor="white"); plt.close(fig)

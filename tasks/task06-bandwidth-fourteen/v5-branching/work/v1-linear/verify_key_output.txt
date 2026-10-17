@@ -1,0 +1,31 @@
+(1) parameters from the crossings (0, 0.4) and (0.4, 0.5): m = 2.20565551, r = 0.58795280
+    s = 0.0: f(s) = 0.40000, nearest gridline 0.4, distance 0.00000  <- exact crossing
+    s = 0.1: f(s) = 0.41982, nearest gridline 0.4, distance 0.01982
+    s = 0.2: f(s) = 0.44253, nearest gridline 0.4, distance 0.04253
+    s = 0.3: f(s) = 0.46890, nearest gridline 0.5, distance 0.03110
+    s = 0.4: f(s) = 0.50000, nearest gridline 0.5, distance 0.00000  <- exact crossing
+    s = 0.5: f(s) = 0.53738, nearest gridline 0.5, distance 0.03738
+    s = 0.6: f(s) = 0.58341, nearest gridline 0.6, distance 0.01659
+    s = 0.7: f(s) = 0.64191, nearest gridline 0.6, distance 0.04191
+    s = 0.8: f(s) = 0.71955, nearest gridline 0.7, distance 0.01955
+    s = 0.9: f(s) = 0.82920, nearest gridline 0.8, distance 0.02920
+    s = 1.0: f(s) = 1.00000, nearest gridline 1.0, distance 0.00000
+
+(2) mean m = 2.205656 > 1, so the process is supercritical; extinction probability q = 0.56712637 (f(q) - q = 0.0e+00)
+
+(3) route A: f'(q) = 0.47672953, E[T | extinction] = 1/(1 - f'(q)) = 1.91105759
+
+(4) route B (Lagrange inversion, T up to 400): P(extinction) = sum P(T = n) = 0.567126 (q = 0.567126); E[T | extinction] = 1.911058
+
+(5) route C (Monte Carlo, 200000 runs): extinct fraction 0.5673; E[T | extinction] = 1.9124 +- 0.0073
+
+KEY: 1.9111, to two significant figures 1.9
+
+(6) answers a solver gets with a wrong second crossing (first crossing (0, 0.4) as stated):
+    (0.3, 0.5) [curve is 0.031 off]: m = 1.247, r = 1.561, q = 0.763, answer 4.983
+    (0.5, 0.5) [curve is 0.037 off]: m = 4.191, r = 0.362, q = 0.500, answer 1.446
+    (0.6, 0.6) [curve is 0.017 off]: m = 1.869, r = 0.711, q = 0.600, answer 2.205
+    (0.7, 0.6) [curve is 0.042 off]: m = 3.347, r = 0.416, q = 0.517, answer 1.548
+    (0.8, 0.7) [curve is 0.020 off]: m = 2.590, r = 0.506, q = 0.544, answer 1.730
+    (0.9, 0.8) [curve is 0.029 off]: m = 2.862, r = 0.466, q = 0.532, answer 1.647
+    forgetting to condition, E[T; extinction] = q/(1 - f'(q)) = 1.084; the unconditional E[T] is infinite

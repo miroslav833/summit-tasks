@@ -321,6 +321,22 @@ slack >= 3, at least 5 live end pairs for width b-1, and a fixed-ends search of 
 exclude width b-1, on top of the old tests. The v4-twenty folder holds candE with a full verify_key.py (its
 end-pair proof is written out, 16 cases) as a fallback, not as a submission.
 
+task06 v5-branching (2026-10-17): bandwidth abandoned for good after round 5. Rounds 4 and 5 showed the trade-off
+in numbers: when the squeeze has slack the instance has hundreds of optimal numberings and a long annealer finds
+one (21 vertices, bandwidth 7: 9 of 24 runs); when the optimum is rigid the squeeze or a short fixed-ends search
+closes the lower bound. Every bandwidth design is a search problem, which the owner's rule ("difficulty from one
+decisive step, not from length") excludes anyway. New design in the same task folder: Galton-Watson process with
+negative binomial offspring, parameters read from a figure, question E[T | extinction] (decisive step: conditioned
+on extinction the process is subcritical with offspring pgf f(qs)/q and mean f'(q)). Two figures screened:
+- linear plot of f(s) on [0, 1] with a 0.1 grid, exact crossings (0, 0.4) and (0.4, 0.5), key 1.911: Opus and
+  Sonnet both 1.9 within half a minute; a linear grid shows exact crossings at a glance.
+- offspring pmf p_0..p_9 as stems on a log axis with 1-2-5 gridlines, exact p_0 = 0.5 and p_7 = 0.02, decoys 12 to
+  35 percent off, key 1.838: Opus 1.83 and Sonnet 1.84, both correct; Sonnet measured pixel rows (715 px per decade)
+  and read every point to 1 percent. Discrete markers are far easier to read than a continuous curve at labelled
+  abscissae, so the task11 lever does not transfer to point plots.
+The conditioning step itself is textbook for both models. Verdict: this family is solved; kept in
+v5-branching/ (work/v1-linear holds the first figure and its three-route verifier) and not packaged.
+
 Submission note (2026-10-17): Summit has no task06 entry, so the owner revised SUM-MVB7DTW7 (the task05 entry,
 the only bandwidth question on the account) with this package, which also avoids a duplicate-check hit from a
 second bandwidth task. Lesson for the README of any revision: name the Summit entry id, not the local task
