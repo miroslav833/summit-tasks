@@ -1,0 +1,292 @@
+VERIFICATION NOTES: rooted pebbling number of the graph in the figure (target: the double-circled vertex 1)
+
+Answer key: 27.
+
+1. The graph (from the figure). Vertices 1 to 14, edges 1-2, 1-3, 2-5, 2-8, 3-4, 3-6, 3-10, 4-10, 4-11,
+   5-8, 5-9, 6-8, 6-10, 7-9, 7-12, 8-13, 9-12, 10-11, 12-14, 13-14. Target r = 1, neighbours 2 and 3.
+   Distances from 1: 1 for 2, 3; 2 for 4, 5, 6, 8, 10; 3 for 9, 11, 13; 4 for 7, 12, 14. Eccentricity of 1
+   is 4. The graph is planar and 2-connected. Trivial lower bounds: 2^4 = 16 and n = 14. The left part
+   L = {7, 9, 12, 13, 14} meets the rest only through the edges 9-5 and 13-8; the pocket {4, 10, 11}
+   hangs off 3 and 6, with 11 of degree 2 at distance 3.
+
+2. Lower bound 27: the configuration C with fifteen pebbles on 7, seven on 11, three on 14, one on 13
+   (twenty-six pebbles) does not reach 1. Reduction (Step 3 of the solution): a pebble reaches 1 only
+   from 2 or 3 holding two pebbles, so two pebbles must arrive at 2 (from 5 or 8) or at 3 (from 4, 6 or
+   10). Certificate: breadth-first enumeration of every configuration reachable from C (187,805
+   configurations, program section 5, certificate (iii)); none has a pebble on 1 and none has two pebbles
+   on 2 or on 3. A dynamic programme over the same configurations gives the largest number of moves into
+   each vertex over all move sequences: at most one pebble ever arrives at 2 and at most one at 3; at most
+   five pebbles leave L, at most four leave 11 (counting re-entries). Structure: the pocket's pile of seven
+   is worth one pebble at 3, the pile of fifteen on 7 is worth one pebble at 2, and the three on 14 with
+   the one on 13 add a single stranded pebble on 8 or 12.
+
+3. Why this configuration and not the pile patterns. The largest failing configurations with a single
+   pile have 22 pebbles (fifteen on 7 or on 12 and single pebbles on seven other vertices), suggesting
+   23; the largest with two piles have 25 (fifteen on 7, seven on 11, singles on 12, 13, 14, and four
+   relatives), suggesting 26. The 20 failing configurations of 26 pebbles all have seven on 11 and nineteen
+   pebbles in L in twelve shapes, every one with at least three piles; they are listed in the Route A
+   output.
+
+4. Upper bound 27: Route A (layer recursion over the sets U_k of unreachable configurations of k pebbles,
+   integer-encoded, with the shortcut that two pebbles on a neighbour of 1 reach 1) gives the layer sizes
+   1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222,
+   153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0; U_27 is empty. Route B (the
+   same recursion written independently with tuple-encoded configurations and without the shortcut) gives
+   identical sizes. Certificate (i): a memoised depth-first search over move sequences confirms that each
+   of the 20 configurations of 26 pebbles fails and that every configuration obtained by adding one pebble
+   reaches 1. Certificate (ii): 20,000 random configurations of each size 25, 26, 27 (at most one pebble
+   on each neighbour of 1) give the same verdict by direct search and by layer membership. Certificate
+   (iv): the template bounds 22 (one pile plus singles), 25 (two piles) and 26 (three piles).
+
+5. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py; standard library only,
+   about four minutes)
+
+   """Verification of the answer key: the pebbling number of the 14-vertex, 20-edge graph in the figure with
+   target r = 1 (the double-circled vertex) is 27.
+
+   Self-contained, Python standard library only.  Run: python3 verify_key.py   (about four minutes)
+
+   Definitions.  A configuration c assigns c(v) >= 0 pebbles to each vertex.  A pebbling move removes two
+   pebbles from a vertex u and adds one pebble to a neighbour of u.  The target r is reachable from c if some
+   sequence of moves puts a pebble on r.  pi(G, r) is the least k such that every configuration of k pebbles
+   reaches r.
+
+   Route A (layer recursion, integer-encoded configurations).  Let U_k be the set of configurations of k
+     pebbles, none on r, from which r is not reachable.  U_0 = {0}.  Adding a pebble never destroys
+     reachability, so every member of U_k is a member of U_{k-1} plus one pebble; a candidate c belongs to U_k
+     iff no move from c lands on r and every move from c leads into U_{k-1}.  A configuration with two
+     pebbles on a neighbour of r reaches r in one move, so candidates with two pebbles on a neighbour of r
+     are skipped.  pi(G, r) = 1 + max{k : U_k nonempty}.  Prints |U_k| for every k.
+   Route B (independent implementation).  The same recursion written separately with tuple-encoded
+     configurations and without the neighbour shortcut; the layer sizes must agree exactly.
+   Certificates.  (i) Direct depth-first search over move sequences: every one of the 20 configurations of 26
+     pebbles in U_26 is confirmed unreachable, and every configuration obtained from one of them by adding one
+     pebble on a vertex other than r (20 x 13 = 260 configurations of 27 pebbles, fewer after removing duplicates) is confirmed reachable.
+     (ii) Random cross-check: 20,000 random configurations of each size 25, 26, 27 with at most one pebble on
+     each neighbour of r are tested by direct search and compared with membership in U_k.
+     (iii) The configuration C of the solution (fifteen pebbles on 7, seven on 11, three on 14, one on 13): all
+     configurations reachable from C are enumerated by breadth-first search; none has a pebble on 1, and the
+     largest number of pebbles ever present on each vertex is printed (never two on 2 or 3).
+     (iv) Template bounds: the largest failing configuration with at most one vertex holding two or more
+     pebbles (one pile plus single pebbles), with at most two such vertices, and with at most three.
+     (v) The trivial bounds n = 14 and 2^ecc(r) = 16, distances from r, degrees.
+   """
+   import sys, collections, random, time
+   sys.setrecursionlimit(1000000)
+   EDGES = [(1,2),(1,3),(2,5),(2,8),(3,4),(3,6),(3,10),(4,10),(4,11),(5,8),(5,9),(6,8),(6,10),(7,9),(7,12),(8,13),(9,12),(10,11),(12,14),(13,14)]
+   N = 14; R = 1; V = list(range(1, N + 1))
+   adj = {v: [] for v in V}
+   for u, v in EDGES: adj[u].append(v); adj[v].append(u)
+   for v in V: adj[v].sort()
+   assert len(EDGES) == 20 and len({tuple(sorted(e)) for e in EDGES}) == 20
+   print("vertices:", N, " edges:", len(EDGES), " target r =", R)
+   print("adjacency:", {v: adj[v] for v in V})
+   print("degrees:", {v: len(adj[v]) for v in V})
+   def bfs(s):
+       d = {s: 0}; q = collections.deque([s])
+       while q:
+           x = q.popleft()
+           for y in adj[x]:
+               if y not in d: d[y] = d[x] + 1; q.append(y)
+       return d
+   D = bfs(R); ecc = max(D.values())
+   print("distances from r:", dict(sorted(D.items(), key=lambda x: (x[1], x[0]))), " eccentricity of r:", ecc)
+   print("trivial lower bounds: n =", N, " 2^ecc =", 2 ** ecc)
+
+   # ------------------------------------------------------------ Route A (integers, 5 bits per vertex)
+   B = {v: 1 << (5 * (v - 1)) for v in V}
+   def cnt(c, v): return (c >> (5 * (v - 1))) & 31
+   def enc(cfg): return sum(x << (5 * (v - 1)) for v, x in cfg.items())
+   def dec(c): return {v: cnt(c, v) for v in V if cnt(c, v)}
+   NB = set(adj[R]); OTH = [v for v in V if v != R]
+   def layers_A():
+       U = {0}; L = [U]
+       while U:
+           prev = U; cand = set()
+           for c in prev:
+               for v in OTH:
+                   if v in NB and cnt(c, v) >= 1: continue
+                   cand.add(c + B[v])
+           U = set()
+           for c in cand:
+               stuck = True
+               for u in OTH:
+                   if cnt(c, u) >= 2:
+                       base = c - 2 * B[u]
+                       for w in adj[u]:
+                           if w == R or (base + B[w]) not in prev: stuck = False; break
+                       if not stuck: break
+               if stuck: U.add(c)
+           L.append(U)
+       return L
+   t0 = time.time(); LA = layers_A(); piA = len(LA) - 1
+   print("\nROUTE A: layer sizes |U_k| for k = 0, 1, ...:", [len(U) for U in LA])
+   print(f"ROUTE A: pi(G, {R}) = {piA}   ({time.time()-t0:.0f} s)")
+   assert piA == 27
+   print("  the 20 unreachable configurations of 26 pebbles:")
+   for c in sorted(LA[26], key=lambda c: tuple(sorted(dec(c).values(), reverse=True))): print("    ", dec(c))
+
+   # ------------------------------------------------------------ Route B (tuples, no shortcut)
+   def layers_B():
+       U = {tuple([0] * N)}; sizes = [1]
+       while U:
+           prev = U; cand = set()
+           for c in prev:
+               for v in OTH:
+                   l = list(c); l[v - 1] += 1; cand.add(tuple(l))
+           U = set()
+           for c in cand:
+               stuck = True
+               for u in OTH:
+                   if c[u - 1] >= 2:
+                       for w in adj[u]:
+                           if w == R: stuck = False; break
+                           l = list(c); l[u - 1] -= 2; l[w - 1] += 1
+                           if tuple(l) not in prev: stuck = False; break
+                       if not stuck: break
+               if stuck: U.add(c)
+           sizes.append(len(U))
+       return sizes
+   t0 = time.time(); sB = layers_B()
+   print("\nROUTE B: layer sizes:", sB, f"  ({time.time()-t0:.0f} s)")
+   assert sB == [len(U) for U in LA]
+   print("ROUTE B: identical layer sizes, pi(G, 1) = 27")
+
+   # ------------------------------------------------------------ Certificate (i), (ii): direct search
+   def reach_checker():
+       memo = {}
+       def ok(c):
+           if cnt(c, R) >= 1: return True
+           v = memo.get(c)
+           if v is not None: return v
+           memo[c] = False; res = False
+           for u in OTH:
+               if cnt(c, u) >= 2:
+                   base = c - 2 * B[u]
+                   for w in adj[u]:
+                       if ok(base + B[w]): res = True; break
+                   if res: break
+           memo[c] = res; return res
+       return ok
+   ok = reach_checker(); t0 = time.time()
+   assert all(not ok(c) for c in LA[26])
+   ext = {c + B[v] for c in LA[26] for v in OTH}
+   assert all(ok(c) for c in ext)
+   print(f"\nCERTIFICATE (i): direct search confirms the 20 configurations of 26 pebbles are unreachable and all {len(ext)} one-pebble extensions reach 1   ({time.time()-t0:.0f} s)")
+   rng = random.Random(2026); t0 = time.time()
+   for k in (25, 26, 27):
+       agree = 0; tested = 0; bad = 0
+       while tested < 20000:
+           cfg = [0] * N
+           for _ in range(k): cfg[rng.choice(OTH) - 1] += 1
+           if any(cfg[v - 1] >= 2 for v in NB): continue
+           c = sum(x << (5 * i) for i, x in enumerate(cfg)); tested += 1
+           inU = (k < len(LA)) and (c in LA[k]); direct = not ok(c)
+           if inU == direct: agree += 1
+           else: bad += 1
+           if direct: bad_ = None
+       print(f"CERTIFICATE (ii): size {k}: {tested} random configurations, layer membership and direct search agree on {agree}, disagree on {bad}")
+       assert bad == 0
+   print(f"   ({time.time()-t0:.0f} s)")
+
+   # ------------------------------------------------------------ Certificate (iii): the configuration C
+   C = enc({7: 15, 11: 7, 14: 3, 13: 1})
+   assert C in LA[26]
+   seen = {C}; q = collections.deque([C])
+   while q:
+       c = q.popleft()
+       for u in OTH:
+           if cnt(c, u) >= 2:
+               base = c - 2 * B[u]
+               for w in adj[u]:
+                   t = base + B[w]
+                   if t not in seen: seen.add(t); q.append(t)
+   mx = {v: max(cnt(c, v) for c in seen) for v in V}
+   print("\nCERTIFICATE (iii): configurations reachable from C = {7: 15, 11: 7, 14: 3, 13: 1}:", len(seen))
+   print("  largest number of pebbles ever on each vertex:", mx)
+   assert mx[R] == 0 and mx[2] <= 1 and mx[3] <= 1
+   print("  no reachable configuration has a pebble on 1, and none has two pebbles on 2 or on 3")
+   # how many pebbles can ever cross the key edges, over all move sequences (DP on the DAG of configurations)
+   import functools
+   @functools.lru_cache(maxsize=None)
+   def best(c, key):
+       b = 0
+       for u in OTH:
+           if cnt(c, u) >= 2:
+               base = c - 2 * B[u]
+               for w in adj[u]:
+                   gain = 1 if (u, w) in key else 0
+                   b = max(b, gain + best(base + B[w], key))
+       return b
+   L_out = ((9, 5), (13, 8)); R_out = ((11, 4), (11, 10))
+   print("  maximum number of moves from the left part {7,9,12,13,14} into {5,8} over all sequences:", best(C, L_out))
+   print("  maximum number of moves out of 11 over all sequences:", best(C, R_out))
+   print("  maximum number of pebbles arriving at 2:", best(C, tuple((u, 2) for u in adj[2] if u != R)), " at 3:", best(C, tuple((u, 3) for u in adj[3] if u != R)))
+   print("  maximum number of pebbles arriving at 5:", best(C, tuple((u, 5) for u in adj[5])), " at 8:", best(C, tuple((u, 8) for u in adj[8])), " at 4:", best(C, tuple((u, 4) for u in adj[4])), " at 6:", best(C, tuple((u, 6) for u in adj[6])), " at 10:", best(C, tuple((u, 10) for u in adj[10])))
+
+   # ------------------------------------------------------------ Certificate (iv): template bounds
+   def npiles(c): return sum(1 for v in V if cnt(c, v) >= 2)
+   T1 = max(k for k, U in enumerate(LA) if any(npiles(c) <= 1 for c in U))
+   T2 = max(k for k, U in enumerate(LA) if any(npiles(c) <= 2 for c in U))
+   T3 = max(k for k, U in enumerate(LA) if any(npiles(c) <= 3 for c in U))
+   print("\nCERTIFICATE (iv): largest unreachable configuration with one pile plus single pebbles has", T1, "pebbles:", [dec(c) for c in LA[T1] if npiles(c) <= 1][:4])
+   print("  largest unreachable configuration with at most two piles has", T2, "pebbles:", [dec(c) for c in LA[T2] if npiles(c) <= 2])
+   print("  largest unreachable configuration with at most three piles has", T3, "pebbles")
+   print("\nALL CHECKS PASSED: pi(G, 1) = 27.")
+
+
+   Output:
+
+   vertices: 14  edges: 20  target r = 1
+   adjacency: {1: [2, 3], 2: [1, 5, 8], 3: [1, 4, 6, 10], 4: [3, 10, 11], 5: [2, 8, 9], 6: [3, 8, 10], 7: [9, 12], 8: [2, 5, 6, 13], 9: [5, 7, 12], 10: [3, 4, 6, 11], 11: [4, 10], 12: [7, 9, 14], 13: [8, 14], 14: [12, 13]}
+   degrees: {1: 2, 2: 3, 3: 4, 4: 3, 5: 3, 6: 3, 7: 2, 8: 4, 9: 3, 10: 4, 11: 2, 12: 3, 13: 2, 14: 2}
+   distances from r: {1: 0, 2: 1, 3: 1, 4: 2, 5: 2, 6: 2, 8: 2, 10: 2, 9: 3, 11: 3, 13: 3, 7: 4, 12: 4, 14: 4}  eccentricity of r: 4
+   trivial lower bounds: n = 14  2^ecc = 16
+
+   ROUTE A: layer sizes |U_k| for k = 0, 1, ...: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]
+   ROUTE A: pi(G, 1) = 27   (77 s)
+     the 20 unreachable configurations of 26 pebbles:
+        {7: 7, 11: 7, 12: 7, 14: 5}
+        {7: 9, 11: 7, 12: 5, 14: 5}
+        {7: 5, 11: 7, 12: 9, 14: 5}
+        {7: 11, 11: 7, 12: 4, 13: 1, 14: 3}
+        {7: 3, 11: 7, 12: 11, 14: 5}
+        {7: 11, 11: 7, 12: 3, 14: 5}
+        {7: 11, 11: 7, 12: 2, 14: 6}
+        {7: 13, 11: 7, 12: 2, 13: 1, 14: 3}
+        {7: 3, 11: 7, 12: 3, 14: 13}
+        {7: 13, 11: 7, 12: 1, 13: 1, 14: 4}
+        {7: 1, 11: 7, 12: 5, 14: 13}
+        {7: 1, 11: 7, 12: 13, 14: 5}
+        {7: 5, 11: 7, 12: 1, 14: 13}
+        {7: 13, 11: 7, 12: 1, 14: 5}
+        {7: 13, 11: 7, 14: 6}
+        {7: 3, 11: 7, 12: 2, 14: 14}
+        {7: 5, 11: 7, 14: 14}
+        {7: 15, 11: 7, 13: 2, 14: 2}
+        {7: 15, 11: 7, 13: 1, 14: 3}
+        {7: 3, 9: 1, 11: 7, 14: 15}
+
+   ROUTE B: layer sizes: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]   (91 s)
+   ROUTE B: identical layer sizes, pi(G, 1) = 27
+
+   CERTIFICATE (i): direct search confirms the 20 configurations of 26 pebbles are unreachable and all 253 one-pebble extensions reach 1   (9 s)
+   CERTIFICATE (ii): size 25: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
+   CERTIFICATE (ii): size 26: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
+   CERTIFICATE (ii): size 27: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
+      (8 s)
+
+   CERTIFICATE (iii): configurations reachable from C = {7: 15, 11: 7, 14: 3, 13: 1}: 187805
+     largest number of pebbles ever on each vertex: {1: 0, 2: 1, 3: 1, 4: 3, 5: 3, 6: 2, 7: 15, 8: 2, 9: 7, 10: 3, 11: 7, 12: 8, 13: 4, 14: 6}
+     no reachable configuration has a pebble on 1, and none has two pebbles on 2 or on 3
+     maximum number of moves from the left part {7,9,12,13,14} into {5,8} over all sequences: 5
+     maximum number of moves out of 11 over all sequences: 4
+     maximum number of pebbles arriving at 2: 1  at 3: 1
+     maximum number of pebbles arriving at 5: 5  at 8: 3  at 4: 4  at 6: 3  at 10: 5
+
+   CERTIFICATE (iv): largest unreachable configuration with one pile plus single pebbles has 22 pebbles: [{3: 1, 4: 1, 7: 1, 10: 1, 11: 1, 12: 15, 13: 1, 14: 1}, {3: 1, 4: 1, 7: 15, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1}, {3: 1, 4: 1, 7: 15, 8: 1, 10: 1, 11: 1, 12: 1, 14: 1}, {3: 1, 4: 1, 6: 1, 7: 15, 10: 1, 11: 1, 12: 1, 14: 1}]
+     largest unreachable configuration with at most two piles has 25 pebbles: [{7: 1, 11: 7, 12: 15, 13: 1, 14: 1}, {7: 1, 9: 1, 11: 7, 12: 1, 14: 15}, {7: 15, 11: 7, 12: 1, 13: 1, 14: 1}, {7: 15, 8: 1, 11: 7, 12: 1, 14: 1}, {6: 1, 7: 15, 11: 7, 12: 1, 14: 1}]
+     largest unreachable configuration with at most three piles has 26 pebbles
+
+   ALL CHECKS PASSED: pi(G, 1) = 27.
+

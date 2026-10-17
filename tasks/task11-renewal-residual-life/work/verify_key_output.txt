@@ -1,0 +1,71 @@
+k = 3.0803, lambda = 1.6960  (from (t/lam)^k = 1/S - 1 at the two crossings)
+check: S(6) = 0.0200, S(20) = 0.0005
+curve at every labelled t and the distance to the nearest gridline (lines at 1, 2, 5 of each decade):
+   t =   1: S = 0.8358, nearest line 1, off by 16 percent
+   t =   2: S = 0.3757, nearest line 0.5, off by 25 percent
+   t =   3: S = 0.1472, nearest line 0.2, off by 26 percent
+   t =   4: S = 0.06643, nearest line 0.05, off by 33 percent
+   t =   5: S = 0.03455, nearest line 0.05, off by 31 percent
+   t =   6: S = 0.02, nearest line 0.02, off by 0 percent
+   t =   8: S = 0.008343, nearest line 0.01, off by 17 percent
+   t =  10: S = 0.004213, nearest line 0.005, off by 16 percent
+   t =  15: S = 0.001212, nearest line 0.001, off by 21 percent
+   t =  20: S = 0.0005, nearest line 0.0005, off by 0 percent
+   t =  30: S = 0.0001435, nearest line 0.0002, off by 28 percent
+   t =  40: S = 5.914e-05 (below the axis)
+   t =  50: S = 2.974e-05 (below the axis)
+   t =  60: S = 1.696e-05 (below the axis)
+   t =  80: S = 6.993e-06 (below the axis)
+   t = 100: S = 3.517e-06 (below the axis)
+Route 1, closed form: E[X] = 2.03015, E[X^2] = 6.57795, E[X^2]/(2 E[X]^2) = 0.79800, (k/2pi) tan(pi/k) = 0.79800
+Route 2, quadrature of the survival function: E[X] = 2.03015, E[X^2] = 6.57795, ratio = 0.79800
+Route 3, Beta function: E[X] = 2.03015, E[X^2] = 6.57795, ratio = 0.79800
+Route 4, equilibrium residual-life density S(t)/m: lim E[r(t)] = 1.62007, over m = 0.79800
+Note: a direct simulation of r(t) at a fixed large t converges slowly here, because r has tail index k - 1 < 2 and
+      so infinite variance; it is not used as a check.
+Answer key: 0.7980, two significant figures 0.8
+Wrong: m/2 over m = 0.5; m over m = 1; E[X^2]/(2E[X]) itself (not divided by the mean) = 1.6201
+Every pair of labelled abscissae read at the nearest gridline (true crossings kept at their true values):
+   (2, 0.5) with (3, 0.2): k = 3.419, ratio = 0.7129
+   (2, 0.5) with (4, 0.05): k = 4.248, ratio = 0.6168
+   (2, 0.5) with (5, 0.05): k = 3.213, ratio = 0.7587
+   (2, 0.5) with (6, 0.02): k = 3.542, ratio = 0.6916
+   (2, 0.5) with (8, 0.01): k = 3.315, ratio = 0.7343
+   (2, 0.5) with (10, 0.005): k = 3.289, ratio = 0.7401
+   (2, 0.5) with (15, 0.001): k = 3.428, ratio = 0.7113
+   (2, 0.5) with (20, 0.0005): k = 3.301, ratio = 0.7374
+   (2, 0.5) with (30, 0.0002): k = 3.145, ratio = 0.7777
+   (3, 0.2) with (4, 0.05): k = 5.416, ratio = 0.5648
+   (3, 0.2) with (5, 0.05): k = 3.050, ratio = 0.8083
+   (3, 0.2) with (6, 0.02): k = 3.615, ratio = 0.6807
+   (3, 0.2) with (8, 0.01): k = 3.272, ratio = 0.7442
+   (3, 0.2) with (10, 0.005): k = 3.245, ratio = 0.7506
+   (3, 0.2) with (15, 0.001): k = 3.430, ratio = 0.7109
+   (3, 0.2) with (20, 0.0005): k = 3.276, ratio = 0.7432
+   (3, 0.2) with (30, 0.0002): k = 3.097, ratio = 0.7926
+   (4, 0.05) with (6, 0.02): k = 2.337, ratio = 1.6155
+   (4, 0.05) with (8, 0.01): k = 2.381, ratio = 1.4746
+   (4, 0.05) with (10, 0.005): k = 2.563, ratio = 1.1343
+   (4, 0.05) with (15, 0.001): k = 2.998, ratio = 0.8279
+   (4, 0.05) with (20, 0.0005): k = 2.893, ratio = 0.8740
+   (4, 0.05) with (30, 0.0002): k = 2.766, ratio = 0.9476
+   (5, 0.05) with (6, 0.02): k = 5.196, ratio = 0.5714
+   (5, 0.05) with (8, 0.01): k = 3.512, ratio = 0.6965
+   (5, 0.05) with (10, 0.005): k = 3.389, ratio = 0.7188
+   (5, 0.05) with (15, 0.001): k = 3.607, ratio = 0.6819
+   (5, 0.05) with (20, 0.0005): k = 3.359, ratio = 0.7249
+   (5, 0.05) with (30, 0.0002): k = 3.110, ratio = 0.7883
+   (6, 0.02) with (8, 0.01): k = 2.445, ratio = 1.3244
+   (6, 0.02) with (10, 0.005): k = 2.744, ratio = 0.9630
+   (6, 0.02) with (15, 0.001): k = 3.290, ratio = 0.7398
+   (6, 0.02) with (30, 0.0002): k = 2.874, ratio = 0.8837
+   (8, 0.01) with (10, 0.005): k = 3.129, ratio = 0.7825
+   (8, 0.01) with (15, 0.001): k = 3.677, ratio = 0.6720
+   (8, 0.01) with (20, 0.0005): k = 3.280, ratio = 0.7422
+   (8, 0.01) with (30, 0.0002): k = 2.967, ratio = 0.8403
+   (10, 0.005) with (15, 0.001): k = 3.979, ratio = 0.6385
+   (10, 0.005) with (20, 0.0005): k = 3.328, ratio = 0.7313
+   (10, 0.005) with (30, 0.0002): k = 2.934, ratio = 0.8545
+   (15, 0.001) with (20, 0.0005): k = 2.411, ratio = 1.3982
+   (15, 0.001) with (30, 0.0002): k = 2.323, ratio = 1.6654
+   (20, 0.0005) with (30, 0.0002): k = 2.261, ratio = 1.9652

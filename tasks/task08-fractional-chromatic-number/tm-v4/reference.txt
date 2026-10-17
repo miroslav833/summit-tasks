@@ -1,0 +1,222 @@
+VERIFICATION NOTES: smallest pairwise-covering fatigue test programme with eight unavailable level combinations
+
+Answer key: 11.
+
+1. The instance (from the figure). Factors A powder (0 TiH2-derived, 1 HDH, 2 gas-atomised), B specimen geometry (0 round
+   bar, 1 flat, 2 notched), C space-holder content (0, 1, 2 for 0, 15, 30 vol%), D oxygen (0, 1, 2 for 0.15, 0.30,
+   0.45 wt%), E load ratio (0, 1, 2 for -1, 0.1, 0.5). Unavailable combinations A0C2, A0D1, A1C1, A1E0, A2B2, B0C2, B1D2,
+   B2E1. A specimen is admissible if it contains none of them: 82 of the 243 level combinations. Admissible level
+   pairs: 82 of 90; every admissible pair occurs in some admissible specimen, so the covering requirement can be met.
+2. Trivial bound: the factor pairs CD, CE, DE each have 9 admissible level pairs and one specimen covers one level pair
+   of a factor pair, so at least 9 specimens. Level counting with forced levels gives no more (no level is forced).
+3. Lower bound 11 (certificate, hand-checkable): the eleven pairs A1B0, A1B1, A0E1, A0E2, A2E1, A2E2, B2D1, C2D2, D0E0,
+   D1E0, D2E0 are pairwise incompatible (no admissible specimen contains two of them). The program checks this against
+   all 82 specimens and classifies the 55 couples: 37 disagree on a factor level (12 on A, 3 on B, 8 on D, 14 on E);
+   14 contain an unavailable combination (A1E0 six times, A0D1, A0C2, A2B2 twice each, B0C2, B1D2 once each); 4 are
+   admissible as four fixed levels but have no completion: A2En with C2D2 leaves no geometry (B0 blocked by C2, B1 by
+   D2, B2 by A2), B2D1 with D1E0 leaves no powder (A0 blocked by D1, A1 by E0, A2 by B2), C2D2 with D2E0 leaves no
+   powder (A0 blocked by C2, A1 by E0, A2 then leaves no geometry). Hence at least 11 specimens. Nine different
+   eleven-pair certificates exist; each needs completion-blocked couples.
+4. Upper bound 11: the programme A0B0C1D2E1, A0B1C0D0E2, A0B2C1D0E0, A1B0C0D1E1, A1B1C2D0E1, A1B2C0D1E2, A1B2C2D2E2,
+   A2B0C0D2E0, A2B0C1D0E2, A2B1C1D1E1, A2B1C2D1E0 is admissible and covers all 82 admissible pairs (checked pair by
+   pair).
+5. Integer programme (scipy HiGHS, one binary variable per admissible specimen, one covering constraint per admissible
+   pair): minimum 11; enumeration with no-good cuts finds exactly one optimal programme, the one in 4.
+6. Wrong routes, computed: the trivial bound 9; 10 (what a solver reports who finds ten pairwise incompatible pairs and
+   believes a 10-specimen programme exists); randomised greedy constructions (add the admissible specimen covering
+   most uncovered pairs, ties broken at random, 200 runs) reach 11 once, 12 three times, 13 in 28 runs, 14 in 78,
+   15 in 69, 16 in 17, 17 in 4; 12 is what a solver reports who proves 11 and settles for the best construction found.
+
+7. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py; standard library only, scipy optional
+   for section 5; running time about two minutes)
+
+   """Verification of the answer key: the smallest pairwise-covering test matrix for the five three-level factors of the
+   figure, with its eight unavailable level combinations, has 11 specimens, and that programme is unique.
+
+   Self-contained, python3 standard library only (scipy, when installed, adds an integer-programming solve and the
+   enumeration of all optimal designs).  Run: python3 verify_key.py
+
+   Factors (index: name, levels 0/1/2): A powder (TiH2-derived, HDH, gas-atomised); B specimen geometry (round bar, flat,
+   notched); C space-holder content (0, 15, 30 vol%); D oxygen (0.15, 0.30, 0.45 wt%); E load ratio (-1, 0.1, 0.5).
+   Unavailable combinations: A0C2, A0D1, A1C1, A1E0, A2B2, B0C2, B1D2, B2E1.
+     (1) the admissible specimens (rows) are enumerated: 82 of the 243 level combinations; the admissible pairs of levels
+         of two different factors: 82 of 90;
+     (2) trivial lower bound: every pair of factors has at most 9 admissible level pairs, so at least 9 specimens;
+     (3) lower bound 11: the 11 level pairs A1B0, A1B1, A0E1, A0E2, A2E1, A2E2, B2D1, C2D2, D0E0, D1E0, D2E0 are pairwise
+         exclusive, no admissible specimen contains two of them (checked against all 82 rows, and explained couple by
+         couple; four couples are exclusive only because every completion of their four fixed levels meets an unavailable
+         combination), so every programme needs at least 11 specimens;
+     (4) upper bound 11: an explicit programme of 11 specimens covers all 82 admissible pairs;
+     (5) with scipy: the integer programme confirms the minimum 11 and the enumeration of optimal programmes finds exactly
+         one; the number of exclusive sets of size 11 is counted;
+     (6) wrong routes: the trivial bound 9; 200 randomised greedy constructions never reach 11.
+   """
+   import itertools, random
+
+   LEVELS = [3, 3, 3, 3, 3]; k = 5; L = "ABCDE"
+   FORB = {((0, 0), (2, 2)), ((0, 0), (3, 1)), ((0, 1), (2, 1)), ((0, 1), (4, 0)), ((0, 2), (1, 2)), ((1, 0), (2, 2)), ((1, 1), (3, 2)), ((1, 2), (4, 1))}
+   def name(p): return f"{L[p[0][0]]}{p[0][1]}{L[p[1][0]]}{p[1][1]}"
+   def admissible(r): return all(((i, r[i]), (j, r[j])) not in FORB for i, j in itertools.combinations(range(k), 2))
+   ROWS = [r for r in itertools.product(*[range(l) for l in LEVELS]) if admissible(r)]
+   PAIRS = [((i, a), (j, b)) for i, j in itertools.combinations(range(k), 2) for a in range(3) for b in range(3) if ((i, a), (j, b)) not in FORB]
+   def covers(r, p): return r[p[0][0]] == p[0][1] and r[p[1][0]] == p[1][1]
+   print(f"admissible specimens: {len(ROWS)} of 243; admissible level pairs: {len(PAIRS)} of 90; unavailable: {[name(p) for p in sorted(FORB)]}")
+   assert len(ROWS) == 82 and len(PAIRS) == 82
+   assert all(any(covers(r, p) for r in ROWS) for p in PAIRS), "every admissible pair must be realisable"
+
+   # ---------- (2) trivial bound ----------
+   per_factor_pair = {(i, j): sum(1 for p in PAIRS if p[0][0] == i and p[1][0] == j) for i, j in itertools.combinations(range(k), 2)}
+   print("admissible pairs per factor pair:", {f"{L[i]}{L[j]}": v for (i, j), v in per_factor_pair.items()}, "-> trivial bound", max(per_factor_pair.values()))
+
+   # ---------- (3) lower bound: 11 pairwise exclusive pairs ----------
+   EXCL = [((0, 1), (1, 0)), ((0, 1), (1, 1)), ((0, 0), (4, 1)), ((0, 0), (4, 2)), ((0, 2), (4, 1)), ((0, 2), (4, 2)),
+           ((1, 2), (3, 1)), ((2, 2), (3, 2)), ((3, 0), (4, 0)), ((3, 1), (4, 0)), ((3, 2), (4, 0))]
+   assert all(p in PAIRS for p in EXCL)
+   for r in ROWS:
+       assert sum(covers(r, p) for p in EXCL) <= 1, r
+   print("exclusive set:", [name(p) for p in EXCL])
+   print("CHECK 3: no admissible specimen contains two of the 11 pairs, so every programme has at least 11 specimens")
+   # why each couple is exclusive, for the written proof
+   def why(p, q):
+       d = {}
+       for (f, l) in (p[0], p[1], q[0], q[1]):
+           if f in d and d[f] != l: return f"both need factor {L[f]} at different levels"
+           d[f] = l
+       bad = [((x, d[x]), (z, d[z])) for x, z in itertools.combinations(sorted(d), 2) if ((x, d[x]), (z, d[z])) in FORB]
+       if bad: return "together they contain the unavailable combination " + name(bad[0])
+       # otherwise every completion of the free factors must hit a forbidden pair
+       free = [f for f in range(k) if f not in d]
+       return "every choice of the remaining factor(s) " + ",".join(L[f] for f in free) + " creates an unavailable combination"
+   reasons = {}
+   for p, q in itertools.combinations(EXCL, 2):
+       reasons.setdefault(why(p, q), []).append(f"{name(p)}/{name(q)}")
+   for reason, lst in reasons.items(): print(f"   {len(lst)} couples: {reason}" + (f": {lst}" if len(lst) <= 6 else ""))
+
+   # ---------- (4) upper bound: an explicit 11-specimen design ----------
+   DESIGN = [(0, 0, 1, 2, 1), (0, 1, 0, 0, 2), (0, 2, 1, 0, 0), (1, 0, 0, 1, 1), (1, 1, 2, 0, 1), (1, 2, 0, 1, 2),
+             (1, 2, 2, 2, 2), (2, 0, 0, 2, 0), (2, 0, 1, 0, 2), (2, 1, 1, 1, 1), (2, 1, 2, 1, 0)]
+   assert all(admissible(r) for r in DESIGN) and len(DESIGN) == 11
+   uncovered = [p for p in PAIRS if not any(covers(r, p) for r in DESIGN)]
+   print("design:", ["".join(f"{L[i]}{r[i]}" for i in range(k)) for r in DESIGN], "; uncovered admissible pairs:", uncovered)
+   assert not uncovered
+   print("CHECK 4: the 11-specimen programme covers all 82 admissible pairs; with CHECK 3 the minimum is 11")
+
+   # ---------- (5) integer programme and enumeration of optimal designs (scipy) ----------
+   try:
+       import numpy as np
+       from scipy.optimize import milp, LinearConstraint, Bounds
+       A = np.array([[1.0 if covers(r, p) else 0.0 for r in ROWS] for p in PAIRS])
+       c = np.ones(len(ROWS)); cons = [LinearConstraint(A, lb=1, ub=np.inf)]
+       res = milp(c, constraints=cons, integrality=np.ones(len(ROWS)), bounds=Bounds(0, 1))
+       N = int(round(res.fun)); print("integer programme (HiGHS): minimum number of specimens =", N); assert N == 11
+       sols = []
+       while True:
+           r2 = milp(c, constraints=cons, integrality=np.ones(len(ROWS)), bounds=Bounds(0, 1))
+           if r2.status != 0 or int(round(r2.fun)) > N: break
+           sel = [i for i in range(len(ROWS)) if r2.x[i] > 0.5]; sols.append(tuple(sorted(ROWS[i] for i in sel)))
+           cut = np.zeros(len(ROWS)); cut[sel] = 1; cons.append(LinearConstraint(cut.reshape(1, -1), lb=-np.inf, ub=N - 1))
+       print(f"all optimal programmes: {len(sols)}")
+       for s_ in sols: print("   ", ["".join(f"{L[i]}{r[i]}" for i in range(k)) for r in s_])
+       assert len(sols) == 1 and sols[0] == tuple(sorted(DESIGN))
+       # how many exclusive sets of size 10 exist (cliques in the conflict graph of pairs)
+       conflict = {p: set() for p in PAIRS}
+       for p, q in itertools.combinations(PAIRS, 2):
+           if not any(covers(r, p) and covers(r, q) for r in ROWS): conflict[p].add(q); conflict[q].add(p)
+       def cliques(cands, cur, out):
+           if len(cur) == 11: out.append(cur); return
+           for i, p in enumerate(cands):
+               cliques([q for q in cands[i + 1:] if q in conflict[p]], cur + [p], out)
+       found = []; cliques(PAIRS, [], found)
+       print(f"exclusive sets of size 11 (each one a complete lower-bound proof): {len(found)}")
+       print("CHECK 5: the integer programme agrees and the optimal programme is unique")
+   except ImportError:
+       print("scipy not installed: integer programme and enumeration skipped (CHECK 3 and CHECK 4 are complete without them)")
+
+   # ---------- (6) wrong routes ----------
+   sizes = []
+   for t in range(200):
+       rng = random.Random(t); unc = set(range(len(PAIRS))); used = 0
+       while unc:
+           best = max(sum(1 for pi in unc if covers(r, PAIRS[pi])) for r in ROWS)
+           cands = [r for r in ROWS if sum(1 for pi in unc if covers(r, PAIRS[pi])) == best]
+           r = rng.choice(cands); unc -= {pi for pi in unc if covers(r, PAIRS[pi])}; used += 1
+       sizes.append(used)
+   print("randomised greedy construction (200 runs), sizes reached:", {s: sizes.count(s) for s in sorted(set(sizes))})
+   print("ALL CHECKS PASSED. Minimum number of specimens 11, unique programme; trivial bound 9.")
+
+
+   Output:
+
+   admissible specimens: 82 of 243; admissible level pairs: 82 of 90; unavailable: ['A0C2', 'A0D1', 'A1C1', 'A1E0', 'A2B2', 'B0C2', 'B1D2', 'B2E1']
+   admissible pairs per factor pair: {'AB': 8, 'AC': 7, 'AD': 8, 'AE': 8, 'BC': 8, 'BD': 8, 'BE': 8, 'CD': 9, 'CE': 9, 'DE': 9} -> trivial bound 9
+   exclusive set: ['A1B0', 'A1B1', 'A0E1', 'A0E2', 'A2E1', 'A2E2', 'B2D1', 'C2D2', 'D0E0', 'D1E0', 'D2E0']
+   CHECK 3: no admissible specimen contains two of the 11 pairs, so every programme has at least 11 specimens
+      3 couples: both need factor B at different levels: ['A1B0/A1B1', 'A1B0/B2D1', 'A1B1/B2D1']
+      12 couples: both need factor A at different levels
+      1 couples: together they contain the unavailable combination B0C2: ['A1B0/C2D2']
+      6 couples: together they contain the unavailable combination A1E0: ['A1B0/D0E0', 'A1B0/D1E0', 'A1B0/D2E0', 'A1B1/D0E0', 'A1B1/D1E0', 'A1B1/D2E0']
+      1 couples: together they contain the unavailable combination B1D2: ['A1B1/C2D2']
+      14 couples: both need factor E at different levels
+      2 couples: together they contain the unavailable combination A0D1: ['A0E1/B2D1', 'A0E2/B2D1']
+      2 couples: together they contain the unavailable combination A0C2: ['A0E1/C2D2', 'A0E2/C2D2']
+      2 couples: together they contain the unavailable combination A2B2: ['A2E1/B2D1', 'A2E2/B2D1']
+      2 couples: every choice of the remaining factor(s) B creates an unavailable combination: ['A2E1/C2D2', 'A2E2/C2D2']
+      8 couples: both need factor D at different levels
+      1 couples: every choice of the remaining factor(s) A,C creates an unavailable combination: ['B2D1/D1E0']
+      1 couples: every choice of the remaining factor(s) A,B creates an unavailable combination: ['C2D2/D2E0']
+   design: ['A0B0C1D2E1', 'A0B1C0D0E2', 'A0B2C1D0E0', 'A1B0C0D1E1', 'A1B1C2D0E1', 'A1B2C0D1E2', 'A1B2C2D2E2', 'A2B0C0D2E0', 'A2B0C1D0E2', 'A2B1C1D1E1', 'A2B1C2D1E0'] ; uncovered admissible pairs: []
+   CHECK 4: the 11-specimen programme covers all 82 admissible pairs; with CHECK 3 the minimum is 11
+   integer programme (HiGHS): minimum number of specimens = 11
+   all optimal programmes: 1
+       ['A0B0C1D2E1', 'A0B1C0D0E2', 'A0B2C1D0E0', 'A1B0C0D1E1', 'A1B1C2D0E1', 'A1B2C0D1E2', 'A1B2C2D2E2', 'A2B0C0D2E0', 'A2B0C1D0E2', 'A2B1C1D1E1', 'A2B1C2D1E0']
+   exclusive sets of size 11 (each one a complete lower-bound proof): 9
+   CHECK 5: the integer programme agrees and the optimal programme is unique
+   randomised greedy construction (200 runs), sizes reached: {11: 1, 12: 3, 13: 28, 14: 78, 15: 69, 16: 17, 17: 4}
+   ALL CHECKS PASSED. Minimum number of specimens 11, unique programme; trivial bound 9.
+
+
+8. Figure script draw_figure.py (same Python; command: python3 draw_figure.py; needs matplotlib)
+
+   """Draws the figure for task08 (test-matrix version 4): the five factors of the fatigue programme with their three levels,
+   and the eight level combinations that are not available.  Produces image.png (300 dpi) and image.pdf.
+   Run: python3 draw_figure.py"""
+   import pathlib
+   import matplotlib
+   matplotlib.use("Agg")
+   import matplotlib.pyplot as plt
+
+   FACTORS = [("Powder", ["TiH$_2$-derived", "HDH", "gas-atomised"]),
+              ("Specimen geometry", ["round bar", "flat", "notched"]),
+              ("Space-holder content", ["0 vol%", "15 vol%", "30 vol%"]),
+              ("Oxygen content", ["0.15 wt%", "0.30 wt%", "0.45 wt%"]),
+              ("Load ratio $R$", ["$-1$", "0.1", "0.5"])]
+   # forbidden pairs as (factor index, level index) couples: A0C2, A0D1, A1C1, A1E0, A2B2, B0C2, B1D2, B2E1
+   FORBIDDEN = [((0, 0), (2, 2)), ((0, 0), (3, 1)), ((0, 1), (2, 1)), ((0, 1), (4, 0)), ((0, 2), (1, 2)), ((1, 0), (2, 2)), ((1, 1), (3, 2)), ((1, 2), (4, 1))]
+
+   def draw(out="image"):
+       fig, ax = plt.subplots(figsize=(10.0, 7.4)); ax.axis("off")
+       ax.text(0.0, 0.97, "Factors and levels of the fatigue test programme (MIM Ti-6Al-7Nb)", fontsize=12.5, fontweight="bold", va="top")
+       cells = [[name] + lv for name, lv in FACTORS]
+       t1 = ax.table(cellText=cells, colLabels=["Factor", "Level 1", "Level 2", "Level 3"], loc="upper left", bbox=[0.0, 0.58, 1.0, 0.35], cellLoc="center")
+       t1.auto_set_font_size(False); t1.set_fontsize(11.5)
+       for (r, c), cell in t1.get_celld().items():
+           cell.set_edgecolor("black"); cell.set_linewidth(0.8)
+           if r == 0: cell.set_text_props(fontweight="bold"); cell.set_facecolor("0.9")
+           if c == 0 and r > 0: cell.set_text_props(ha="left"); cell.get_text().set_x(0.03)
+       ax.text(0.0, 0.52, "Level combinations that are not available", fontsize=12.5, fontweight="bold", va="top")
+       rows = []
+       for (fi, li), (fj, lj) in FORBIDDEN:
+           rows.append([f"{FACTORS[fi][0]} = {FACTORS[fi][1][li]}", f"{FACTORS[fj][0]} = {FACTORS[fj][1][lj]}"])
+       t2 = ax.table(cellText=rows, colLabels=["Level of one factor", "Level of another factor"], loc="upper left", bbox=[0.0, 0.0, 1.0, 0.47], cellLoc="left", colWidths=[0.5, 0.5])
+       t2.auto_set_font_size(False); t2.set_fontsize(11.5)
+       for (r, c), cell in t2.get_celld().items():
+           cell.set_edgecolor("black"); cell.set_linewidth(0.8); cell.get_text().set_x(0.03)
+           if r == 0: cell.set_text_props(fontweight="bold"); cell.set_facecolor("0.9")
+       fig.tight_layout(pad=0.3)
+       here = pathlib.Path(__file__).parent
+       fig.savefig(here / f"{out}.png", dpi=300, facecolor="white"); fig.savefig(here / f"{out}.pdf", facecolor="white"); plt.close(fig)
+       print("wrote", out + ".png", out + ".pdf")
+
+   if __name__ == "__main__":
+       draw()
+

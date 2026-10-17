@@ -16,7 +16,8 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task09 v3 | Kitagawa diagram, internal pore in MIM Ti-6Al-7Nb (Engineering replacement for SUM-MVBG0GO3) | 200 MPa | tasks/task09-pebbling-number/v3-kitagawa-internal-pore/kitagawa-internal-pore-titanium.zip |
 | task09 v6 | S-N curve with Haibach extension, block loading of MIM Ti-6Al-7Nb (Engineering replacement for SUM-MVBG0GO3; local screen Opus 2/3, Sonnet 0/1) | 5 blocks | tasks/task09-pebbling-number/v6-sn-haibach/sn-curve-haibach-block-loading-titanium.zip |
 | task09 v9 | Two S-N curves (R = -1 and R = 0.1), block loading with Haibach extension (Engineering replacement candidate; local screen Opus 1/3, Sonnet 1/1) | 7 blocks | tasks/task09-pebbling-number/v9-two-sn-curves-mid/two-sn-curves-block-loading-titanium-b.zip |
-| task05 v5 | ENGINEERING replacement for SUM-MVB7DTW7: propagation life of a fatigue crack from a 50 um surface pore in MIM Ti-6Al-7Nb, Klesnil-Lukas constants read from a self-drawn da/dN curve (crossings at 6 and 20 MPa m^1/2), El Haddad short-crack threshold | 1.4 x 10^5 cycles | tasks/task05-bandwidth/v5-crack-growth-pore/pore-crack-propagation-life-mim-titanium.zip |
+| task05 v5 (NOT SUBMITTABLE, account is Mathematics only) | Engineering detour, kept for the screening lesson: propagation life of a fatigue crack from a 50 um surface pore in MIM Ti-6Al-7Nb, Klesnil-Lukas constants read from a self-drawn da/dN curve (crossings at 6 and 20 MPa m^1/2), El Haddad short-crack threshold | 1.4 x 10^5 cycles | tasks/task05-bandwidth/v5-crack-growth-pore/pore-crack-propagation-life-mim-titanium.zip |
+| task11 | Probability, renewal theory: limiting mean residual life over the mean for a log-logistic inter-arrival time whose survival function is read from a self-drawn log-log plot (crossings at t = 6 and t = 20 on a 1-2-5 grid) | 0.80 | tasks/task11-renewal-residual-life/renewal-residual-life-log-logistic.zip |
 | task06 v3 | Revision of task06: bandwidth of a 16-vertex, 27-edge graph, no short lower bound, unique optimal numbering | 5 | tasks/task06-bandwidth-fourteen/v3-sixteen/graph-bandwidth-sixteen-vertices.zip |
 
 Submission: Import .zip, open every section and check it, open References, make sure verification_notes.txt is attached (upload reference.txt by hand if not), paste the Verify field text from the task README into the explanation box, Submit.
@@ -25,10 +26,11 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task11 renewal residual life (Mathematics, new question, plot-reading lever): https://github.com/miroslav833/summit-tasks/raw/main/zips/renewal-residual-life-log-logistic.zip
 - task09 v9 two S-N curves block loading (Engineering candidate, strongest local tally; edit sheet in v9-two-sn-curves-mid/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/two-sn-curves-block-loading-titanium-b.zip
 - task09 v6 S-N block loading (Engineering candidate; edit sheet in v6-sn-haibach/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/sn-curve-haibach-block-loading-titanium.zip
 - task09 v3 Kitagawa internal pore (Engineering; edit the returned entry with v3-kitagawa-internal-pore/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/kitagawa-internal-pore-titanium.zip
-- task05 v5 (ENGINEERING replacement for SUM-MVB7DTW7, crack growth from a pore, Category must be Engineering): https://github.com/miroslav833/summit-tasks/raw/main/zips/pore-crack-propagation-life-mim-titanium.zip
+- task05 v5 (NOT SUBMITTABLE: the account offers Mathematics only; kept as a record): https://github.com/miroslav833/summit-tasks/raw/main/zips/pore-crack-propagation-life-mim-titanium.zip
 - task09 v2 rooted pebbling number (13 vertices, revision; edit the returned entry field by field with v2-thirteen/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-thirteen-vertices.zip
 - task06 v3 (revision of task06, 16 vertices, hard instance): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-sixteen-vertices.zip
 - task05 v4 (revision of SUM-MVB7DTW7, 14-vertex graph with a late-dying width-4 search): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-vertices-v4.zip
@@ -47,6 +49,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task11: Section 1 of verification_notes.txt states the two gridline crossings the curve was drawn through, (6, 0.02) and (20, 0.0005), and the distance of the curve from the nearest gridline at every other labelled abscissa; section 2 solves lambda = 1.696 and k = 3.080; section 3 gives four computations of the answer (closed form (k/2pi) tan(pi/k) = 0.7980, quadrature of the survival function, the Beta function, and quadrature of the equilibrium residual-life density S(t)/m); section 4 lists the value from every pair of near-miss readings (none rounds to 0.80) and from each wrong route; section 6 embeds the program verify_key.py with its full output.
 
 task09 v9: Section 1 of verification_notes.txt states the two fits the figure was generated from (R = -1: k = 12.05, A = 624 MPa, limit 163.8 MPa; R = 0.1: k = 13.60, A = 414 MPa, limit 126.6 MPa) and lists where each drawn curve crosses every horizontal gridline with the distance to the nearest vertical line, showing the only exact crossings are (1e5, 240), (5e5, 210) and (2e4, 200), (1e6, 150); section 2 derives the block count by two routes (closed form, and a numerical reconstruction of both curves with the crossings and lives found by bisection), both 7.68 blocks; section 3 evaluates the wrong crossings on either curve (8 or 6 blocks), the wrong damage rules (8 and 6) and the rounding robustness of the integer; section 4 embeds the program verify_key.py with its output.
 

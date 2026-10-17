@@ -1,0 +1,159 @@
+VERIFICATION NOTES: limiting mean residual life over the mean, log-logistic renewal process
+
+Answer key: 0.80 (0.7980 before rounding).
+
+1. The figure. The vertical axis carries gridlines at 1, 2 and 5 of every decade (1e-4 to 1); the horizontal axis is
+   labelled at 1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100. The curve S(t) = 1/(1 + (t/lambda)^k) is
+   drawn exactly through the gridline crossings (6, 0.02) and (20, 0.0005). At every other labelled abscissa it runs
+   between gridlines; the program prints S(t) and the distance to the nearest line at each of them (the closest are
+   t = 1 and t = 10, 16 percent off, and t = 8, 17 percent off).
+2. Parameters: (t/lambda)^k = 1/S - 1 at the two crossings gives (10/3)^k = 1999/49, k = 3.0803, lambda = 1.6960.
+3. The answer, four ways: closed form (k/2pi) tan(pi/k) = 0.79800; quadrature of the survival function for
+   E[X] = int S and E[X^2] = 2 int t S, ratio 0.79800; the Beta function E[X^r] = lambda^r B(1 + r/k, 1 - r/k),
+   ratio 0.79800; quadrature of the equilibrium residual-life density S(t)/m, limit 1.62007, over m 0.79800.
+   The limit exists because k > 2 (finite second moment) and the distribution is non-lattice.
+4. Near-miss readings and wrong routes: the program lists every pair of labelled abscissae read at the nearest
+   gridline (43 pairs) with the k and the ratio each pair gives; none of them rounds to 0.80. Among them
+   (4, 0.05)+(10, 0.005) 1.13, (4, 0.05)+(20, 0.0005) 0.87, (3, 0.2)+(8, 0.01) 0.74, (3, 0.2)+(15, 0.001) 0.71,
+   (8, 0.01)+(20, 0.0005) 0.74, (6, 0.02)+(10, 0.005) 0.96. Half the mean gives 0.5, the mean gives 1, the limit
+   itself not divided by the mean gives 1.62.
+5. The figure (image.png) was drawn by work/draw.py from the survival function with the parameters above; there
+   are no data markers.
+
+6. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py)
+
+   # Limiting mean residual life of a renewal process with log-logistic inter-arrival times, over the mean.
+   # Run: python3 verify_key.py (needs numpy and scipy)
+   import math, numpy as np
+   from scipy.integrate import quad
+   # Step 1: parameters from the two gridline crossings the curve passes through
+   t1, S1 = 6.0, 0.02
+   t2, S2 = 20.0, 0.0005
+   k = math.log((1/S2 - 1) / (1/S1 - 1)) / math.log(t2 / t1)
+   lam = t1 / (1/S1 - 1)**(1/k)
+   print(f"k = {k:.4f}, lambda = {lam:.4f}  (from (t/lam)^k = 1/S - 1 at the two crossings)")
+   S = lambda t: 1.0 / (1.0 + (t / lam)**k)
+   print(f"check: S({t1:g}) = {S(t1):.4f}, S({t2:g}) = {S(t2):.4f}")
+   labelled = [1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100]
+   print("curve at every labelled t and the distance to the nearest gridline (lines at 1, 2, 5 of each decade):")
+   for t in labelled:
+       y = S(t)
+       if y < 1e-4: print(f"   t = {t:3d}: S = {y:.3e} (below the axis)"); continue
+       e = 10**math.floor(math.log10(y)); mant = y / e
+       cands = [c*e for c in (1, 2, 5, 10)]
+       nearest = min(cands, key=lambda v: abs(math.log10(y / v)))
+       print(f"   t = {t:3d}: S = {y:.4g}, nearest line {nearest:g}, off by {abs(y/nearest-1)*100:.0f} percent")
+   # Step 2: closed form. E[X^r] = lam^r * (pi r/k) / sin(pi r/k) for r < k.
+   m1 = lam * (math.pi / k) / math.sin(math.pi / k)
+   m2 = lam**2 * (2*math.pi / k) / math.sin(2*math.pi / k)
+   ratio_closed = (k / (2*math.pi)) * math.tan(math.pi / k)
+   print(f"Route 1, closed form: E[X] = {m1:.5f}, E[X^2] = {m2:.5f}, E[X^2]/(2 E[X]^2) = {m2/(2*m1*m1):.5f}, (k/2pi) tan(pi/k) = {ratio_closed:.5f}")
+   # Step 3: numerical moments from the survival function: E[X] = int S, E[X^2] = 2 int t S
+   I1 = quad(S, 0, np.inf, limit=500)[0]; I2 = 2 * quad(lambda t: t * S(t), 0, np.inf, limit=500)[0]
+   print(f"Route 2, quadrature of the survival function: E[X] = {I1:.5f}, E[X^2] = {I2:.5f}, ratio = {I2/(2*I1*I1):.5f}")
+   # Step 4: the same moments through the Beta function, E[X^r] = lam^r B(1 + r/k, 1 - r/k), with scipy's beta
+   from scipy.special import beta as B
+   b1 = lam * B(1 + 1/k, 1 - 1/k); b2 = lam**2 * B(1 + 2/k, 1 - 2/k)
+   print(f"Route 3, Beta function: E[X] = {b1:.5f}, E[X^2] = {b2:.5f}, ratio = {b2/(2*b1*b1):.5f}")
+   # Step 5: the limit itself from renewal theory: the equilibrium residual-life density is S(t)/m, so the limit of
+   # E[r(t)] is int t S(t) dt / m = E[X^2]/(2 m); checked by quadrature of t S(t)/m
+   m = I1; lim_r = quad(lambda t: t * S(t) / m, 0, np.inf, limit=500)[0]
+   print(f"Route 4, equilibrium residual-life density S(t)/m: lim E[r(t)] = {lim_r:.5f}, over m = {lim_r/m:.5f}")
+   print("Note: a direct simulation of r(t) at a fixed large t converges slowly here, because r has tail index k - 1 < 2 and")
+   print("      so infinite variance; it is not used as a check.")
+   print(f"Answer key: {ratio_closed:.4f}, two significant figures {ratio_closed:.2g}")
+   # Wrong routes
+   print(f"Wrong: m/2 over m = 0.5; m over m = 1; E[X^2]/(2E[X]) itself (not divided by the mean) = {m2/(2*m1):.4f}")
+   def ratio_of(ta, Sa, tb, Sb):
+       kk = math.log((1/Sb - 1) / (1/Sa - 1)) / math.log(tb / ta)
+       return kk, ((kk/(2*math.pi))*math.tan(math.pi/kk) if kk > 2 else float('inf'))
+   near = {}
+   for t in labelled:
+       y = S(t)
+       if 1e-4 <= y <= 0.95:
+           e = 10**math.floor(math.log10(y)); near[t] = min([c*e for c in (1, 2, 5, 10)], key=lambda v: abs(math.log10(y / v)))
+   near[t1] = S1; near[t2] = S2
+   import itertools
+   print("Every pair of labelled abscissae read at the nearest gridline (true crossings kept at their true values):")
+   for a, b in itertools.combinations(sorted(near), 2):
+       if (a, b) == (t1, t2): continue
+       try: kk, rr = ratio_of(a, near[a], b, near[b])
+       except (ValueError, ZeroDivisionError): continue
+       if kk <= 0: continue
+       print(f"   ({a:g}, {near[a]:g}) with ({b:g}, {near[b]:g}): k = {kk:.3f}, ratio = {'infinite' if rr == float('inf') else f'{rr:.4f}'}")
+
+
+   Output:
+
+   k = 3.0803, lambda = 1.6960  (from (t/lam)^k = 1/S - 1 at the two crossings)
+   check: S(6) = 0.0200, S(20) = 0.0005
+   curve at every labelled t and the distance to the nearest gridline (lines at 1, 2, 5 of each decade):
+      t =   1: S = 0.8358, nearest line 1, off by 16 percent
+      t =   2: S = 0.3757, nearest line 0.5, off by 25 percent
+      t =   3: S = 0.1472, nearest line 0.2, off by 26 percent
+      t =   4: S = 0.06643, nearest line 0.05, off by 33 percent
+      t =   5: S = 0.03455, nearest line 0.05, off by 31 percent
+      t =   6: S = 0.02, nearest line 0.02, off by 0 percent
+      t =   8: S = 0.008343, nearest line 0.01, off by 17 percent
+      t =  10: S = 0.004213, nearest line 0.005, off by 16 percent
+      t =  15: S = 0.001212, nearest line 0.001, off by 21 percent
+      t =  20: S = 0.0005, nearest line 0.0005, off by 0 percent
+      t =  30: S = 0.0001435, nearest line 0.0002, off by 28 percent
+      t =  40: S = 5.914e-05 (below the axis)
+      t =  50: S = 2.974e-05 (below the axis)
+      t =  60: S = 1.696e-05 (below the axis)
+      t =  80: S = 6.993e-06 (below the axis)
+      t = 100: S = 3.517e-06 (below the axis)
+   Route 1, closed form: E[X] = 2.03015, E[X^2] = 6.57795, E[X^2]/(2 E[X]^2) = 0.79800, (k/2pi) tan(pi/k) = 0.79800
+   Route 2, quadrature of the survival function: E[X] = 2.03015, E[X^2] = 6.57795, ratio = 0.79800
+   Route 3, Beta function: E[X] = 2.03015, E[X^2] = 6.57795, ratio = 0.79800
+   Route 4, equilibrium residual-life density S(t)/m: lim E[r(t)] = 1.62007, over m = 0.79800
+   Note: a direct simulation of r(t) at a fixed large t converges slowly here, because r has tail index k - 1 < 2 and
+         so infinite variance; it is not used as a check.
+   Answer key: 0.7980, two significant figures 0.8
+   Wrong: m/2 over m = 0.5; m over m = 1; E[X^2]/(2E[X]) itself (not divided by the mean) = 1.6201
+   Every pair of labelled abscissae read at the nearest gridline (true crossings kept at their true values):
+      (2, 0.5) with (3, 0.2): k = 3.419, ratio = 0.7129
+      (2, 0.5) with (4, 0.05): k = 4.248, ratio = 0.6168
+      (2, 0.5) with (5, 0.05): k = 3.213, ratio = 0.7587
+      (2, 0.5) with (6, 0.02): k = 3.542, ratio = 0.6916
+      (2, 0.5) with (8, 0.01): k = 3.315, ratio = 0.7343
+      (2, 0.5) with (10, 0.005): k = 3.289, ratio = 0.7401
+      (2, 0.5) with (15, 0.001): k = 3.428, ratio = 0.7113
+      (2, 0.5) with (20, 0.0005): k = 3.301, ratio = 0.7374
+      (2, 0.5) with (30, 0.0002): k = 3.145, ratio = 0.7777
+      (3, 0.2) with (4, 0.05): k = 5.416, ratio = 0.5648
+      (3, 0.2) with (5, 0.05): k = 3.050, ratio = 0.8083
+      (3, 0.2) with (6, 0.02): k = 3.615, ratio = 0.6807
+      (3, 0.2) with (8, 0.01): k = 3.272, ratio = 0.7442
+      (3, 0.2) with (10, 0.005): k = 3.245, ratio = 0.7506
+      (3, 0.2) with (15, 0.001): k = 3.430, ratio = 0.7109
+      (3, 0.2) with (20, 0.0005): k = 3.276, ratio = 0.7432
+      (3, 0.2) with (30, 0.0002): k = 3.097, ratio = 0.7926
+      (4, 0.05) with (6, 0.02): k = 2.337, ratio = 1.6155
+      (4, 0.05) with (8, 0.01): k = 2.381, ratio = 1.4746
+      (4, 0.05) with (10, 0.005): k = 2.563, ratio = 1.1343
+      (4, 0.05) with (15, 0.001): k = 2.998, ratio = 0.8279
+      (4, 0.05) with (20, 0.0005): k = 2.893, ratio = 0.8740
+      (4, 0.05) with (30, 0.0002): k = 2.766, ratio = 0.9476
+      (5, 0.05) with (6, 0.02): k = 5.196, ratio = 0.5714
+      (5, 0.05) with (8, 0.01): k = 3.512, ratio = 0.6965
+      (5, 0.05) with (10, 0.005): k = 3.389, ratio = 0.7188
+      (5, 0.05) with (15, 0.001): k = 3.607, ratio = 0.6819
+      (5, 0.05) with (20, 0.0005): k = 3.359, ratio = 0.7249
+      (5, 0.05) with (30, 0.0002): k = 3.110, ratio = 0.7883
+      (6, 0.02) with (8, 0.01): k = 2.445, ratio = 1.3244
+      (6, 0.02) with (10, 0.005): k = 2.744, ratio = 0.9630
+      (6, 0.02) with (15, 0.001): k = 3.290, ratio = 0.7398
+      (6, 0.02) with (30, 0.0002): k = 2.874, ratio = 0.8837
+      (8, 0.01) with (10, 0.005): k = 3.129, ratio = 0.7825
+      (8, 0.01) with (15, 0.001): k = 3.677, ratio = 0.6720
+      (8, 0.01) with (20, 0.0005): k = 3.280, ratio = 0.7422
+      (8, 0.01) with (30, 0.0002): k = 2.967, ratio = 0.8403
+      (10, 0.005) with (15, 0.001): k = 3.979, ratio = 0.6385
+      (10, 0.005) with (20, 0.0005): k = 3.328, ratio = 0.7313
+      (10, 0.005) with (30, 0.0002): k = 2.934, ratio = 0.8545
+      (15, 0.001) with (20, 0.0005): k = 2.411, ratio = 1.3982
+      (15, 0.001) with (30, 0.0002): k = 2.323, ratio = 1.6654
+      (20, 0.0005) with (30, 0.0002): k = 2.261, ratio = 1.9652
+
