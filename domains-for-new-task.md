@@ -1,51 +1,62 @@
 # Domains for new tasks
 
-Read with note.md. This file says which domain the owner of this folder submits in and what background can be drawn on.
+Read with note.md. This file says which domain the owner of this folder submits in and which shapes of
+question are still worth building.
 
 ## Submission domain
 
-Mathematics. In task.json: `"domain": "mathematics"`.
+Mathematics only. In task.json: `"domain": "mathematics"`. Confirmed on the Submit page on 2026-10-16
+(Classification shows "Mathematics · Image" by default) and confirmed again by the owner on 2026-10-17:
+no other category is open to this account. Do not build in Engineering, Physics, Biology or anything else,
+and do not dress a mathematics question in a materials or engineering setting. The owner's research
+background is not a source of settings for this account.
 
-Confirmed on the Submit page on 2026-10-16: the Classification row shows "Mathematics · Image" by default, so Mathematics is the assigned domain and image is the default modality. The colleague whose log sits in note.md had an account locked to Biology/Medicine; that does not apply here.
+The account is in a trial period (banner on the Submit page). The first submissions carry more weight than
+usual, so no rushed packages.
 
-The account is in a trial period (banner on the Submit page: the team reviews new members' work closely). The first few submissions carry more weight than usual, so no rushed packages.
+## What Summit has returned so far (all bandwidth, all "too easy")
 
-Engineering (`"domain": "engineering"`) has not been seen in the Category dropdown. Do not use it unless the owner reports it is offered.
+- task05 v1, 12 vertices, bandwidth 4: Model A 3/3, 2.5 to 8.5 minutes.
+- task05 v2, same graph, count of optimal numberings (6): 5/5.
+- task06 v3 (submitted on the task05 entry SUM-MVB7DTW7), 16 vertices, bandwidth 5, no density bound,
+  unique optimal numbering: 5/5 in 8 to 13 minutes, by the forced-ends squeeze and a fixed-ends search.
 
-## Owner's research background
+Model A reads a 16-vertex figure without error, finds a lower-bound argument that the local screen did not
+find, and searches a fixed-ends numbering in ten minutes. The band is 1 to 3 correct out of 5.
 
-Materials engineering, titanium alloys. Publications:
+## What has to hold before a question is built
 
-- Influence of Alloying Elements in Fatigue Properties of Alpha/Beta Titanium Alloys
-- The Effects of Oxygen on the Fatigue Behaviour of MIM Ti-6Al-7Nb Alloy
-- Porous titanium processed by powder injection moulding of titanium hydride and space holders
-- Influence of Oxygen on the Fatigue Behavior of Ti-6Al-7Nb alloy
-- Porous titanium by powder injection moulding of titanium hydride and PMMA space holders
+1. No short lower bound. Run, in this order: degree bound, diameter bound, density bound over every
+   connected induced subgraph, the forced-ends squeeze (pairs at distance at least ceil((n-1)/(b-1)); for
+   each pair the distance intervals must admit a placement), and the prefix-boundary chain. If any of them
+   settles the answer in a few lines, the instance is out.
+2. No short construction. The optimal object must be hard to find even after the obvious reductions (fixed
+   ends, level structure, breadth-first orders). Measure it before screening: a long annealer with
+   restarts, and the size of the fixed-ends search tree. Anything a 10-minute hand search reaches is out.
+3. Size just beyond hand reach: 18 to 22 vertices for graph layout questions. 14 and 16 are inside reach.
+4. One exact integer answer, verified by two independent programs, with a written lower-bound proof in the
+   notes (the chain listing is acceptable; Summit's reviewer proposed a search-based lower bound himself).
+5. Screen with one Opus and one Sonnet run on figure plus stem. A single Opus solve under 15 minutes means
+   5/5 at Summit. A cut-off is not a pass; Summit treats cut-offs as a defect of the question.
 
-Topics covered there: high-cycle fatigue of alpha/beta Ti, interstitial oxygen and its effect on strength and fatigue limit, metal injection moulding of TiH2 powder, porosity control with space holders (PMMA), stiffness and strength of porous titanium.
+## Mathematics shapes still open
 
-## How the publications may be used
+- Graph layout at 18 to 22 vertices (bandwidth, and its relatives cutwidth and minimum linear arrangement)
+  with the five rejection tests above. The generator and proxies are in
+  tasks/task06-bandwidth-fourteen/v3-sixteen/work (gen.py, gen3.py, gen4.py, eval.py).
+- Other graph parameters where the certificate is short but the search is long: crossing number,
+  pebbling number, fractional chromatic number. Sibling sessions have packages for each; read their task
+  log rows before starting another.
+- Combinatorics on a drawn structure with a decisive wrong-but-plausible step: a symmetry the natural count
+  double-counts, an exact Markov chain answer where the "obvious" symmetry argument fails.
+- Number theory and algebra read from a drawing: Galois groups from a Newton polygon or splitting diagram,
+  class numbers, unit groups.
 
-They are background, not source material. instruction.md allows questions built on "your own research experience", so a question can grow out of the physics or the modelling in these papers. It cannot reuse their data, figures, or conclusions.
+## Shapes already burned
 
-Allowed:
-- A question that needs a modelling choice an expert in this area makes from experience (which fatigue life relation, which porosity scaling, which strengthening law), with numbers invented for the question.
-- A self-made figure (matplotlib) drawn from invented data.
-- Mathematics questions that borrow the setting from this field: an S-N curve as a fitted power law, a Weibull distribution of pore sizes, a lattice model of a porous solid, shrinkage of a sintered body as a geometry problem.
-
-Not allowed:
-- Any number, table or figure copied from a paper. The findability check searches for the answer; anything in a published paper is findable.
-- A question whose answer is a stated result of a paper.
-- Author names, journal names or anything that points to the owner. The references box can cite published papers, but the task must read as an anonymous expert's question.
-
-## Mathematics subfields to try first
-
-These give an exact answer that can be checked by two independent routes, and the colleague's log has not burned them out:
-
-- Combinatorics and graph theory: chromatic polynomials, matching counts, Tutte polynomial evaluations on a drawn graph. Trap: a symmetry that the natural count double-counts.
-- Algebraic geometry of plane curves: geometric genus from drawn singularities (the instruction.md example is this; go harder, with non-ordinary singularities whose delta needs a resolution).
-- Low-dimensional topology: knot and link invariants from a drawn diagram. Warning from the log: Opus does determinant, Alexander and Jones polynomial by hand without error up to ten crossings. Only use a pair of knots that no hand invariant separates and a question that needs a different route.
-- Number theory and algebra: class numbers, unit groups, Galois groups of a polynomial read from a drawn Newton polygon or splitting diagram.
-- Probability on a drawn structure: absorption probabilities, hitting times, exact Markov chain answers where the "obvious" symmetry argument is wrong.
-
-What the colleague's log says applies to every one of these: a clean derivation gets solved five out of five. The question has to have one decisive step where the standard approach gives a plausible wrong answer, and that step has to be reachable in a few thousand tokens.
+- Dessins d'enfants and Shabat polynomials at 9 to 12 edges: Opus solves on the first try (task01, task02).
+- Matroid representability with one free parameter (task03): a standard routine for both models.
+- Bandwidth at 12 to 16 vertices in any form, including the count of optimal numberings.
+- Treewidth at 12 to 14 vertices: the heuristics find the optimum, no overshoot trap exists (task04).
+- Knot invariants to ten crossings, clean derivations of any length, pixel reading of clean figures
+  (archive, colleague's account).
