@@ -56,7 +56,7 @@ Revise the task06 entry on Summit field by field with the texts above: replace t
 
 ## Submitted
 
-Submitted 2026-10-17 about 04:43 as the revision of Summit entry SUM-MVB7DTW7 (the task05 entry; Summit has no separate task06 entry). Key re-checked independently from the 27-edge list before submitting (width 4: 0, width 5: 2, width 6: 224554). The read-only legacy reference text on the platform still shows the old 12-vertex wording. In automated checks.
+Submitted 2026-10-17 about 04:43 as the revision of Summit entry SUM-MVB7DTW7 (the task05 entry; Summit has no separate task06 entry). Key re-checked independently from the 27-edge list before submitting (width 4: 0, width 5: 2, width 6: 224554). The read-only legacy reference text on the platform still shows the old 12-vertex wording. Returned the same day: too easy, Model A 5/5 in 8 to 13 minutes, by the forced-ends squeeze (only four pairs at distance 4 can take the ends with width 4, and each leaves three vertices for the two middle positions) plus a fixed-ends search for the width-5 numbering. See note.md for the lessons.
 
 ## Screen
 
