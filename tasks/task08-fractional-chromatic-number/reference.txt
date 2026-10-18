@@ -2,19 +2,19 @@ VERIFICATION NOTES: number of Hamiltonian cycles of the drawn 28-vertex cubic gr
 
 Answer key: 52.
 
-1. The graph (from the figure). 28 vertices A to Z, a, b; 42 edges; every vertex of degree 3; girth 5; trivial
-   automorphism group (checked separately with networkx); drawn with 14 edge crossings, none at a vertex.
-2. Route 1: depth-first search for Hamiltonian cycles through A, stored as edge sets: 52.
-3. Route 2: the unused edges of a Hamiltonian cycle in a cubic graph form a perfect matching. The graph has 98 perfect
-   matchings; for exactly 52 of them the other 28 edges form one cycle.
-4. Case split of the solution: edge left out at D. DI: 22 (NT left out 14, NV left out 8). DN: 14 (IM left out 7,
-   Ib left out 7). DW: 16 (IM left out 9, Ib left out 7). Total 52.
-5. Parity: every edge lies on an even number of Hamiltonian cycles (Smith's theorem); the counts per edge are printed
-   and add up to 28 x 52 = 1456.
-6. All 52 cycles, each written from A.
-7. Wrong routes: 104 (each cycle counted in both directions), 48, 50, 51 (cycles lost in the case split).
+1. Graph is read from figure and has 28 vertices, A to Z, a and b, and 42 edges, each vertex having degree 3. Its girth
+   is 5, its automorphism group is trivial, which was checked separately with networkx, and it is drawn with 14 edge
+   crossings, none of them at vertex.
+2. First route is depth-first search for Hamiltonian cycles through A, stored as edge sets, and it finds 52.
+3. Second route uses that edges left out by Hamiltonian cycle in cubic graph form perfect matching. Graph has 98
+   perfect matchings, and for exactly 52 of them other 28 edges form one cycle.
+4. Case split of solution is on edge left out at D, so DI gives 22 (14 with NT left out, 8 with NV left out), DN gives
+   14 (7 with IM left out, 7 with Ib left out) and DW gives 16 (9 with IM left out, 7 with Ib left out), 52 in all.
+5. Each edge lies on even number of Hamiltonian cycles (Smith's theorem), and counts per edge are printed and add up to
+   28 x 52 = 1456.
+6. All 52 cycles are listed, each written from A.
 
-8. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py; standard library only; under a second)
+7. Program verify_key.py (run with Python 3.12.3; command: python3 verify_key.py; standard library only; under a second)
 
    # Number of Hamiltonian cycles of the drawn graph (28 vertices, 42 edges, all of degree 3).
    # Run: python3 verify_key.py (standard library only)
@@ -108,7 +108,7 @@ Answer key: 52.
        return "".join(path)
    for i, s in enumerate(sorted(walk(c) for c in cycles), 1): print(f"   {i:2d}. {s}")
 
-   print("7. Wrong answers: 104 counts each cycle once per direction; 26 halves twice; 48, 50, 51 lose cycles in the case split")
+
    print("ALL CHECKS PASSED: the graph has 52 Hamiltonian cycles")
 
 
@@ -209,11 +209,10 @@ Answer key: 52.
       50. AJVNDWaHCYQOZFXMIbGTRLEPUKBS
       51. AJVNTGbUPELRaHCYWDIMXFZOQKBS
       52. AJVNTGbUPXFZELRaHCYWDIMOQKBS
-   7. Wrong answers: 104 counts each cycle once per direction; 26 halves twice; 48, 50, 51 lose cycles in the case split
    ALL CHECKS PASSED: the graph has 52 Hamiltonian cycles
 
 
-9. Figure script draw_figure.py (same Python; command: python3 draw_figure.py; needs matplotlib)
+8. Figure script draw_figure.py (same Python; command: python3 draw_figure.py; needs matplotlib)
 
    # The drawn graph: 28 vertices, 42 edges, every vertex of degree 3. Positions are fixed so the figure is reproducible.
    # Run: python3 draw_figure.py (needs matplotlib)

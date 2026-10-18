@@ -90,5 +90,5 @@ def walk(c):
     return "".join(path)
 for i, s in enumerate(sorted(walk(c) for c in cycles), 1): print(f"   {i:2d}. {s}")
 
-print("7. Wrong answers: 104 counts each cycle once per direction; 26 halves twice; 48, 50, 51 lose cycles in the case split")
+
 print("ALL CHECKS PASSED: the graph has 52 Hamiltonian cycles")

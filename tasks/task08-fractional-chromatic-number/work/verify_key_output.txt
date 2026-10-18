@@ -93,5 +93,4 @@
    50. AJVNDWaHCYQOZFXMIbGTRLEPUKBS
    51. AJVNTGbUPELRaHCYWDIMXFZOQKBS
    52. AJVNTGbUPXFZELRaHCYWDIMOQKBS
-7. Wrong answers: 104 counts each cycle once per direction; 26 halves twice; 48, 50, 51 lose cycles in the case split
 ALL CHECKS PASSED: the graph has 52 Hamiltonian cycles

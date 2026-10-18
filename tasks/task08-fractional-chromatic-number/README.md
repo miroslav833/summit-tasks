@@ -4,11 +4,11 @@ Mathematics, subdomain: Graph theory: enumeration of Hamiltonian cycles in a cub
 
 ## Question
 
-The figure shows a simple undirected graph on $28$ vertices, labelled $A$ to $Z$, $a$ and $b$. The edges are the straight segments drawn between the circles. Where two segments cross, the crossing point is not a vertex and the two edges do not meet.
+Figure shows simple undirected graph on $28$ vertices, which are labelled $A$ to $Z$, $a$ and $b$, and its edges are straight segments drawn between circles. Where two segments cross, crossing point is not vertex, and those two edges do not meet there.
 
-A Hamiltonian cycle is a cycle that passes through every vertex exactly once. Two Hamiltonian cycles count as the same if they use the same set of edges, so the starting vertex and the direction of travel do not matter.
+"Hamiltonian cycle" is cycle which passes through each vertex exactly once, and two Hamiltonian cycles are counted as same cycle when they use same set of edges, so starting vertex and direction of travel do not matter.
 
-How many Hamiltonian cycles does the graph have? Give a single integer.
+How many Hamiltonian cycles does this graph have? Give your answer as single integer.
 
 ## Answer
 
@@ -16,47 +16,36 @@ How many Hamiltonian cycles does the graph have? Give a single integer.
 
 ## Solution
 
-Step 1: Read the graph.
-The figure has $42$ edges: $AG, AJ, AS, BK, BS, BV, CH, CL, CY, DI, DN, DW, EL, EP, EZ, FS, FX, FZ, GT, Gb, HJ, Ha, IM, Ib, JV, KQ, KU, LR, MO, MX, NT, NV, OQ, OZ, PU, PX, QY, RT, Ra, Ub, WY, Wa$. Every vertex has degree $3$, so the graph is cubic ($28 \cdot 3 / 2 = 42$). It has no triangles and no $4$-cycles (girth $5$), it is not planar and it has no symmetry other than the identity, so the count has to be done by a search.
+Graph in figure has $42$ edges, which are $AG, AJ, AS, BK, BS, BV, CH, CL, CY, DI, DN, DW, EL, EP, EZ, FS, FX, FZ, GT, Gb, HJ, Ha, IM, Ib, JV, KQ, KU, LR, MO, MX, NT, NV, OQ, OZ, PU, PX, QY, RT, Ra, Ub, WY, Wa$, and each vertex has degree $3$, so graph is cubic, as $28 \cdot 3 / 2 = 42$. There are no triangles and no $4$-cycles in it, its girth being $5$, and it is not planar and has no symmetry except identity, so count cannot be shortened by faces or by symmetry and it has to be done as search.
 
-Step 2: Reduce to one choice per vertex.
-A Hamiltonian cycle uses exactly two of the three edges at every vertex, so the unused edges form a perfect matching, and a perfect matching gives a Hamiltonian cycle exactly when the remaining $28$ edges form one cycle rather than several. Two propagation rules drive a hand search: if an edge is left out, the other two edges at both of its ends are used; if two edges at a vertex are used, the third is left out. A branch dies when a vertex keeps fewer than two usable edges or when the used edges close a cycle shorter than $28$.
+Hamiltonian cycle uses two of three edges at each vertex, so edges which it leaves out form perfect matching, and perfect matching gives Hamiltonian cycle exactly when other $28$ edges close into one cycle and not into several. Search by hand runs on two rules, that when edge is left out the other two edges at both its ends are used, and that when two edges at vertex are used its third edge is left out, and branch is dropped when some vertex keeps fewer than two usable edges or when used edges close cycle shorter than $28$.
 
-Step 3: The case split.
-Split on the edge left out at $D$ (its neighbours are $I$, $N$, $W$), and inside each case on the edge left out at the next vertex.
-- $DI$ left out ($DN$, $DW$ used): split at $N$. Leaving out $NT$ gives $14$ cycles, leaving out $NV$ gives $8$; total $22$.
-- $DN$ left out ($DI$, $DW$ used): split at $I$. Leaving out $IM$ gives $7$, leaving out $Ib$ gives $7$; total $14$.
-- $DW$ left out ($DI$, $DN$ used): split at $I$. Leaving out $IM$ gives $9$, leaving out $Ib$ gives $7$; total $16$.
-Hence the graph has $22 + 14 + 16 = 52$ Hamiltonian cycles. For example $A\,G\,T\,N\,D\,I\,b\,U\,K\,B\,V\,J\,H\,C\,L\,R\,a\,W\,Y\,Q\,O\,M\,X\,P\,E\,Z\,F\,S$ (back to $A$) is one of them; the verification notes list all $52$.
+I split on edge which is left out at $D$, whose neighbours are $I$, $N$ and $W$, and then inside each case on edge left out at next vertex. When $DI$ is left out, so that $DN$ and $DW$ are used, split at $N$ gives $14$ cycles with $NT$ left out and $8$ with $NV$ left out, $22$ in all. When $DN$ is left out, split at $I$ gives $7$ with $IM$ left out and $7$ with $Ib$ left out, $14$ in all, and when $DW$ is left out, split at $I$ gives $9$ with $IM$ left out and $7$ with $Ib$ left out, $16$ in all. So graph has $22 + 14 + 16 = 52$ Hamiltonian cycles, and one of them, written from $A$, is $A\,G\,T\,N\,D\,I\,b\,U\,K\,B\,V\,J\,H\,C\,L\,R\,a\,W\,Y\,Q\,O\,M\,X\,P\,E\,Z\,F\,S$ and back to $A$, while verification notes list all $52$ of them.
 
-Step 4: Checks.
-(i) In a cubic graph every edge lies on an even number of Hamiltonian cycles (Smith's theorem, Thomason 1978). The counts through the edges at $D$ are $52 - 22 = 30$ for $DI$, $52 - 14 = 38$ for $DN$ and $52 - 16 = 36$ for $DW$, all even, and they add up to $104 = 2 \cdot 52$ because each cycle uses two of the three edges. (ii) The count was confirmed by two independent programs: a depth-first search for cycles through $A$, and an enumeration of all $98$ perfect matchings of which exactly $52$ leave a single $28$-cycle.
+As check, in cubic graph each edge lies on even number of Hamiltonian cycles (Smith's theorem, Thomason 1978), and here cycles through edges at $D$ number $52 - 22 = 30$ for $DI$, $52 - 14 = 38$ for $DN$ and $52 - 16 = 36$ for $DW$, which are all even and add up to $104 = 2 \cdot 52$, because each cycle uses two of three edges at $D$. Count was also done by two separate programs, depth-first search for cycles through $A$ and enumeration of all $98$ perfect matchings, and both of them give $52$.
 
-Step 5: The traps.
-Counting each cycle once per direction gives $104$. The hand search is long, and losing cycles in a branch gives $48$, $50$ or $51$; losing two cycles can leave every parity even, so the parity check does not catch it.
-
-Answer: $52$.
+So answer is $52$.
 
 ## Rubric
 
-- c1 (5 pts, final answer): Gives $52$ as the final answer.
-- c2 (1 pts): Reads the graph correctly: $28$ vertices, $42$ edges, every vertex of degree $3$ (an edge list or adjacency list matching the figure).
-- c3 (3 pts): Organises the count by which edge is left out at a vertex (equivalently, by perfect matchings whose complement is a single cycle) and reports case totals that add up to $52$, for instance $22$, $14$ and $16$ for the edges $DI$, $DN$, $DW$ left out at $D$.
-- c4 (1 pts): Counts each cycle once, not once per direction or starting vertex.
+- c1 (5 pts, final answer): Final answer is $52$.
+- c2 (1 pts): Response reads graph correctly, with $28$ vertices and $42$ edges and each vertex of degree $3$, and gives edge list or adjacency list which agrees with figure.
+- c3 (3 pts): Response organises count by edge which is left out at one vertex, or in same way by perfect matchings whose complement is one cycle, and its case totals add up to $52$, as for example $22$, $14$ and $16$ when $DI$, $DN$ and $DW$ are left out at $D$.
+- c4 (1 pts): Response counts each cycle once, and not once for each direction or each starting vertex.
 
 Common wrong answers: 50, 48, 104, 51
 
 ## References box
 
-Counting Hamiltonian cycles is #P-complete in general, so no formula is expected and the count is a finite search: L. G. Valiant, The complexity of enumeration and reliability problems, SIAM Journal on Computing 8 (1979), 410-421. The parity check used in the solution (every edge of a cubic graph lies on an even number of Hamiltonian cycles, Smith's theorem): A. G. Thomason, Hamiltonian cycles and uniquely edge colourable graphs, Annals of Discrete Mathematics 3 (1978), 259-268. The uploaded file verification_notes.txt gives the adjacency list, counts the cycles by a depth-first search and by perfect matchings (both 52), gives the case split of the solution, checks the parity of every edge and lists all 52 cycles; the program is embedded with its output.
+Counting Hamiltonian cycles is #P-complete in general, so no formula is expected here and count is finite search, see L. G. Valiant, The complexity of enumeration and reliability problems, SIAM Journal on Computing 8 (1979), 410-421. Parity check in solution, that each edge of cubic graph lies on even number of Hamiltonian cycles, is Smith's theorem, see A. G. Thomason, Hamiltonian cycles and uniquely edge colourable graphs, Annals of Discrete Mathematics 3 (1978), 259-268. Uploaded file verification_notes.txt gives adjacency list and counts cycles twice, by depth-first search and by perfect matchings, and both give 52, then it gives case split of solution, checks parity at every edge and lists all 52 cycles, while program and its full output come at end.
 
 ## Verify field
 
-Section 2 of verification_notes.txt counts the Hamiltonian cycles by a depth-first search from A (52 distinct edge sets). Section 3 counts them a second way, as the perfect matchings whose complement is one 28-cycle (98 perfect matchings, 52 good). Section 4 gives the case split of the solution (DI, DN, DW left out: 22, 14, 16). Section 5 checks that every edge lies on an even number of the cycles. Section 6 lists all 52 cycles. The program verify_key.py is embedded with its output.
+Section 2 of verification_notes.txt counts Hamiltonian cycles by depth-first search from A and finds 52 distinct edge sets, and section 3 counts them second way, as perfect matchings whose complement is one 28-cycle, where 52 of 98 perfect matchings are good. Section 4 gives case split of solution, 22, 14 and 16 when DI, DN and DW are left out, section 5 checks that each edge lies on even number of cycles and section 6 lists all 52 cycles, while program verify_key.py is embedded with its output.
 
 ## Image necessity
 
-The graph exists only in the figure: the question gives no vertex or edge, and the answer is a property of that particular edge set, so it cannot be found without reading all 42 edges from the drawing.
+Graph is given in figure only, since text names no vertex and no edge, and answer is property of that one edge set, so it cannot be found without reading all 42 edges from drawing.
 
 ## Screen
 
