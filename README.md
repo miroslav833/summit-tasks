@@ -21,6 +21,7 @@ One folder per task under tasks/. Each folder has the Import .zip (task.json + i
 | task05 v5 (NOT SUBMITTABLE, account is Mathematics only) | Engineering detour, kept for the screening lesson: propagation life of a fatigue crack from a 50 um surface pore in MIM Ti-6Al-7Nb, Klesnil-Lukas constants read from a self-drawn da/dN curve (crossings at 6 and 20 MPa m^1/2), El Haddad short-crack threshold | 1.4 x 10^5 cycles | tasks/task05-bandwidth/v5-crack-growth-pore/pore-crack-propagation-life-mim-titanium.zip |
 | task11 | Probability, renewal theory: expected number of renewals E[N(6)] for a log-logistic inter-arrival time whose parameters come from two named gridline crossings of a self-drawn log-log plot; the renewal function has no closed form and the two natural hand schemes straddle the answer | 2.7 | tasks/task11-renewal-residual-life/renewal-residual-life-log-logistic.zip |
 | task06 v3 | Revision of task06: bandwidth of a 16-vertex, 27-edge graph, no short lower bound, unique optimal numbering | 5 | tasks/task06-bandwidth-fourteen/v3-sixteen/graph-bandwidth-sixteen-vertices.zip |
+| task06 v9 | Knot theory on a protein structure: minimal crossing number of the closed backbone of a 200-residue helical fold drawn as a dense cartoon (the backbone is 5_2; local screen at Summit's setting, Opus high effort, 3/5 correct, 0 cut-offs, all runs under 100k tokens; IMPORT AS A NEW SUBMISSION) | 5 | tasks/task06-bandwidth-fourteen/v9-dense-knot/knotted-protein-backbone-crossing-number.zip |
 
 Submission: Import .zip, open every section and check it, open References, make sure verification_notes.txt is attached (upload reference.txt by hand if not), paste the Verify field text from the task README into the explanation box, Submit.
 
@@ -28,6 +29,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 ## Direct download links for the Import .zip files
 
+- task06 v9 knotted protein backbone, crossing number (Mathematics, knot theory; the one in-band design of 2026-10-18; IMPORT AS A NEW SUBMISSION; paste texts in tasks/task06-bandwidth-fourteen/v9-dense-knot/README.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/knotted-protein-backbone-crossing-number.zip
 - task11 renewal function at finite time (Mathematics; replaces the too-easy SUM-MVBYB83A, redesigned 10-17 so no closed-form shortcut finishes it; IMPORT AS A NEW SUBMISSION): https://github.com/miroslav833/summit-tasks/raw/main/zips/renewal-residual-life-log-logistic.zip
 - task09 v11 rooted pebbling number, value only (revision 3 of SUM-MVBG0GO3; edit sheet v11-value-only/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-fourteen-vertices-value.zip
 - task09 v10 rooted pebbling number (14 vertices, the Mathematics revision of SUM-MVBG0GO3; edit the returned entry field by field with v10-fourteen/paste-for-edit.md): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-rooted-pebbling-number-fourteen-vertices.zip
@@ -54,6 +56,8 @@ note.md is the working log (rules, tooling, screen results, lessons).
 - task01 plane tree: https://github.com/miroslav833/summit-tasks/raw/main/zips/plane-tree-shabat-vertex-position.zip
 
 ## Text for the References box (paste after the file is attached)
+
+task06 v9: Section 2 of verification_notes.txt lists the twelve crossings of the coarse-grained diagram with the residues involved and the part in front, the Gauss word, the determinant 7, the Alexander polynomial 2t^2 - 3t + 2 and the Jones polynomial of 5_2. Section 3 checks the full 200-residue chain in the same projection independently (same Alexander polynomial up to a unit, determinant 7, no crossing on the closure). Section 4 embeds the standalone program with the coordinates and its output.
 
 task11: Section 1 of verification_notes.txt states the two gridline crossings the curve was drawn through, (6, 0.02) and (20, 0.0005), and the distance of the curve from the nearest gridline at every other labelled abscissa; section 2 solves lambda = 1.696 and k = 3.080; section 3 computes M(6) = 2.704964 three independent ways (the renewal equation M = F + M * f by product integration at four step sizes, the convolution series sum_j P(S_j <= 6), and a simulation of 400000 paths giving 2.7068 with standard error 0.0017); section 4 is the discretisation trap, with the midpoint rule converging from above (2.9501, 2.8312, 2.7678, 2.7363, 2.7206) and the right-endpoint rule from below (2.2395, 2.4417, 2.5644), together with the trapezoidal form that is correct on a coarse grid; section 5 is the rounding trap (forcing k = 3 gives 2.9); section 6 gives the value from each closed-form shortcut and each near-miss reading; section 8 embeds the program verify_key.py with its full output.
 
