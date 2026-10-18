@@ -1,9 +1,4 @@
-k = 3.0803  (root of (20/6)^k = 1999/49 = 40.796), lambda = 1.6960
-check: S(6) = 0.0200, S(20) = 0.000500
-   hand iteration: k = 3.0: (20/6)^k = 37.04 (target 40.80)
-   hand iteration: k = 3.05: (20/6)^k = 39.34 (target 40.80)
-   hand iteration: k = 3.08: (20/6)^k = 40.78 (target 40.80)
-   hand iteration: k = 3.0803: (20/6)^k = 40.80 (target 40.80)
+k = 3.080287, lambda = 1.696045
 curve at every labelled t and the distance to the nearest gridline (lines at 1, 2, 5 of each decade):
    t =   1: S = 0.8358, nearest line 1, off by 16 percent
    t =   2: S = 0.3757, nearest line 0.5, off by 25 percent
@@ -21,62 +16,37 @@ curve at every labelled t and the distance to the nearest gridline (lines at 1, 
    t =  60: S = 1.696e-05 (below the axis)
    t =  80: S = 6.993e-06 (below the axis)
    t = 100: S = 3.517e-06 (below the axis)
-Route 1, renewal equation on  1000 intervals: M(3.5) = 1.453642  rounds to 1.45
-Route 1, renewal equation on  2000 intervals: M(3.5) = 1.453642  rounds to 1.45
-Route 1, renewal equation on  4000 intervals: M(3.5) = 1.453642  rounds to 1.45
-Route 1, renewal equation on  8000 intervals: M(3.5) = 1.453642  rounds to 1.45
-Route 2, convolution series sum_j P(S_j <= 3.5): M(3.5) = 1.453642  rounds to 1.45
-Route 3, simulation of 400000 paths: E[N(3.5)] = 1.4559 (standard error 0.0012)  rounds to 1.46, wrong
-Scheme comparison, trapezoidal product rule on dF (second order, implicit):
-   h = 0.5   : M(3.5) = 1.4643  rounds to 1.46, wrong
-   h = 0.25  : M(3.5) = 1.4563  rounds to 1.46, wrong
-   h = 0.125 : M(3.5) = 1.4543  rounds to 1.45
-   h = 0.0625: M(3.5) = 1.4538  rounds to 1.45
-   h = 0.03125: M(3.5) = 1.4537  rounds to 1.45
-   Even this second-order scheme needs h = 0.125 before it rounds to 1.45, so no scheme survives a
-   single coarse run: the step has to be refined or two steps extrapolated.
-Midpoint / lattice rule (converges from above):
-   h = 0.5    : M(3.5) = 1.5814  rounds to 1.58, wrong
-   h = 0.25   : M(3.5) = 1.5172  rounds to 1.52, wrong
-   h = 0.125  : M(3.5) = 1.4853  rounds to 1.49, wrong
-   h = 0.0625 : M(3.5) = 1.4694  rounds to 1.47, wrong
-   h = 0.03125: M(3.5) = 1.4615  rounds to 1.46, wrong
-   Richardson 2M(h/2) - M(h) on (0.5, 0.25): 1.4531  rounds to 1.45
-   Richardson 2M(h/2) - M(h) on (0.25, 0.125): 1.4534  rounds to 1.45
-   Richardson 2M(h/2) - M(h) on (0.125, 0.0625): 1.4536  rounds to 1.45
-   Richardson 2M(h/2) - M(h) on (0.0625, 0.03125): 1.4536  rounds to 1.45
-   The schemes straddle the answer, and only a well refined or correctly extrapolated one rounds to 1.45.
-Discretisation trap, discrete renewal recursion with right-endpoint cell masses:
-   h = 0.5    : M(3.5) = 1.3297  rounds to 1.33, wrong
-   h = 0.25   : M(3.5) = 1.3870  rounds to 1.39, wrong   Richardson with the previous step: 1.4443  rounds to 1.44, wrong
-   h = 0.125  : M(3.5) = 1.4190  rounds to 1.42, wrong   Richardson with the previous step: 1.4510  rounds to 1.45
-   h = 0.0625 : M(3.5) = 1.4360  rounds to 1.44, wrong   Richardson with the previous step: 1.4529  rounds to 1.45
-   h = 0.03125: M(3.5) = 1.4447  rounds to 1.44, wrong   Richardson with the previous step: 1.4535  rounds to 1.45
-   The scheme converges from below at first order: no step down to 0.03125 rounds to 1.45, and
-   of the Richardson pairs (0.5, 0.25) stops at 1.44, and (0.25, 0.125) is the first to reach it.
-Rounding trap: with k = 3 and lambda = 4^(1/3) = 1.5874, S(6) = 0.018182 against the drawn 0.0200
-   (nine per cent low) and S(10) = 0.003984 against the curve's 0.004213.
-   That law would give M(3.5) = 1.5701  rounds to 1.57, wrong
-   The key is unchanged under honest rounding of the true parameters:
-      k = 3.08, lambda = 1.696: M(3.5) = 1.4537  rounds to 1.45
-      k = 3.1, lambda = 1.7: M(3.5) = 1.4503  rounds to 1.45
-      k = 3.08, lambda = 1.7: M(3.5) = 1.4495  rounds to 1.45
-      k = 3.07, lambda = 1.7: M(3.5) = 1.4491  rounds to 1.45
-      k = 3.08, lambda = 1.69: M(3.5) = 1.4599  rounds to 1.46, wrong
-Answer key: 1.453642, which is 1.45 at 2 decimals; the 2-decimal bin runs 1.445 to 1.455, so the key sits 0.00136 below its upper edge
-E[X] = 2.03015, E[X^2] = 6.57795 (both finite, r < k; the first divergent integer moment is the fourth)
-Wrong route: elementary renewal theorem alone, t/m = 1.7240  rounds to 1.72, wrong
-Wrong route: asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = 1.5220  rounds to 1.52, wrong
-   (it is still 4.7 percent above the true value at t = 3.5, because t is only about 1.7 mean gaps)
-Wrong route: t/m - 1/2 = 1.2240  rounds to 1.22, wrong
-Wrong route: F(3.5) = 0.9030, the probability of at least one renewal, not their expected number
-Near-miss readings (the named crossing at 6 paired with a crossing the curve does not pass through):
-   (6, 0.02) with (8, 0.01): k = 2.445, M(3.5) = 2.0567  rounds to 2.06, wrong
-   (6, 0.02) with (10, 0.005): k = 2.744, M(3.5) = 1.7241  rounds to 1.72, wrong
-   (6, 0.02) with (15, 0.001): k = 3.290, M(3.5) = 1.3225  rounds to 1.32, wrong
-   (6, 0.02) with (30, 0.0002): k = 2.874, M(3.5) = 1.6090  rounds to 1.61, wrong
-   (6, 0.02) with (4, 0.05): k = 2.337, M(3.5) = 2.2079  rounds to 2.21, wrong
-   (6, 0.02) with (3, 0.2): k = 3.615, M(3.5) = 1.1600  rounds to 1.16, wrong
-   (6, 0.02) with (2, 0.5): k = 3.542, M(3.5) = 1.1926  rounds to 1.19, wrong
-   (6, 0.02) with (10, 0.004): k = 3.182, M(3.5) = 1.3870  rounds to 1.39, wrong
-   (6, 0.02) with (2, 0.4): k = 3.173, M(3.5) = 1.3926  rounds to 1.39, wrong
+Route 1, renewal equation and E[N^2] = M + 2 M*dM on  1000 intervals: Var = 0.520130  rounds to 0.520  (M = 1.201419)
+Route 1, renewal equation and E[N^2] = M + 2 M*dM on  2000 intervals: Var = 0.520130  rounds to 0.520  (M = 1.201419)
+Route 1, renewal equation and E[N^2] = M + 2 M*dM on  4000 intervals: Var = 0.520129  rounds to 0.520  (M = 1.201419)
+Route 1, renewal equation and E[N^2] = M + 2 M*dM on  8000 intervals: Var = 0.520129  rounds to 0.520  (M = 1.201419)
+Route 2, convolution series: F_n(3) = 0.852799, 0.317143, 0.030527, 0.000938, 0.000012, 0.000000
+   E[N] = 1.201419, E[N^2] = sum (2n-1) F_n = 1.963537, Var = 0.520129  rounds to 0.520
+Route 3, simulation of 1000000 paths: E[N] = 1.2021, Var = 0.5195 (standard error 0.0007)
+Discretisation trap, the variance by the coupled trapezoid scheme on dF (M = F + M*dF, A = M + A*dF, Var = 2A - M - M^2):
+   h = 0.75   : Var = 0.59021  rounds to 0.590, wrong
+   h = 0.5    : Var = 0.55006  rounds to 0.550, wrong
+   h = 0.25   : Var = 0.52744  rounds to 0.527, wrong
+   h = 0.125  : Var = 0.52195  rounds to 0.522, wrong
+   h = 0.0625 : Var = 0.52058  rounds to 0.521, wrong
+   Richardson (second order) on (0.5, 0.25): 0.51989  rounds to 0.520
+   Richardson (second order) on (0.25, 0.125): 0.52012  rounds to 0.520
+   Richardson (second order) on (0.125, 0.0625): 0.52013  rounds to 0.520
+Midpoint lattice convolution (each cell's mass at its midpoint), the variance from sum (2n-1) F_n:
+   h = 0.5   : Var = 0.57304  rounds to 0.573, wrong
+   h = 0.25  : Var = 0.54556  rounds to 0.546, wrong
+   h = 0.125 : Var = 0.53264  rounds to 0.533, wrong
+Parameter rounding:
+   5 significant figures  k = 3.0803, lambda = 1.6960: Var = 0.520142  rounds to 0.520
+   4 significant figures  k = 3.0800, lambda = 1.6960: Var = 0.520202  rounds to 0.520
+   3 significant figures  k = 3.0800, lambda = 1.7000: Var = 0.518861  rounds to 0.519, wrong
+   k forced to 3          k = 3.0000, lambda = 1.5874: Var = 0.577101  rounds to 0.577, wrong
+E[X] = 2.03015, Var X = 2.45645
+Wrong routes:
+   Poisson guess Var = E[N] = 1.2014  rounds to 1.201, wrong
+   asymptotic sigma^2 t / mu^3 = 0.8807  rounds to 0.881, wrong
+   E[N^2] without subtracting E[N]^2 = 1.9635  rounds to 1.964, wrong
+   E[N^2] = M + 2 (M * dF) instead of M + 2 (M * dM): Var = 0.4553  rounds to 0.455, wrong
+   E[N^2] = sum n F_n instead of sum (2n - 1) F_n: Var = -0.2420  rounds to -0.242, wrong
+   Bernoulli guess F(3) (1 - F(3)) = 0.1255  rounds to 0.126, wrong
+Answer key: Var[N(3)] = 0.520129, which is 0.520 at 3 decimals; the bin runs 0.5195 to 0.5205, so the key sits 0.00037 below its upper edge

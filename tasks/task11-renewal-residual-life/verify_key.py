@@ -1,20 +1,15 @@
-# Expected number of renewals by time t = 3.5 for a renewal process with log-logistic inter-arrival times,
-# the parameters taken from two gridline crossings of the drawn survival function.
-# Run: python3 verify_key.py   (needs numpy and scipy)
+# Variance of the number of renewals by time t = 3 for a renewal process with log-logistic inter-arrival
+# times, the parameters taken from two gridline crossings of the drawn survival function.
+# Run: python3 verify_key.py   (needs numpy)
 import math
 import numpy as np
-from scipy.integrate import quad
 
 # Step 1: the two gridline crossings the curve passes through, and the parameters they fix
 t1, S1 = 6.0, 0.02
 t2, S2 = 20.0, 0.0005
 k = math.log((1/S2 - 1) / (1/S1 - 1)) / math.log(t2 / t1)
 lam = t1 / (1/S1 - 1)**(1/k)
-print(f"k = {k:.4f}  (root of (20/6)^k = 1999/49 = {1999/49:.3f}), lambda = {lam:.4f}")
-print(f"check: S({t1:g}) = {1/(1+(t1/lam)**k):.4f}, S({t2:g}) = {1/(1+(t2/lam)**k):.6f}")
-for kk in (3.0, 3.05, 3.08, 3.0803):
-    print(f"   hand iteration: k = {kk}: (20/6)^k = {(20/6)**kk:.2f} (target {1999/49:.2f})")
-
+print(f"k = {k:.6f}, lambda = {lam:.6f}")
 labelled = [1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100]
 S = lambda t: 1.0 / (1.0 + (t / lam)**k)
 print("curve at every labelled t and the distance to the nearest gridline (lines at 1, 2, 5 of each decade):")
@@ -26,151 +21,104 @@ for t in labelled:
     nearest = min([c*e for c in (1, 2, 5, 10)], key=lambda v: abs(math.log10(y / v)))
     print(f"   t = {t:3d}: S = {y:.4g}, nearest line {nearest:g}, off by {abs(y/nearest-1)*100:.0f} percent")
 
-KEY3 = "1.45"                 # the answer the question asks for: E[N(3)] rounded to 2 decimals
+T = 3.0
+KEY3 = "0.520"
 def verdict(v):
-    r = f"{v:.2f}"
-    return "rounds to 1.45" if r == KEY3 else f"rounds to {r}, wrong"
+    r = f"{v:.3f}"
+    return "rounds to 0.520" if r == KEY3 else f"rounds to {r}, wrong"
 
-F = lambda t: 1.0 - S(t)
-f = lambda t: (k/lam) * (t/lam)**(k-1) / (1.0 + (t/lam)**k)**2
-T = 3.5
+def laws(kk, ll):
+    F = lambda t: 1.0 - 1.0/(1.0 + (t/ll)**kk)
+    f = lambda t: (kk/ll)*(t/ll)**(kk-1)/(1.0 + (t/ll)**kk)**2
+    return F, f
 
-# Route 1: the renewal equation M = F + M * f, solved on a uniform grid by product integration
-def renewal_M(T, n):
-    h = T / n
-    t = np.linspace(0, T, n + 1)
-    Fv = F(t); fv = f(t)
-    M = np.zeros(n + 1)
-    for i in range(1, n + 1):
-        w = np.full(i + 1, h); w[0] = w[-1] = h / 2
-        M[i] = Fv[i] + np.dot(w[1:] * fv[1:i+1], M[i-1::-1])
-    return M[-1]
-for n in (1000, 2000, 4000, 8000):
-    v = renewal_M(T, n); print(f"Route 1, renewal equation on {n:5d} intervals: M({T:g}) = {v:.6f}  {verdict(v)}")
-M1 = renewal_M(T, 8000)
-
-# Route 2: the convolution series M(t) = sum_{j>=1} F^{*j}(t), the convolutions taken numerically
-def series_M(T, n=4000, jmax=40):
-    h = T / n
-    t = np.linspace(0, T, n + 1)
-    fv = f(t)
-    dens = fv.copy()          # density of the first arrival
-    total = 0.0
-    for j in range(1, jmax + 1):
-        w = np.full(n + 1, h); w[0] = w[-1] = h / 2
-        total += np.dot(w, dens)          # P(S_j <= T)
-        new = np.zeros(n + 1)             # convolve dens with f
-        for i in range(1, n + 1):
-            wi = np.full(i + 1, h); wi[0] = wi[-1] = h / 2
-            new[i] = np.dot(wi[1:] * fv[1:i+1], dens[i-1::-1])
+# Route 1: renewal function M = F + M*f by product integration, then E[N^2] = M + 2 (M * dM)
+def var_route1(kk, ll, n):
+    F, f = laws(kk, ll)
+    h = T/n; t = np.linspace(0, T, n+1); Fv = F(t); fv = f(t); M = np.zeros(n+1)
+    for i in range(1, n+1):
+        w = np.full(i+1, h); w[0] = w[-1] = h/2
+        M[i] = Fv[i] + np.dot(w[1:]*fv[1:i+1], M[i-1::-1])
+    m = np.gradient(M, h); w = np.full(n+1, h); w[0] = w[-1] = h/2
+    EN2 = M[-1] + 2*np.dot(w*m, M[::-1])
+    return EN2 - M[-1]**2, M[-1], EN2
+# Route 2: convolution series P(N >= n) = F_n(T), E[N] = sum F_n, E[N^2] = sum (2n - 1) F_n
+def var_route2(n=6000, jmax=12):
+    F, f = laws(k, lam)
+    h = T/n; t = np.linspace(0, T, n+1); fv = f(t)
+    dens = fv.copy(); Fn = []
+    for j in range(1, jmax+1):
+        w = np.full(n+1, h); w[0] = w[-1] = h/2
+        Fn.append(float(np.dot(w, dens)))
+        new = np.zeros(n+1)
+        for i in range(1, n+1):
+            wi = np.full(i+1, h); wi[0] = wi[-1] = h/2
+            new[i] = np.dot(wi[1:]*fv[1:i+1], dens[i-1::-1])
         dens = new
-        if np.dot(np.full(n+1, h), dens) < 1e-12: break
-    return total
-M2 = series_M(T)
-print(f"Route 2, convolution series sum_j P(S_j <= {T:g}): M({T:g}) = {M2:.6f}  {verdict(M2)}")
+    EN = sum(Fn); EN2 = sum((2*j+1)*x for j, x in enumerate(Fn))
+    return EN2 - EN**2, EN, EN2, Fn
 
-# Route 3: simulation
-rng = np.random.default_rng(20261017)
-N = 400000
-U = rng.random((N, 30))
-X = lam * (U / (1 - U))**(1/k)          # log-logistic inverse cdf
-counts = (np.cumsum(X, axis=1) <= T).sum(axis=1)
-se = counts.std() / math.sqrt(N)
-print(f"Route 3, simulation of {N} paths: E[N({T:g})] = {counts.mean():.4f} (standard error {se:.4f})  {verdict(counts.mean())}")
+for n in (1000, 2000, 4000, 8000):
+    v, M3, EN2 = var_route1(k, lam, n)
+    print(f"Route 1, renewal equation and E[N^2] = M + 2 M*dM on {n:5d} intervals: Var = {v:.6f}  {verdict(v)}  (M = {M3:.6f})")
+V1, M3, EN2 = var_route1(k, lam, 8000)
+V2, EN, EN2b, Fn = var_route2()
+print("Route 2, convolution series: F_n(3) = " + ", ".join(f"{x:.6f}" for x in Fn[:6]))
+print(f"   E[N] = {EN:.6f}, E[N^2] = sum (2n-1) F_n = {EN2b:.6f}, Var = {V2:.6f}  {verdict(V2)}")
+rng = np.random.default_rng(20261018)
+N = 1_000_000
+cnt = np.zeros(N, dtype=np.int64); s = np.zeros(N)
+for _ in range(30):
+    U = rng.random(N); s += lam*(U/(1-U))**(1/k); cnt += (s <= T)
+mv = cnt.mean(); vv = cnt.var(ddof=1)
+se = math.sqrt(((cnt - mv)**4).mean() - vv**2) / math.sqrt(N)
+print(f"Route 3, simulation of {N} paths: E[N] = {mv:.4f}, Var = {vv:.4f} (standard error {se:.4f})")
 
-# The discretisation trap: the discrete (Lotka) renewal recursion with cell masses converges only
-# like O(h) from below, so a hand-sized step lands in the wrong bin unless it is refined or extrapolated.
-def lotka(T, h):
-    n = int(round(T/h)); t = np.linspace(0, T, n+1)
-    Fv = F(t); p = np.diff(Fv); M = np.zeros(n+1)
+print("Discretisation trap, the variance by the coupled trapezoid scheme on dF (M = F + M*dF, A = M + A*dF, Var = 2A - M - M^2):")
+def coupled(h):
+    F, _ = laws(k, lam)
+    n = int(round(T/h)); t = np.linspace(0, T, n+1); Fv = F(t); d = np.diff(Fv)
+    M = np.zeros(n+1); A = np.zeros(n+1)
     for i in range(1, n+1):
-        M[i] = Fv[i] + sum(p[j-1]*M[i-j] for j in range(1, i+1))
-    return M[-1]
-# The same quantity by the trapezoidal product rule on dF, implicit in M_i: second order, right on a coarse grid
-def trap_dF(T, h):
-    n = int(round(T/h)); t = np.linspace(0, T, n+1); Fv = F(t); dF = np.diff(Fv); M = np.zeros(n+1)
-    for i in range(1, n+1):
-        acc = sum(dF[j-1]*(M[i-j] + M[i-j+1])/2 for j in range(2, i+1))
-        M[i] = (Fv[i] + acc + dF[0]*M[i-1]/2) / (1 - dF[0]/2)
-    return M[-1]
-print("Scheme comparison, trapezoidal product rule on dF (second order, implicit):")
-for h in (0.5, 0.25, 0.125, 0.0625, 0.03125):
-    v = trap_dF(T, h); print(f"   h = {h:<6}: M({T:g}) = {v:.4f}  {verdict(v)}")
-print("   Even this second-order scheme needs h = 0.125 before it rounds to 1.45, so no scheme survives a")
-print("   single coarse run: the step has to be refined or two steps extrapolated.")
+        aM = sum(d[j-1]*(M[i-j] + M[i-j+1])/2 for j in range(2, i+1))
+        M[i] = (Fv[i] + aM + d[0]*M[i-1]/2) / (1 - d[0]/2)
+        aA = sum(d[j-1]*(A[i-j] + A[i-j+1])/2 for j in range(2, i+1))
+        A[i] = (M[i] + aA + d[0]*A[i-1]/2) / (1 - d[0]/2)
+    return 2*A[-1] - M[-1] - M[-1]**2
+cv = {}
+for h in (0.75, 0.5, 0.25, 0.125, 0.0625):
+    cv[h] = coupled(h); print(f"   h = {h:<7}: Var = {cv[h]:.5f}  {verdict(cv[h])}")
+for a, b in ((0.5, 0.25), (0.25, 0.125), (0.125, 0.0625)):
+    r = (4*cv[b] - cv[a])/3; print(f"   Richardson (second order) on ({a}, {b}): {r:.5f}  {verdict(r)}")
 
-# Midpoint / lattice rule: converges to the same limit from ABOVE, slowly; Richardson on it is accurate
-def midpoint(T, h):
-    n = int(round(T/h))
-    q0 = F(h/2); q = [F(j*h + h/2) - F(j*h - h/2) for j in range(1, n+1)]
-    G = [F(j*h + h/2) for j in range(0, n+1)]
-    M = np.zeros(n+1)
-    for j in range(1, n+1):
-        M[j] = (G[j] + sum(q[i-1]*M[j-i] for i in range(1, j+1))) / (1 - q0)
-    return M[-1]
-print("Midpoint / lattice rule (converges from above):")
-mv = {}
-for h in (0.5, 0.25, 0.125, 0.0625, 0.03125):
-    mv[h] = midpoint(T, h)
-    print(f"   h = {h:<7}: M({T:g}) = {mv[h]:.4f}  {verdict(mv[h])}")
-hl = sorted(mv, reverse=True)
-for a, b in zip(hl, hl[1:]):
-    r = 2*mv[b] - mv[a]; print(f"   Richardson 2M(h/2) - M(h) on ({a}, {b}): {r:.4f}  {verdict(r)}")
-print("   The schemes straddle the answer, and only a well refined or correctly extrapolated one rounds to 1.45.")
+print("Midpoint lattice convolution (each cell's mass at its midpoint), the variance from sum (2n-1) F_n:")
+def midpoint_var(h):
+    F, _ = laws(k, lam)
+    n = int(round(T/h)); p = np.array([F((j+1)*h) - F(j*h) for j in range(n)])   # mass of cell j, placed at (j+1/2)h
+    # distribution of S_n on the half-integer lattice; P(S_n <= T) counts sums whose position <= T
+    G = []; cur = p.copy(); off = 1   # positions (j + off/2) h
+    for nn in range(1, 8):
+        pos = (np.arange(len(cur)) + nn*0.5)*h
+        G.append(float(cur[pos <= T + 1e-12].sum()) + 0.5*float(cur[np.isclose(pos, T)].sum())*0)
+        cur = np.convolve(cur, p)
+    EN = sum(G); EN2 = sum((2*j+1)*x for j, x in enumerate(G))
+    return EN2 - EN**2
+for h in (0.5, 0.25, 0.125):
+    v = midpoint_var(h); print(f"   h = {h:<6}: Var = {v:.5f}  {verdict(v)}")
 
-print("Discretisation trap, discrete renewal recursion with right-endpoint cell masses:")
-prev = None
-for h in (0.5, 0.25, 0.125, 0.0625, 0.03125):
-    v = lotka(T, h)
-    extra = f"   Richardson with the previous step: {2*v-prev:.4f}  {verdict(2*v-prev)}" if prev is not None else ""
-    print(f"   h = {h:<7}: M({T:g}) = {v:.4f}  {verdict(v)}{extra}")
-    prev = v
-print("   The scheme converges from below at first order: no step down to 0.03125 rounds to 1.45, and")
-print("   of the Richardson pairs (0.5, 0.25) stops at 1.44, and (0.25, 0.125) is the first to reach it.")
+print("Parameter rounding:")
+for kk, ll, tag in ((3.0803, 1.6960, "5 significant figures"), (3.080, 1.696, "4 significant figures"),
+                    (3.08, 1.70, "3 significant figures"), (3.0, 4**(1/3), "k forced to 3")):
+    v, _, _ = var_route1(kk, ll, 4000); print(f"   {tag:22s} k = {kk:.4f}, lambda = {ll:.4f}: Var = {v:.6f}  {verdict(v)}")
 
-# The rounding trap: forcing k to the round value 3
-k3, l3 = 3.0, 4.0**(1/3)
-S3 = lambda t: 1.0/(1.0 + (t/l3)**k3)
-print(f"Rounding trap: with k = 3 and lambda = 4^(1/3) = {l3:.4f}, S(6) = {S3(6):.6f} against the drawn 0.0200")
-print(f"   (nine per cent low) and S(10) = {S3(10):.6f} against the curve's {1/(1+(10/lam)**k):.6f}.")
-def M_params(kk, ll, T, n=4000):
-    Fx = lambda t: 1.0 - 1.0/(1.0 + (t/ll)**kk)
-    fx = lambda t: (kk/ll)*(t/ll)**(kk-1)/(1.0 + (t/ll)**kk)**2
-    h = T/n; t = np.linspace(0, T, n+1); Fv = Fx(t); fv = fx(t); M = np.zeros(n+1)
-    for i in range(1, n+1):
-        w = np.full(i+1, h); w[0] = w[-1] = h/2
-        M[i] = Fv[i] + np.dot(w[1:]*fv[1:i+1], M[i-1::-1])
-    return M[-1]
-mk3 = M_params(k3, l3, T); print(f"   That law would give M({T:g}) = {mk3:.4f}  {verdict(mk3)}")
-print("   The key is unchanged under honest rounding of the true parameters:")
-for kk, ll in ((3.08, 1.696), (3.1, 1.70), (3.08, 1.70), (3.07, 1.70), (3.08, 1.69)):
-    vv = M_params(kk, ll, T); print(f"      k = {kk}, lambda = {ll}: M({T:g}) = {vv:.4f}  {verdict(vv)}")
-
-print(f"Answer key: {M1:.6f}, which is {M1:.2f} at 2 decimals; the 2-decimal bin runs 1.445 to 1.455, so the key sits {1.455-M1:.5f} below its upper edge")
-
-# The shortcuts that do not work
-m = lam * (math.pi/k) / math.sin(math.pi/k)
-E2 = lam**2 * (2*math.pi/k) / math.sin(2*math.pi/k)
-print(f"E[X] = {m:.5f}, E[X^2] = {E2:.5f} (both finite, r < k; the first divergent integer moment is the fourth)")
-print(f"Wrong route: elementary renewal theorem alone, t/m = {T/m:.4f}  {verdict(T/m)}")
-asy = T/m + (E2-2*m*m)/(2*m*m)
-print(f"Wrong route: asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = {asy:.4f}  {verdict(asy)}")
-print(f"   (it is still {(T/m + (E2-2*m*m)/(2*m*m))/M1*100-100:.1f} percent above the true value at t = {T:g}, because t is only about 1.7 mean gaps)")
-print(f"Wrong route: t/m - 1/2 = {T/m - 0.5:.4f}  {verdict(T/m - 0.5)}")
-print(f"Wrong route: F({T:g}) = {F(T):.4f}, the probability of at least one renewal, not their expected number")
-
-def M_from(ta, Sa, tb, Sb):
-    kk = math.log((1/Sb - 1) / (1/Sa - 1)) / math.log(tb / ta)
-    ll = ta / (1/Sa - 1)**(1/kk)
-    Sx = lambda t: 1.0/(1.0 + (t/ll)**kk)
-    Fx = lambda t: 1.0 - Sx(t)
-    fx = lambda t: (kk/ll) * (t/ll)**(kk-1) / (1.0 + (t/ll)**kk)**2
-    n = 4000; h = T/n; t = np.linspace(0, T, n+1); Fv = Fx(t); fv = fx(t); M = np.zeros(n+1)
-    for i in range(1, n+1):
-        w = np.full(i+1, h); w[0] = w[-1] = h/2
-        M[i] = Fv[i] + np.dot(w[1:]*fv[1:i+1], M[i-1::-1])
-    return kk, M[-1]
-print("Near-miss readings (the named crossing at 6 paired with a crossing the curve does not pass through):")
-for b, Sb in [(8, 0.01), (10, 0.005), (15, 0.001), (30, 0.0002), (4, 0.05), (3, 0.2), (2, 0.5), (10, 0.004), (2, 0.4)]:
-    kk, v = M_from(6, 0.02, b, Sb)
-    print(f"   (6, 0.02) with ({b:g}, {Sb:g}): k = {kk:.3f}, M({T:g}) = {v:.4f}  {verdict(v)}")
+m = lam*(math.pi/k)/math.sin(math.pi/k); E2 = lam**2*(2*math.pi/k)/math.sin(2*math.pi/k); s2 = E2 - m*m
+F, _ = laws(k, lam); F3 = F(T)
+print(f"E[X] = {m:.5f}, Var X = {s2:.5f}")
+print("Wrong routes:")
+print(f"   Poisson guess Var = E[N] = {M3:.4f}  {verdict(M3)}")
+print(f"   asymptotic sigma^2 t / mu^3 = {s2*T/m**3:.4f}  {verdict(s2*T/m**3)}")
+print(f"   E[N^2] without subtracting E[N]^2 = {EN2:.4f}  {verdict(EN2)}")
+print(f"   E[N^2] = M + 2 (M * dF) instead of M + 2 (M * dM): Var = {M3 + 2*(M3 - F3) - M3**2:.4f}  {verdict(M3 + 2*(M3 - F3) - M3**2)}")
+print(f"   E[N^2] = sum n F_n instead of sum (2n - 1) F_n: Var = {EN - EN**2:.4f}  {verdict(EN - EN**2)}")
+print(f"   Bernoulli guess F(3) (1 - F(3)) = {F3*(1-F3):.4f}  {verdict(F3*(1-F3))}")
+print(f"Answer key: Var[N(3)] = {V1:.6f}, which is {V1:.3f} at 3 decimals; the bin runs 0.5195 to 0.5205, so the key sits {0.5205-V1:.5f} below its upper edge")
