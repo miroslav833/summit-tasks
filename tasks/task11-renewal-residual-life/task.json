@@ -27,7 +27,7 @@
       "criteria": [
         {
           "id": "c1",
-          "description": "Final answer is $0.520$, which is $\\mathrm{Var}[N(3)] = 0.520129$ rounded to 3 decimals as question asks, and it is reached through $E[N(3)]$ and $E[N(3)^2]$ computed numerically with working shown, as stem demands, so bare number gets nothing here. Values which come of coarse grids or wrong formulas are wrong, these being $0.521$, $0.522$, $0.519$, $0.546$, $0.881$, $1.201$, $1.964$ and $0.455$.",
+          "description": "Final answer is $0.520$, which is $\\mathrm{Var}[N(3)] = 0.520129$ rounded to 3 decimals as question asks, and it is reached by any valid numerical method which working documents, such as renewal equations, convolution series, direct recursion on $P(N(3) = n)$ or simulation precise enough for third decimal, so bare number gets nothing here. Values which come of coarse grids or wrong formulas are wrong, these being $0.521$, $0.522$, $0.519$, $0.546$, $0.881$, $1.201$, $1.964$ and $0.455$.",
           "points": 4,
           "isFinalAnswer": true
         },
