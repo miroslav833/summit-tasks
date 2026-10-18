@@ -45,7 +45,7 @@
         },
         {
           "id": "c4",
-          "description": "Response shows second decimal has settled, and any sound evidence counts, for example several refinements whose changes all stay under $0.002$, or step halved at least twice with change ratios near scheme order, or Richardson value agreeing with finer run within $0.002$, or two schemes which agree within $0.002$, or justified error bound which stays under $0.002$, or simulation whose 95 per cent band lies in one hundredth bin. One run at one step, with no error estimate, earns nothing.",
+          "description": "Response earns this by any one of four tests. It halves step at least twice and each change in value is at most half the one before and under $0.001$, or it gives Richardson value from two steps of stated order which agrees with a third finer run within $0.001$, or two different schemes agree within $0.001$, or it states error bound or 95 per cent band which lies wholly in $1.195$ to $1.205$. One run at one step, and anything else, earns nothing.",
           "points": 3,
           "isFinalAnswer": false
         }

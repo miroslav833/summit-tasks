@@ -36,7 +36,8 @@ and every number below is marked by what it rounds to at 2 decimals.
    law returns M(3) = 1.3028. The true k is 3.0803. With four significant figures, k = 3.080 and lambda = 1.696,
    M(3) = 1.2015 rounds to 1.20; with lambda cut to 1.69 it is 1.2068 and rounds to 1.21, which is why the
    question asks for at least four figures. The key sits 0.0036 below the upper edge of its 2-decimal bin
-   (1.195 to 1.205), so a scheme has to be converged to about 0.002 before its rounded value can be trusted;
+   (1.195 to 1.205). When each change is at most half the one before, the error left is no larger than the last
+   change, so a last change under 0.001 settles the second decimal;
    that is what rubric criterion c4 tests.
 6. Why the closed-form shortcuts fail at t = 3 (about one and a half mean gaps): the elementary renewal theorem
    alone gives t/m = 1.4777; the asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = 1.2757 is 6 percent high;
