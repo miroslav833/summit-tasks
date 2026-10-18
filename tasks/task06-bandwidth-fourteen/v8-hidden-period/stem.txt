@@ -1,3 +1,0 @@
-The table in the figure gives the one-step transition probabilities of a Markov chain $(X_n)_{n \ge 0}$ on the states $1, 2, \dots, 9$: the entry in row $i$ and column $j$ is $P(X_{n+1} = j \mid X_n = i)$.
-
-Find $\lim_{n \to \infty} P(X_{6n} = 4 \mid X_0 = 1)$. Give the exact value as a fraction in lowest terms.
