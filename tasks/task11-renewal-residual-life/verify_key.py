@@ -115,7 +115,7 @@ for h in (1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125):
     print(f"   h = {h:<7}: M({T:g}) = {mv[h]:.4f}  {verdict(mv[h])}")
 rich = mv[0.5] + (mv[0.5]-mv[1.0])/3
 print(f"   Richardson on its two coarsest values overshoots: {rich:.4f}  {verdict(rich)}")
-print("   The schemes straddle the answer; only a refined or correctly extrapolated one lands inside.")
+print("   The schemes straddle the answer, and only a well refined or correctly extrapolated one rounds to 2.705.")
 
 print("Discretisation trap, discrete renewal recursion with right-endpoint cell masses:")
 prev = None
@@ -124,8 +124,8 @@ for h in (1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125):
     extra = f"   Richardson with the previous step: {2*v-prev:.4f}  {verdict(2*v-prev)}" if prev is not None else ""
     print(f"   h = {h:<7}: M({T:g}) = {v:.4f}  {verdict(v)}{extra}")
     prev = v
-print("   The scheme converges from below at first order: every step down to 0.03125 is outside the")
-print("   interval. Richardson extrapolation of the pair (0.25, 0.125) brings it inside.")
+print("   The scheme converges from below at first order: no step down to 0.03125 rounds to 2.705, and")
+print("   of the Richardson pairs only (0.0625, 0.03125) does; the earlier pairs stop at 2.700 and 2.704.")
 
 # The rounding trap: forcing k to the round value 3
 k3, l3 = 3.0, 4.0**(1/3)

@@ -10,9 +10,9 @@ Figure shows survival function $S(t) = P(X > t)$ on logarithmic axes, where $X$ 
 
 Curve passes exactly through gridline crossings at two of labelled $t$ values, at $t = 6$ and $t = 20$, and those two crossings together fix $\lambda$ and $k$.
 
-$N(t)$ counts renewals in $(0, t]$ and process starts at time $0$, so find $E[N(6)]$ using $\lambda$ and $k$ which you read from figure. Neither parameter is round number, so carry both to 5 significant figures through whole calculation, because rounding them earlier moves third decimal of answer.
+$N(t)$ counts renewals in $(0, t]$ and process starts at time $0$, so find $E[N(6)]$ using $\lambda$ and $k$ which you read from figure. Neither parameter is round number, so keep at least 4 significant figures on both through whole calculation, because cutting them to 3 figures moves third decimal of answer.
 
-This quantity has no closed form, and usual coarse schemes are still more than one per cent out at step which you would pick on first try, so refine step of your scheme, or extrapolate it, until third decimal stops moving. Say which method you used, then show numbers which convinced you it settled. There is one more thing, last line of your response must be FINAL: and then value rounded to 3 decimal places.
+This quantity has no closed form, and usual coarse schemes are still more than one per cent out at step which you would pick on first try, so refine step of your scheme, or extrapolate it, until third decimal stops moving. Say which method you used, then show numbers which convinced you it settled, and give value rounded to 3 decimal places as your final answer.
 
 ## Answer
 
@@ -20,7 +20,7 @@ This quantity has no closed form, and usual coarse schemes are still more than o
 
 ## Solution
 
-Vertical gridlines sit at $1$, $2$, $5$ in each decade, and when you check curve against them it hits a crossing at exactly two labelled $t$, which are $(6, 0.02)$ and $(20, 0.0005)$, while at other labelled values it runs between lines, about $0.066$ at $t = 4$, about $0.0083$ at $t = 8$, about $0.0042$ at $t = 10$ and about $0.0012$ at $t = 15$.
+Horizontal gridlines, which mark survival axis, sit at $1$, $2$, $5$ in each decade, and when you check curve against them it hits a crossing at exactly two labelled $t$, which are $(6, 0.02)$ and $(20, 0.0005)$, while at other labelled values it runs between lines, about $0.066$ at $t = 4$, about $0.0083$ at $t = 8$, about $0.0042$ at $t = 10$ and about $0.0012$ at $t = 15$.
 
 From $(t/\lambda)^k = 1/S(t) - 1$ these two crossings give $(6/\lambda)^k = 49$ and $(20/\lambda)^k = 1999$, and dividing one by other gives $(10/3)^k = 1999/49 = 40.80$, so $k = \ln 40.80/\ln(10/3) = 3.080$ and then $\lambda = 6/49^{1/k} = 1.696$.
 
@@ -30,11 +30,11 @@ For the key I took step $h$ on $[0, 6]$ and advanced $M$ by product integration 
 
 Scheme choice is what decides this question, because all schemes below reach $2.70496$ in the limit but at third decimal they sit far apart, and at step which someone picks on first try none of them has settled.
 
-Trapezoidal product rule on $dF$, implicit in $M_i$, is second order and gives $2.7496$ at $h = 1$, which is $1.65$ per cent high and outside, then $2.7155$ at $h = 0.5$ and $2.7076$ at $h = 0.25$, where both are inside.
+Trapezoidal product rule on $dF$, implicit in $M_i$, is second order and gives $2.7496$ at $h = 1$, then $2.7155$ at $h = 0.5$, $2.7076$ at $h = 0.25$ and $2.7056$ at $h = 0.125$, where none of them rounds to $2.705$ yet, and only $h = 0.0625$ with $2.7051$ gets there.
 
-Midpoint or lattice rule rounds arrival times to nearest node and comes from above slowly, giving $2.9501$, $2.8312$, $2.7678$, $2.7363$ and $2.7206$ at steps $1$, $0.5$, $0.25$, $0.125$, $0.0625$, so it needs $h$ under about $0.06$, while Richardson on its two coarsest values overshoots to $2.7916$.
+Midpoint or lattice rule rounds arrival times to nearest node and comes from above slowly, giving $2.9501$, $2.8312$, $2.7678$, $2.7363$ and $2.7206$ at steps $1$, $0.5$, $0.25$, $0.125$, $0.0625$, so even $h = 0.03125$ with $2.7128$ has not reached $2.705$, while Richardson on its two coarsest values overshoots to $2.7916$.
 
-Discrete renewal recursion is the one which people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$, and because each cell mass sits at right endpoint every renewal gets delayed by up to $h$, so it comes from below at first order with $2.2395$, $2.4417$, $2.5644$, $2.6322$ and $2.6679$ at same steps, all of them outside, and even at $h = 0.03125$ it is still $2.6863$. Richardson $2M(h/2) - M(h)$ fixes it earlier, where $2.6870$ from pair $(0.5, 0.25)$ is still outside while $2.7001$ from $(0.25, 0.125)$ is inside.
+Discrete renewal recursion is the one which people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$, and because each cell mass sits at right endpoint every renewal gets delayed by up to $h$, so it comes from below at first order with $2.2395$, $2.4417$, $2.5644$, $2.6322$ and $2.6679$ at same steps, none of them near $2.705$, and even at $h = 0.03125$ it is still $2.6863$. Richardson $2M(h/2) - M(h)$ helps but slowly, where $2.6870$ from pair $(0.5, 0.25)$, $2.7001$ from $(0.25, 0.125)$ and $2.7037$ from $(0.125, 0.0625)$ all round wrong, and only $2.7046$ from $(0.0625, 0.03125)$ rounds to $2.705$.
 
 That is why question asks for third decimal, because one run at one step tells you nothing and value has to be shown settled.
 
@@ -42,7 +42,7 @@ Two other routes confirm it. Convolution series $M(t) = \sum_{j \ge 1} P(S_j \le
 
 So $M(6) = 2.70496$, and rounding that to 3 decimals gives $2.705$, which is answer.
 
-Parameters need 5 figures here and question says so, because $k = 3.0803$ with $\lambda = 1.6960$ gives $2.70504$ where third decimal is safe, while cutting them back to $k = 3.08$ with $\lambda = 1.70$ gives $2.6980$ and third decimal has already moved.
+Parameters need 4 figures here and question says so, because $k = 3.080$ with $\lambda = 1.696$ gives $2.70500$ and exact values give $2.70496$, where both round to $2.705$, while cutting them to 3 figures, $k = 3.08$ with $\lambda = 1.70$, gives $2.6980$ and third decimal has already moved.
 
 Rounding $k$ to $3$ with $\lambda = 4^{1/3}$ looks attractive but it breaks, because that law has $S(6) = 0.0182$ against drawn $0.0200$, a nine per cent gap which is visible on log axis, and it returns $M(6) = 2.8947$ which rounds to $2.895$.
 
@@ -55,9 +55,9 @@ Answer: $2.705$.
 ## Rubric
 
 - c1 (4 pts, final answer): Last line of response gives $2.705$, which is $E[N(6)] = 2.70496$ after rounding to 3 decimals as question asks for. Values which come from stopping too early are wrong here, and these are $2.750$ from coarse trapezoid at $h = 1$, $2.668$ from right-endpoint recursion at $h = 0.0625$, then $2.687$ and $2.792$ from two Richardson overshoots, $2.754$ from asymptotic expansion, $2.956$ from $t/E[X]$ and $2.895$ when $k$ was rounded to $3$.
-- c2 (1 pts): Response says which parameters it used and they are $k = 3.080$ with $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, because that law gives $2.8947$ which is outside range.
+- c2 (1 pts): Response says which parameters it used and they are $k = 3.080$ with $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, because that law gives $2.8947$ which rounds to $2.895$.
 - c3 (2 pts): Response names its method and that method actually computes finite-time renewal function, so it is renewal equation $M = F + M * f$, or convolution series $\sum_j P(S_j \le t)$, or simulation of process. This law has no closed form, so giving $t/\mu$ or asymptotic expansion as the method loses this point even when number lands in range.
-- c4 (3 pts): Response shows third decimal has settled, and it does this in one of four ways. It runs three or more mesh sizes where successive changes shrink by about scheme order and it names that order, or it extrapolates with Richardson where order is stated and result is checked against finer run, or it runs two different schemes which agree to 3 decimals, or it simulates and reports standard error of $0.0005$ or less. Two values sitting close, with no order and no error estimate, earns nothing.
+- c4 (3 pts): Response shows third decimal has settled, by halving step at least twice so ratio of successive changes sits between 1.5 and 2.5 for first order scheme or between 3 and 5 for second order while last change stays under $0.0005$, or by Richardson value which agrees with finer run within $0.0005$, or by two different schemes which agree within $0.0005$, or by simulation which reports 95 per cent confidence interval whose both ends round to same third decimal.
 
 Common wrong answers: 2.750, 2.668, 2.754, 2.956, 2.895, 2.687, 2.792, 2.456
 

@@ -1,4 +1,4 @@
-import json, zipfile, pathlib, textwrap, subprocess, sys
+import json, zipfile, pathlib, textwrap, subprocess, sys, re
 HERE = pathlib.Path(__file__).parent
 SLUG = "renewal-residual-life-log-logistic"
 HINT = r", at $t = 6$ and $t = 20$"
@@ -21,11 +21,11 @@ For the key I took step $h$ on $[0, 6]$ and advanced $M$ by product integration 
 
 Scheme choice is what decides this question, because all schemes below reach $2.70496$ in the limit but at third decimal they sit far apart, and at step which someone picks on first try none of them has settled.
 
-Trapezoidal product rule on $dF$, implicit in $M_i$, is second order and gives $2.7496$ at $h = 1$, which is $1.65$ per cent high and outside, then $2.7155$ at $h = 0.5$ and $2.7076$ at $h = 0.25$, where both are inside.
+Trapezoidal product rule on $dF$, implicit in $M_i$, is second order and gives $2.7496$ at $h = 1$, then $2.7155$ at $h = 0.5$, $2.7076$ at $h = 0.25$ and $2.7056$ at $h = 0.125$, where none of them rounds to $2.705$ yet, and only $h = 0.0625$ with $2.7051$ gets there.
 
-Midpoint or lattice rule rounds arrival times to nearest node and comes from above slowly, giving $2.9501$, $2.8312$, $2.7678$, $2.7363$ and $2.7206$ at steps $1$, $0.5$, $0.25$, $0.125$, $0.0625$, so it needs $h$ under about $0.06$, while Richardson on its two coarsest values overshoots to $2.7916$.
+Midpoint or lattice rule rounds arrival times to nearest node and comes from above slowly, giving $2.9501$, $2.8312$, $2.7678$, $2.7363$ and $2.7206$ at steps $1$, $0.5$, $0.25$, $0.125$, $0.0625$, so even $h = 0.03125$ with $2.7128$ has not reached $2.705$, while Richardson on its two coarsest values overshoots to $2.7916$.
 
-Discrete renewal recursion is the one which people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$, and because each cell mass sits at right endpoint every renewal gets delayed by up to $h$, so it comes from below at first order with $2.2395$, $2.4417$, $2.5644$, $2.6322$ and $2.6679$ at same steps, all of them outside, and even at $h = 0.03125$ it is still $2.6863$. Richardson $2M(h/2) - M(h)$ fixes it earlier, where $2.6870$ from pair $(0.5, 0.25)$ is still outside while $2.7001$ from $(0.25, 0.125)$ is inside.
+Discrete renewal recursion is the one which people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$, and because each cell mass sits at right endpoint every renewal gets delayed by up to $h$, so it comes from below at first order with $2.2395$, $2.4417$, $2.5644$, $2.6322$ and $2.6679$ at same steps, none of them near $2.705$, and even at $h = 0.03125$ it is still $2.6863$. Richardson $2M(h/2) - M(h)$ helps but slowly, where $2.6870$ from pair $(0.5, 0.25)$, $2.7001$ from $(0.25, 0.125)$ and $2.7037$ from $(0.125, 0.0625)$ all round wrong, and only $2.7046$ from $(0.0625, 0.03125)$ rounds to $2.705$.
 
 That is why question asks for third decimal, because one run at one step tells you nothing and value has to be shown settled.
 
@@ -44,9 +44,9 @@ Reading curve through near misses instead of real crossings also lands elsewhere
 Answer: $2.705$."""
 rubric = [
     dict(id="c1", description=r"Last line of response gives $2.705$, which is $E[N(6)] = 2.70496$ after rounding to 3 decimals as question asks for. Values which come from stopping too early are wrong here, and these are $2.750$ from coarse trapezoid at $h = 1$, $2.668$ from right-endpoint recursion at $h = 0.0625$, then $2.687$ and $2.792$ from two Richardson overshoots, $2.754$ from asymptotic expansion, $2.956$ from $t/E[X]$ and $2.895$ when $k$ was rounded to $3$.", points=4, isFinalAnswer=True),
-    dict(id="c2", description=r"Response says which parameters it used and they are $k = 3.080$ with $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, because that law gives $2.8947$ which is outside range.", points=1, isFinalAnswer=False),
+    dict(id="c2", description=r"Response says which parameters it used and they are $k = 3.080$ with $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, because that law gives $2.8947$ which rounds to $2.895$.", points=1, isFinalAnswer=False),
     dict(id="c3", description=r"Response names its method and that method actually computes finite-time renewal function, so it is renewal equation $M = F + M * f$, or convolution series $\sum_j P(S_j \le t)$, or simulation of process. This law has no closed form, so giving $t/\mu$ or asymptotic expansion as the method loses this point even when number lands in range.", points=2, isFinalAnswer=False),
-    dict(id="c4", description=r"Response shows third decimal has settled in one of these ways. Step is halved at least twice and ratio of successive changes sits between 1.5 and 2.5 for first order scheme or between 3 and 5 for second order, with last change under $0.0005$. Or Richardson value is checked against finer run and they agree within $0.0005$. Or two different schemes agree within $0.0005$. Or simulation reports 95 per cent confidence interval whose both ends round to same third decimal. Anything weaker earns nothing.", points=3, isFinalAnswer=False),
+    dict(id="c4", description=r"Response shows third decimal has settled, by halving step at least twice so ratio of successive changes sits between 1.5 and 2.5 for first order scheme or between 3 and 5 for second order while last change stays under $0.0005$, or by Richardson value which agrees with finer run within $0.0005$, or by two different schemes which agree within $0.0005$, or by simulation which reports 95 per cent confidence interval whose both ends round to same third decimal.", points=3, isFinalAnswer=False),
 ]
 wrong = ["2.750", "2.668", "2.754", "2.956", "2.895", "2.687", "2.792", "2.456"]
 references = r"""Renewal equation and renewal function: W. Feller, An Introduction to Probability Theory and Its Applications, vol. II, 2nd ed., Wiley, 1971, chapter XI. S. M. Ross, Stochastic Processes, 2nd ed., Wiley, 1996, sections 3.3 and 3.4, which derives the asymptotic expansion $M(t) = t/\mu + (\sigma^2 - \mu^2)/(2\mu^2) + o(1)$ and notes how slowly it comes in. Numerical solution of renewal equations by product integration: P. Linz, Analytical and Numerical Methods for Volterra Equations, SIAM, 1985, chapter 7. Uploaded file verification_notes.txt gives the two gridline crossings the curve was drawn through, the distance from curve to nearest gridline at every other labelled abscissa, and solves $\lambda$ and $k$ from the crossings. Notes record that renewal function of this law cannot be written in closed form, then they verify $M(6) = 2.70496$ three times and every route is numerical, where first route is product integration of renewal equation at four step sizes, second is convolution series $\sum_j P(S_j \le 6)$ with convolutions done numerically, and third is simulation of 400000 paths. After that notes table four discretisation schemes with value which each one returns, what happens when $k$ is rounded to $3$, and what each near miss reading of figure would give, then program and its full output come at the end."""
@@ -154,8 +154,8 @@ and every number below is marked by what it rounds to at 3 decimals.
 
 {textwrap.indent(out, "   ")}
 """
-    for stale in ("2.691", "2.718", "interval", "IN ", " OUT", "half a per cent", "two significant figures", "five significant"):
-        assert stale not in txt.replace("intervals gives", "").replace("intervals:", ""), f"stale grading wording in the notes: {stale!r}"
+    for stale in ("2.691", "2.718", r"\binterval\b", r"\bIN\b", r"\bOUT\b", "half a per cent", "two significant figures", "five significant"):
+        assert not re.search(stale, txt), f"stale grading wording in the notes: {stale!r}"
     (HERE / "reference.txt").write_text(txt); print("reference.txt written, no interval wording")
 def build_readme():
     lines = ["task11 renewal function at finite time", "", "REVISE SUM-MVBYB83A with these fields. Do not create a new submission. That entry was made from this zip, so its References text is already clean; SUM-MVB7DTW7 is the older bandwidth entry and keeps stale References text in the revision editor.", "", "Domain: Mathematics. Subdomain: " + task["task"]["subdomain"], "",

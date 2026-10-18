@@ -1,51 +1,49 @@
 VERIFICATION NOTES: expected number of renewals by time 6, log-logistic renewal process
 
-Answer key: 2.705 (2.704964 exactly, to four significant figures).
-Grading interval is 2.691 to 2.718, half a per cent either side of the true value. It is held in the grader
-and is deliberately not stated in the question, so a solver has to converge a scheme to land inside it. Every
-number below is labelled IN or OUT against that interval.
+Answer key: 2.705, which is M(6) = 2.704964 rounded to 3 decimals. Grading is exact match on that rounded value,
+and every number below is marked by what it rounds to at 3 decimals.
 
-1. The figure. The vertical axis carries gridlines at 1, 2 and 5 of every decade (1e-4 to 1); the horizontal axis is
-   labelled at 1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100. The curve S(t) = 1/(1 + (t/lambda)^k) is
-   drawn exactly through the gridline crossings (6, 0.02) and (20, 0.0005). At every other labelled abscissa it runs
-   between gridlines; the program prints S(t) and the distance to the nearest line at each of them (the closest are
-   t = 1 and t = 10, 16 percent off, and t = 8, 17 percent off).
+1. The figure. Horizontal gridlines mark the survival axis at 1, 2 and 5 of every decade (1e-4 to 1); the
+   horizontal axis is labelled at 1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100. The curve
+   S(t) = 1/(1 + (t/lambda)^k) is drawn exactly through the gridline crossings (6, 0.02) and (20, 0.0005). At the
+   nine other labelled abscissae where it is visible, 1 to 30, it runs between gridlines; the program prints S(t)
+   and the distance to the nearest line at each of them (the closest are t = 1 and t = 10, 16 percent off, and
+   t = 8, 17 percent off). From t = 40 on the curve is below the plotted range.
 2. Parameters: (t/lambda)^k = 1/S - 1 at the two crossings gives (10/3)^k = 1999/49, k = 3.0803, lambda = 1.6960.
    E[X] = 2.03015 and E[X^2] = 6.57795, both finite since r < k; the first divergent integer moment of X is the fourth.
 3. The answer, three independent ways. The renewal function solves M = F + M * f, which has no closed form for this
    law. Product integration of that equation on 1000, 2000, 4000 and 8000 intervals gives M(6) = 2.704964 each time;
    the convolution series M(6) = sum_j P(S_j <= 6), with the convolutions taken numerically, gives 2.704964; a
-   simulation of 400000 paths gives 2.7068 with a standard error of 0.0017 (IN). Key 2.705 at four significant
-   figures. The three routes agree to six digits where they are deterministic, and the simulation agrees inside
-   its own standard error, so the key is not an artefact of one scheme.
-4. The discretisation trap. The half a per cent interval is what gives the question its difficulty: all four
-   schemes below converge to 2.704964, but at a step a quick attempt would choose none of them is inside, so a
-   single unrefined run fails whichever scheme it uses.
-   Trapezoidal product rule on dF, implicit in M_i (second order): 2.7496 OUT at h = 1 (1.65 percent high),
-   2.7155 IN at h = 0.5, 2.7076 IN at h = 0.25, 2.7056 IN at h = 0.125.
+   simulation of 400000 paths gives 2.7068 with a standard error of 0.0017, which agrees with the key inside two
+   standard errors but is far too coarse to fix the third decimal on its own. Key 2.705 at 3 decimals.
+4. The discretisation trap. The third decimal is what gives the question its difficulty: all four schemes below
+   converge to 2.704964, but at the step a quick attempt would choose none of them rounds to 2.705, so a single
+   unrefined run fails whichever scheme it uses.
+   Trapezoidal product rule on dF, implicit in M_i (second order): 2.7496 at h = 1, 2.7155 at 0.5, 2.7076 at 0.25,
+   2.7056 at 0.125 (rounds to 2.706, still wrong), 2.7051 at 0.0625 and 2.7050 at 0.03125 (both round to 2.705).
    Midpoint or lattice rule, arrival times rounded to the nearest node, converging from above: 2.9501, 2.8312,
-   2.7678, 2.7363 all OUT at steps 1, 0.5, 0.25, 0.125, then 2.7206 OUT at 0.0625 and 2.7128 IN at 0.03125. A
-   Richardson step on its two coarsest values overshoots to 2.7916 OUT.
+   2.7678, 2.7363, 2.7206, 2.7128 at steps 1 down to 0.03125, none of them rounding to 2.705; a Richardson step
+   on its two coarsest values overshoots to 2.7916.
    Discrete renewal recursion M_i = F(t_i) + sum over j of p_j times M_(i-j), cell masses p_j = F(t_j) - F(t_(j-1)),
    which puts each cell's mass at its right endpoint, delays every renewal by up to h and converges from below at
-   first order: 2.2395, 2.4417, 2.5644, 2.6322, 2.6679, 2.6863 at steps 1, 0.5, 0.25, 0.125, 0.0625, 0.03125, every
-   one OUT. Richardson extrapolation of two steps repairs it sooner: 2.6440 OUT from (1, 0.5), 2.6870 OUT from
-   (0.5, 0.25), 2.7001 IN from (0.25, 0.125).
+   first order: 2.2395, 2.4417, 2.5644, 2.6322, 2.6679, 2.6863 at steps 1 down to 0.03125, none rounding to 2.705.
+   Richardson extrapolation of two steps: 2.6440 from (1, 0.5), 2.6870 from (0.5, 0.25), 2.7001 from (0.25, 0.125),
+   2.7037 from (0.125, 0.0625), 2.7046 from (0.0625, 0.03125); only the last one rounds to 2.705.
    Product integration on the density, the scheme used for the key, has no such bias and is already exact to six
-   digits at 1000 intervals. The program prints the whole table with the IN and OUT verdicts.
+   digits at 1000 intervals. The program prints the whole table with what each value rounds to.
 5. The rounding trap. Forcing k to the round value 3 (and then lambda^3 = 4) gives a law with S(6) = 0.018182
    against the drawn crossing 0.0200, nine per cent low, and S(10) = 0.003984 against the curve's 0.004213. That
-   law returns M(6) = 2.8947, OUT. The true k is 3.0803. Carrying the parameters to four significant figures keeps
-   the result inside the interval under any honest rounding: k = 3.08 with lambda = 1.696 gives 2.7050 IN,
-   k = 3.1 with lambda = 1.70 gives 2.7011 IN, k = 3.08 with lambda = 1.70 gives 2.6980 IN, k = 3.07 with
-   lambda = 1.70 gives 2.6964 IN, k = 3.08 with lambda = 1.69 gives 2.7156 IN. The interval therefore tests the
-   numerical scheme, not the number of digits kept in the parameters.
+   law returns M(6) = 2.8947. The true k is 3.0803. Four significant figures on the parameters are enough and
+   three are not: k = 3.080 with lambda = 1.696 gives 2.70500 (rounds to 2.705, same as the exact 2.70496), while
+   k = 3.08 with lambda = 1.70 gives 2.6980, k = 3.1 with lambda = 1.70 gives 2.7011 and k = 3.08 with
+   lambda = 1.69 gives 2.7156, none of which rounds to 2.705. The question therefore asks for at least four figures.
+   The key sits 0.00046 above the lower edge of its 3-decimal bin (2.7045 to 2.7055), so any scheme must be
+   converged to better than 0.0005 before its rounded value can be trusted; that is what rubric criterion c4 tests.
 6. Why the closed-form shortcuts fail at t = 6 (about three mean gaps): the elementary renewal theorem alone gives
-   t/m = 2.9555 OUT; the asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = 2.7535 is 1.8 percent high, OUT, and
-   this is the one the interval was sized to exclude, since it is the most plausible wrong route; t/m - 1/2 = 2.4555
-   OUT; F(6) = 0.9800 is the probability of at least one renewal, not their expected number. Near-miss readings of
-   the figure, each pairing the named crossing at 6 with a crossing the curve does not pass through, give 3.64, 3.13,
-   2.50, 2.95, 3.88, 2.24, 2.30, 2.60 and 2.61; every one is OUT.
+   t/m = 2.9555; the asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = 2.7535 is 1.8 percent high, the most
+   plausible wrong route; t/m - 1/2 = 2.4555; F(6) = 0.9800 is the probability of at least one renewal, not their
+   expected number. Near-miss readings of the figure, each pairing the named crossing at 6 with a crossing the
+   curve does not pass through, give 3.64, 3.13, 2.50, 2.95, 3.88, 2.24, 2.30, 2.60 and 2.61; none rounds to 2.705.
 7. The figure (image.png) was drawn by work/draw.py from the survival function with the parameters above; there
    are no data markers.
 
@@ -79,9 +77,10 @@ number below is labelled IN or OUT against that interval.
        nearest = min([c*e for c in (1, 2, 5, 10)], key=lambda v: abs(math.log10(y / v)))
        print(f"   t = {t:3d}: S = {y:.4g}, nearest line {nearest:g}, off by {abs(y/nearest-1)*100:.0f} percent")
 
-   LO, HI = 2.691, 2.718          # the acceptance interval stated in the question
+   KEY3 = "2.705"                 # the answer the question asks for: E[N(6)] rounded to 3 decimals
    def verdict(v):
-       return "IN " if LO <= v <= HI else "OUT"
+       r = f"{v:.3f}"
+       return "rounds to 2.705" if r == KEY3 else f"rounds to {r}, wrong"
 
    F = lambda t: 1.0 - S(t)
    f = lambda t: (k/lam) * (t/lam)**(k-1) / (1.0 + (t/lam)**k)**2
@@ -146,9 +145,9 @@ number below is labelled IN or OUT against that interval.
            M[i] = (Fv[i] + acc + dF[0]*M[i-1]/2) / (1 - dF[0]/2)
        return M[-1]
    print("Scheme comparison, trapezoidal product rule on dF (second order, implicit):")
-   for h in (1.0, 0.5, 0.25):
+   for h in (1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125):
        v = trap_dF(T, h); print(f"   h = {h:<6}: M({T:g}) = {v:.4f}  {verdict(v)}")
-   print("   Even this second-order scheme is outside the interval at h = 1, so no scheme survives a")
+   print("   Even this second-order scheme needs h = 0.0625 before it rounds to 2.705, so no scheme survives a")
    print("   single coarse run: the step has to be refined or two steps extrapolated.")
 
    # Midpoint / lattice rule: converges to the same limit from ABOVE, and a coarse Richardson step overshoots
@@ -167,7 +166,7 @@ number below is labelled IN or OUT against that interval.
        print(f"   h = {h:<7}: M({T:g}) = {mv[h]:.4f}  {verdict(mv[h])}")
    rich = mv[0.5] + (mv[0.5]-mv[1.0])/3
    print(f"   Richardson on its two coarsest values overshoots: {rich:.4f}  {verdict(rich)}")
-   print("   The schemes straddle the answer; only a refined or correctly extrapolated one lands inside.")
+   print("   The schemes straddle the answer, and only a well refined or correctly extrapolated one rounds to 2.705.")
 
    print("Discretisation trap, discrete renewal recursion with right-endpoint cell masses:")
    prev = None
@@ -176,8 +175,8 @@ number below is labelled IN or OUT against that interval.
        extra = f"   Richardson with the previous step: {2*v-prev:.4f}  {verdict(2*v-prev)}" if prev is not None else ""
        print(f"   h = {h:<7}: M({T:g}) = {v:.4f}  {verdict(v)}{extra}")
        prev = v
-   print("   The scheme converges from below at first order: every step down to 0.03125 is outside the")
-   print("   interval. Richardson extrapolation of the pair (0.25, 0.125) brings it inside.")
+   print("   The scheme converges from below at first order: no step down to 0.03125 rounds to 2.705, and")
+   print("   of the Richardson pairs only (0.0625, 0.03125) does; the earlier pairs stop at 2.700 and 2.704.")
 
    # The rounding trap: forcing k to the round value 3
    k3, l3 = 3.0, 4.0**(1/3)
@@ -197,7 +196,7 @@ number below is labelled IN or OUT against that interval.
    for kk, ll in ((3.08, 1.696), (3.1, 1.70), (3.08, 1.70), (3.07, 1.70), (3.08, 1.69)):
        vv = M_params(kk, ll, T); print(f"      k = {kk}, lambda = {ll}: M(6) = {vv:.4f}  {verdict(vv)}")
 
-   print(f"Answer key: {M1:.6f}, four significant figures {M1:.4g}; accepted interval {LO} to {HI}")
+   print(f"Answer key: {M1:.6f}, which is {M1:.3f} at 3 decimals; the 3-decimal bin runs 2.7045 to 2.7055, so the key sits {M1-2.7045:.5f} above its lower edge")
 
    # The shortcuts that do not work
    m = lam * (math.pi/k) / math.sin(math.pi/k)
@@ -252,60 +251,63 @@ number below is labelled IN or OUT against that interval.
       t =  60: S = 1.696e-05 (below the axis)
       t =  80: S = 6.993e-06 (below the axis)
       t = 100: S = 3.517e-06 (below the axis)
-   Route 1, renewal equation on  1000 intervals: M(6) = 2.704964  IN 
-   Route 1, renewal equation on  2000 intervals: M(6) = 2.704964  IN 
-   Route 1, renewal equation on  4000 intervals: M(6) = 2.704964  IN 
-   Route 1, renewal equation on  8000 intervals: M(6) = 2.704964  IN 
-   Route 2, convolution series sum_j P(S_j <= 6): M(6) = 2.704964  IN 
-   Route 3, simulation of 400000 paths: E[N(6)] = 2.7068 (standard error 0.0017)  IN 
+   Route 1, renewal equation on  1000 intervals: M(6) = 2.704964  rounds to 2.705
+   Route 1, renewal equation on  2000 intervals: M(6) = 2.704964  rounds to 2.705
+   Route 1, renewal equation on  4000 intervals: M(6) = 2.704964  rounds to 2.705
+   Route 1, renewal equation on  8000 intervals: M(6) = 2.704964  rounds to 2.705
+   Route 2, convolution series sum_j P(S_j <= 6): M(6) = 2.704964  rounds to 2.705
+   Route 3, simulation of 400000 paths: E[N(6)] = 2.7068 (standard error 0.0017)  rounds to 2.707, wrong
    Scheme comparison, trapezoidal product rule on dF (second order, implicit):
-      h = 1.0   : M(6) = 2.7496  OUT
-      h = 0.5   : M(6) = 2.7155  IN 
-      h = 0.25  : M(6) = 2.7076  IN 
-      Even this second-order scheme is outside the interval at h = 1, so no scheme survives a
+      h = 1.0   : M(6) = 2.7496  rounds to 2.750, wrong
+      h = 0.5   : M(6) = 2.7155  rounds to 2.716, wrong
+      h = 0.25  : M(6) = 2.7076  rounds to 2.708, wrong
+      h = 0.125 : M(6) = 2.7056  rounds to 2.706, wrong
+      h = 0.0625: M(6) = 2.7051  rounds to 2.705
+      h = 0.03125: M(6) = 2.7050  rounds to 2.705
+      Even this second-order scheme needs h = 0.0625 before it rounds to 2.705, so no scheme survives a
       single coarse run: the step has to be refined or two steps extrapolated.
    Midpoint / lattice rule (converges from above):
-      h = 1.0    : M(6) = 2.9501  OUT
-      h = 0.5    : M(6) = 2.8312  OUT
-      h = 0.25   : M(6) = 2.7678  OUT
-      h = 0.125  : M(6) = 2.7363  OUT
-      h = 0.0625 : M(6) = 2.7206  OUT
-      h = 0.03125: M(6) = 2.7128  IN 
-      Richardson on its two coarsest values overshoots: 2.7916  OUT
-      The schemes straddle the answer; only a refined or correctly extrapolated one lands inside.
+      h = 1.0    : M(6) = 2.9501  rounds to 2.950, wrong
+      h = 0.5    : M(6) = 2.8312  rounds to 2.831, wrong
+      h = 0.25   : M(6) = 2.7678  rounds to 2.768, wrong
+      h = 0.125  : M(6) = 2.7363  rounds to 2.736, wrong
+      h = 0.0625 : M(6) = 2.7206  rounds to 2.721, wrong
+      h = 0.03125: M(6) = 2.7128  rounds to 2.713, wrong
+      Richardson on its two coarsest values overshoots: 2.7916  rounds to 2.792, wrong
+      The schemes straddle the answer, and only a well refined or correctly extrapolated one rounds to 2.705.
    Discretisation trap, discrete renewal recursion with right-endpoint cell masses:
-      h = 1.0    : M(6) = 2.2395  OUT
-      h = 0.5    : M(6) = 2.4417  OUT   Richardson with the previous step: 2.6440  OUT
-      h = 0.25   : M(6) = 2.5644  OUT   Richardson with the previous step: 2.6870  OUT
-      h = 0.125  : M(6) = 2.6322  OUT   Richardson with the previous step: 2.7001  IN 
-      h = 0.0625 : M(6) = 2.6679  OUT   Richardson with the previous step: 2.7037  IN 
-      h = 0.03125: M(6) = 2.6863  OUT   Richardson with the previous step: 2.7046  IN 
-      The scheme converges from below at first order: every step down to 0.03125 is outside the
-      interval. Richardson extrapolation of the pair (0.25, 0.125) brings it inside.
+      h = 1.0    : M(6) = 2.2395  rounds to 2.239, wrong
+      h = 0.5    : M(6) = 2.4417  rounds to 2.442, wrong   Richardson with the previous step: 2.6440  rounds to 2.644, wrong
+      h = 0.25   : M(6) = 2.5644  rounds to 2.564, wrong   Richardson with the previous step: 2.6870  rounds to 2.687, wrong
+      h = 0.125  : M(6) = 2.6322  rounds to 2.632, wrong   Richardson with the previous step: 2.7001  rounds to 2.700, wrong
+      h = 0.0625 : M(6) = 2.6679  rounds to 2.668, wrong   Richardson with the previous step: 2.7037  rounds to 2.704, wrong
+      h = 0.03125: M(6) = 2.6863  rounds to 2.686, wrong   Richardson with the previous step: 2.7046  rounds to 2.705
+      The scheme converges from below at first order: no step down to 0.03125 rounds to 2.705, and
+      of the Richardson pairs only (0.0625, 0.03125) does; the earlier pairs stop at 2.700 and 2.704.
    Rounding trap: with k = 3 and lambda = 4^(1/3) = 1.5874, S(6) = 0.018182 against the drawn 0.0200
       (nine per cent low) and S(10) = 0.003984 against the curve's 0.004213.
-      That law would give M(6) = 2.8947  OUT
+      That law would give M(6) = 2.8947  rounds to 2.895, wrong
       The key is unchanged under honest rounding of the true parameters:
-         k = 3.08, lambda = 1.696: M(6) = 2.7050  IN 
-         k = 3.1, lambda = 1.7: M(6) = 2.7011  IN 
-         k = 3.08, lambda = 1.7: M(6) = 2.6980  IN 
-         k = 3.07, lambda = 1.7: M(6) = 2.6964  IN 
-         k = 3.08, lambda = 1.69: M(6) = 2.7156  IN 
-   Answer key: 2.704964, four significant figures 2.705; accepted interval 2.691 to 2.718
+         k = 3.08, lambda = 1.696: M(6) = 2.7050  rounds to 2.705
+         k = 3.1, lambda = 1.7: M(6) = 2.7011  rounds to 2.701, wrong
+         k = 3.08, lambda = 1.7: M(6) = 2.6980  rounds to 2.698, wrong
+         k = 3.07, lambda = 1.7: M(6) = 2.6964  rounds to 2.696, wrong
+         k = 3.08, lambda = 1.69: M(6) = 2.7156  rounds to 2.716, wrong
+   Answer key: 2.704964, which is 2.705 at 3 decimals; the 3-decimal bin runs 2.7045 to 2.7055, so the key sits 0.00046 above its lower edge
    E[X] = 2.03015, E[X^2] = 6.57795 (both finite, r < k; the first divergent integer moment is the fourth)
-   Wrong route: elementary renewal theorem alone, t/m = 2.9555  OUT
-   Wrong route: asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = 2.7535  OUT
+   Wrong route: elementary renewal theorem alone, t/m = 2.9555  rounds to 2.955, wrong
+   Wrong route: asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = 2.7535  rounds to 2.753, wrong
       (it is still 1.8 percent above the true value at t = 6, because t is only about 3 mean gaps)
-   Wrong route: t/m - 1/2 = 2.4555  OUT
+   Wrong route: t/m - 1/2 = 2.4555  rounds to 2.455, wrong
    Wrong route: F(6) = 0.9800, the probability of at least one renewal, not their expected number
    Near-miss readings (the named crossing at 6 paired with a crossing the curve does not pass through):
-      (6, 0.02) with (8, 0.01): k = 2.445, M(6) = 3.6423  OUT
-      (6, 0.02) with (10, 0.005): k = 2.744, M(6) = 3.1268  OUT
-      (6, 0.02) with (15, 0.001): k = 3.290, M(6) = 2.4999  OUT
-      (6, 0.02) with (30, 0.0002): k = 2.874, M(6) = 2.9475  OUT
-      (6, 0.02) with (4, 0.05): k = 2.337, M(6) = 3.8757  OUT
-      (6, 0.02) with (3, 0.2): k = 3.615, M(6) = 2.2448  OUT
-      (6, 0.02) with (2, 0.5): k = 3.542, M(6) = 2.2962  OUT
-      (6, 0.02) with (10, 0.004): k = 3.182, M(6) = 2.6007  OUT
-      (6, 0.02) with (2, 0.4): k = 3.173, M(6) = 2.6095  OUT
+      (6, 0.02) with (8, 0.01): k = 2.445, M(6) = 3.6423  rounds to 3.642, wrong
+      (6, 0.02) with (10, 0.005): k = 2.744, M(6) = 3.1268  rounds to 3.127, wrong
+      (6, 0.02) with (15, 0.001): k = 3.290, M(6) = 2.4999  rounds to 2.500, wrong
+      (6, 0.02) with (30, 0.0002): k = 2.874, M(6) = 2.9475  rounds to 2.947, wrong
+      (6, 0.02) with (4, 0.05): k = 2.337, M(6) = 3.8757  rounds to 3.876, wrong
+      (6, 0.02) with (3, 0.2): k = 3.615, M(6) = 2.2448  rounds to 2.245, wrong
+      (6, 0.02) with (2, 0.5): k = 3.542, M(6) = 2.2962  rounds to 2.296, wrong
+      (6, 0.02) with (10, 0.004): k = 3.182, M(6) = 2.6007  rounds to 2.601, wrong
+      (6, 0.02) with (2, 0.4): k = 3.173, M(6) = 2.6095  rounds to 2.610, wrong
 
