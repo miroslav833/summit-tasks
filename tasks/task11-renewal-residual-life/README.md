@@ -6,13 +6,13 @@ Domain: Mathematics. Subdomain: Probability: renewal theory (the renewal functio
 
 ## Question
 
-Figure shows survival function $S(t) = P(X > t)$ on logarithmic axes, where $X$ is inter-arrival time of renewal process and $X$ follows log-logistic law, $S(t) = 1/(1 + (t/\lambda)^k)$ for $t > 0$.
+Figure shows, on logarithmic axes, survival function $S(t) = P(X > t)$ of inter-arrival time $X$ of renewal process, and $X$ is log-logistic, so that $S(t) = 1/(1 + (t/\lambda)^k)$ for $t > 0$.
 
-Curve passes exactly through gridline crossings at two of labelled $t$ values, at $t = 6$ and $t = 20$, and those two crossings together fix $\lambda$ and $k$.
+That curve, which looks like any smooth bend on log paper, passes exactly through gridline crossings at two of labelled $t$ values, at $t = 6$ and $t = 20$, and those two crossings, and nothing else in figure, fix $\lambda$ and $k$.
 
-$N(t)$ counts renewals in $(0, t]$ and process starts at time $0$, so find $E[N(6)]$ using $\lambda$ and $k$ which you read from figure. Neither parameter is round number, so carry both to at least 4 significant figures through whole calculation, because rounding them to 3 figures moves third decimal of answer.
+$N(t)$ counts renewals in $(0, t]$, process having started at time $0$, and what is wanted is $E[N(6)]$ with $\lambda$ and $k$ as you read them from figure. Neither parameter is round number, and rounding them to 3 figures moves third decimal of answer, so carry both to at least 4 significant figures through whole calculation.
 
-This quantity has no closed form, and usual coarse schemes are still more than one per cent out at step which you would pick on first try, so refine step of your scheme, or extrapolate it, until third decimal stops moving. Say which method you used, then show numbers which convinced you it settled. There is one more thing, your final answer must be value rounded to 3 decimal places.
+This quantity has no closed form, and usual coarse schemes, at step which you would pick on first try, are still more than one per cent out, so refine step of your scheme, or extrapolate it, until third decimal stops moving. Say which method you used and show numbers which convinced you it had settled, and give your final answer as value rounded to 3 decimal places.
 
 ## Answer
 
@@ -20,44 +20,36 @@ This quantity has no closed form, and usual coarse schemes are still more than o
 
 ## Solution
 
-Horizontal gridlines sit at $1$, $2$, $5$ in each decade, and when you check curve against them it hits a crossing at exactly two labelled $t$, which are $(6, 0.02)$ and $(20, 0.0005)$, while at other labelled values it runs between lines, about $0.066$ at $t = 4$, about $0.0083$ at $t = 8$, about $0.0042$ at $t = 10$ and about $0.0012$ at $t = 15$.
+Gridlines of survival axis, which run across figure horizontally, sit at $1$, $2$ and $5$ in each decade, and when curve is checked against them at every labelled $t$ it is found to pass through a crossing at two of them only, $(6, 0.02)$ and $(20, 0.0005)$, while at others it runs between lines, being about $0.066$ at $t = 4$, about $0.0083$ at $t = 8$, about $0.0042$ at $t = 10$ and about $0.0012$ at $t = 15$.
 
-From $(t/\lambda)^k = 1/S(t) - 1$ these two crossings give $(6/\lambda)^k = 49$ and $(20/\lambda)^k = 1999$, and dividing one by other gives $(10/3)^k = 1999/49 = 40.80$, so $k = \ln 40.80/\ln(10/3) = 3.080$ and then $\lambda = 6/49^{1/k} = 1.696$.
+Since $(t/\lambda)^k = 1/S(t) - 1$, two crossings give $(6/\lambda)^k = 49$ and $(20/\lambda)^k = 1999$, and dividing one by other leaves $(10/3)^k = 1999/49 = 40.80$, from which $k = \ln 40.80/\ln(10/3) = 3.080$ and then $\lambda = 6/49^{1/k} = 1.696$.
 
-Renewal function $M(t) = E[N(t)]$ solves $M(t) = F(t) + \int_0^t M(t-u)\,f(u)\,du$, and for log-logistic law there is no closed form because Laplace transform of $f$ is not elementary, so $M$ has to come from numerical work. Mean is $E[X] = \lambda\,(\pi/k)/\sin(\pi/k) = 2.030$, which puts $t = 6$ at about 3 mean gaps, and asymptotics are still bad that early.
+Renewal function $M(t) = E[N(t)]$ satisfies $M(t) = F(t) + \int_0^t M(t-u)\,f(u)\,du$, and for log-logistic law this equation has no closed form, because Laplace transform of $f$ is not elementary, so that $M$ must come from numerical work. Mean of $X$ is $E[X] = \lambda\,(\pi/k)/\sin(\pi/k) = 2.030$, which puts $t = 6$ at only about three mean gaps, far too early for asymptotics to be trusted.
 
-For the key I took step $h$ on $[0, 6]$ and advanced $M$ by product integration on density, $M(t_i) = F(t_i) + \sum_j w_j f(u_j) M(t_i - u_j)$ with trapezoidal weights $w_j$, where $u = 0$ term drops because $f(0) = 0$ when $k > 1$, and here $F(t) = 1 - S(t)$ and $f(t) = (k/\lambda)(t/\lambda)^{k-1}/(1 + (t/\lambda)^k)^2$. On $1000$, $2000$, $4000$ and $8000$ intervals this gives $M(6) = 2.70496$ every time.
+For key I took step $h$ on $[0, 6]$ and advanced $M$ by product integration on density, $M(t_i) = F(t_i) + \sum_j w_j f(u_j) M(t_i - u_j)$ with trapezoidal weights $w_j$, where $u = 0$ term drops out because $f(0) = 0$ when $k > 1$, and where $F(t) = 1 - S(t)$ and $f(t) = (k/\lambda)(t/\lambda)^{k-1}/(1 + (t/\lambda)^k)^2$. On $1000$, $2000$, $4000$ and $8000$ intervals this gives $M(6) = 2.70496$ every time, and to 3 decimals that is $2.705$.
 
-Scheme choice is what decides this question, because all schemes below reach $2.70496$ in the limit but at third decimal they sit far apart, and at step which someone picks on first try none of them has settled.
+Choice of scheme is what decides this question, for all schemes below come to $2.70496$ in the limit, yet at third decimal they lie far apart, and at step which someone picks on first try not one of them has settled.
 
-Trapezoidal product rule on $dF$, implicit in $M_i$, is second order and gives $2.7496$ at $h = 1$, which is $1.65$ per cent high, then $2.7155$ at $h = 0.5$, $2.7076$ at $h = 0.25$ and $2.7056$ at $h = 0.125$, where none of them rounds to $2.705$ yet, and $h = 0.0625$ gives $2.7051$ which does.
+Trapezoidal product rule on $dF$, taken implicitly in $M_i$, is second order, and it gives $2.7496$ at $h = 1$, $2.7155$ at $h = 0.5$, $2.7076$ at $h = 0.25$ and $2.7056$ at $h = 0.125$, which last still rounds to $2.706$, and only at $h = 0.0625$, with $2.7051$, does it come to $2.705$.
 
-Midpoint or lattice rule rounds arrival times to nearest node and comes from above slowly, giving $2.9501$, $2.8312$, $2.7678$, $2.7363$ and $2.7206$ at steps $1$, $0.5$, $0.25$, $0.125$, $0.0625$, so even $h = 0.03125$ with $2.7128$ has not reached $2.705$, while Richardson on its two coarsest values overshoots to $2.7916$.
+Midpoint or lattice rule, which rounds arrival times to nearest node, comes down from above and comes slowly, giving $2.9501$, $2.8312$, $2.7678$, $2.7363$, $2.7206$ and $2.7128$ at steps from $1$ down to $0.03125$, not one of them right, and Richardson on its two coarsest values overshoots to $2.7916$.
 
-Discrete renewal recursion is the one which people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$, and because each cell mass sits at right endpoint every renewal gets delayed by up to $h$, so it comes from below at first order with $2.2395$, $2.4417$, $2.5644$, $2.6322$ and $2.6679$ at same steps, none of them near $2.705$, and even at $h = 0.03125$ it is still $2.6863$. Richardson $2M(h/2) - M(h)$ fixes it earlier, where $2.6870$ from pair $(0.5, 0.25)$ and $2.7001$ from $(0.25, 0.125)$ are still short while $2.7046$ from $(0.0625, 0.03125)$ rounds to $2.705$.
+Discrete renewal recursion, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$, is the method which most people reach for first, and because it puts each cell mass at right endpoint it delays every renewal by up to $h$ and creeps up from below at first order, with $2.2395$, $2.4417$, $2.5644$, $2.6322$, $2.6679$ and $2.6863$ at same steps. Richardson $2M(h/2) - M(h)$ helps it, though not quickly, for pairs give $2.6870$, $2.7001$ and $2.7037$ before $(0.0625, 0.03125)$ at last gives $2.7046$, which rounds to $2.705$.
 
-That is why question asks for third decimal, because one run at one step tells you nothing and value has to be shown settled.
+Two other routes agree with key, convolution series $M(t) = \sum_{j \ge 1} P(S_j \le t)$, with each $P(S_j \le 6)$ done by repeated numerical convolution of $f$, giving $2.70496$, and simulation of $400\,000$ paths giving $2.7068 \pm 0.0017$, which is close enough to agree but far too rough to fix third decimal by itself.
 
-Two other routes confirm it. Convolution series $M(t) = \sum_{j \ge 1} P(S_j \le t)$ with each $P(S_j \le 6)$ done by repeated numerical convolution of $f$ gives $2.70496$, and simulation of $400\,000$ paths gives $2.7068 \pm 0.0017$.
+Parameters must be carried to 4 figures, as question says, since $k = 3.080$ with $\lambda = 1.696$ gives $2.70500$ and third decimal is safe, whereas $k = 3.08$ with $\lambda = 1.70$ gives $2.6980$ and it has already moved. Rounding $k$ all way to $3$, with $\lambda = 4^{1/3}$, is tempting, but that law has $S(6) = 0.0182$ against drawn $0.0200$, a gap of nine per cent which can be seen on log axis, and it returns $M(6) = 2.8947$.
 
-So $M(6) = 2.70496$, and rounding that to 3 decimals gives $2.705$, which is answer.
-
-Parameters need 4 figures here and question says so, because $k = 3.080$ with $\lambda = 1.696$ gives $2.70500$ where third decimal is safe, while cutting them back to $k = 3.08$ with $\lambda = 1.70$ gives $2.6980$ and third decimal has already moved.
-
-Rounding $k$ to $3$ with $\lambda = 4^{1/3}$ looks attractive but it breaks, because that law has $S(6) = 0.0182$ against drawn $0.0200$, a nine per cent gap which is visible on log axis, and it returns $M(6) = 2.8947$ which rounds to $2.895$.
-
-Shortcuts all fail at this $t$ and third decimal catches each one of them. Elementary renewal theorem alone gives $t/E[X] = 6/2.030 = 2.9555$ and that is nine per cent high, asymptotic expansion $t/m + (E[X^2] - 2m^2)/(2m^2) = 2.7535$ is $1.8$ per cent high because $t = 6$ is only about 3 mean gaps, common slip $t/m - 1/2 = 2.4555$ is far out, and $F(6) = 0.98$ is probability of at least one renewal which is different quantity.
-
-Reading curve through near misses instead of real crossings also lands elsewhere, where $(6, 0.02)$ with $(8, 0.01)$ gives $3.64$, with $(10, 0.005)$ gives $3.13$, with $(15, 0.001)$ gives $2.50$ and with $(3, 0.2)$ gives $2.24$.
+Shortcuts, as I say, all fail at this $t$, for elementary renewal theorem alone gives $t/E[X] = 2.9555$, asymptotic expansion $t/m + (E[X^2] - 2m^2)/(2m^2)$ gives $2.7535$, still $1.8$ per cent high, common slip $t/m - 1/2$ gives $2.4555$, and $F(6) = 0.98$ is probability of at least one renewal, which is another thing altogether. Reading curve through near misses in place of true crossings lands elsewhere too, $(6, 0.02)$ with $(8, 0.01)$ giving $3.64$, with $(10, 0.005)$ giving $3.13$, with $(15, 0.001)$ giving $2.50$ and with $(3, 0.2)$ giving $2.24$.
 
 Answer: $2.705$.
 
 ## Rubric
 
-- c1 (4 pts, final answer): Last line of response gives $2.705$, which is $E[N(6)] = 2.70496$ after rounding to 3 decimals as question asks for. Values which come from stopping too early are wrong here, and these are $2.750$ from coarse trapezoid at $h = 1$, $2.668$ from right-endpoint recursion at $h = 0.0625$, then $2.687$ and $2.792$ from two Richardson overshoots, $2.754$ from asymptotic expansion, $2.956$ from $t/E[X]$ and $2.895$ when $k$ was rounded to $3$.
-- c2 (1 pts): Response says which parameters it used and they are $k = 3.080$ with $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, because that law gives $2.8947$ which rounds to $2.895$.
-- c3 (2 pts): Response names its method and that method actually computes finite-time renewal function, so it is renewal equation $M = F + M * f$, or convolution series $\sum_j P(S_j \le t)$, or simulation of process. This law has no closed form, so giving $t/\mu$ or asymptotic expansion as the method loses this point even when number lands in range.
-- c4 (3 pts): Response shows third decimal has settled in one of four ways. It halves step at least twice with ratio of successive changes between 1.5 and 2.5 for first order or 3 and 5 for second order and last change under $0.0005$, or Richardson result agrees with finer run within $0.0005$, or two schemes agree within $0.0005$, or simulation gives 95 per cent confidence interval whose both ends round to same third decimal. Two values sitting close, with no order and no error estimate, earns nothing.
+- c1 (4 pts, final answer): Final answer is $2.705$, which is $E[N(6)] = 2.70496$ rounded to 3 decimals as question asks, and values which come of stopping too soon are wrong, these being $2.750$ from coarse trapezoid at $h = 1$, $2.668$ from right-endpoint recursion at $h = 0.0625$, $2.687$ and $2.792$ from two Richardson overshoots, $2.754$ from asymptotic expansion, $2.956$ from $t/E[X]$ and $2.895$ when $k$ was rounded to $3$.
+- c2 (1 pts): Response states parameters it used, and they are $k = 3.080$ and $\lambda = 1.696$ to 4 figures, as got from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$, and a response which rounds $k$ to $3$ loses this point, since that law gives $2.8947$, which rounds to $2.895$.
+- c3 (2 pts): Response names its method, and that method is one which really computes renewal function at finite time, either renewal equation $M = F + M * f$, convolution series $\sum_j P(S_j \le t)$ or simulation of process, so that giving $t/\mu$ or asymptotic expansion as method loses this point, even when number happens to come out near key, because this law has no closed form.
+- c4 (3 pts): Response shows third decimal has settled, either by halving step at least twice with ratio of successive changes between 1.5 and 2.5 for first order scheme or between 3 and 5 for second order and last change under $0.0005$, or by Richardson value agreeing with finer run within $0.0005$, or by two schemes agreeing within $0.0005$, or by simulation with 95 per cent confidence interval whose two ends round alike. One run at one step earns nothing.
 
 Common wrong answers: 2.750, 2.668, 2.754, 2.956, 2.895, 2.687, 2.792, 2.456
 
