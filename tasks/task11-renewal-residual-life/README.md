@@ -10,9 +10,9 @@ Figure is on logarithmic axes. It shows survival function $S(t) = P(X > t)$ for 
 
 Curve passes exactly through gridline crossings at two of labelled $t$ values, at $t = 6$ and $t = 20$. Those two crossings fix $\lambda$ and $k$.
 
-$N(t)$ counts renewals in $(0, t]$, process starts at time $0$. Find $E[N(6)]$ with the $\lambda$ and $k$ you read from figure. Give 4 significant figures.
+$N(t)$ counts renewals in $(0, t]$, process starts at time $0$. Find $E[N(6)]$ with the $\lambda$ and $k$ you read from figure.
 
-Neither parameter is round number so keep 4 figures on both. This quantity has no closed form and the coarse schemes are still several per cent out at a step you would pick on a first try, so refine the step or extrapolate until the 4th figure stops moving. State which scheme you used and the values it gave at each step. Last line of your response must be FINAL: and then number.
+Neither parameter is round number so keep at least 4 figures on both while you work. This quantity has no closed form and the usual coarse schemes are still several per cent out at a step you would pick on a first try, so your value has to be good to about half a per cent. Say which method you used and show why you trust it to that accuracy. Last line of your response must be FINAL: and then the number, 3 decimal places.
 
 ## Answer
 
@@ -42,15 +42,15 @@ Midpoint or lattice rule, arrival times rounded to nearest node, comes from abov
 
 Discrete renewal recursion is the one people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$. Each cell mass sits at right endpoint, every renewal gets delayed by up to $h$, so it comes from below at first order: $2.2395$, $2.4417$, $2.5644$, $2.6322$, $2.6679$ at same steps, all outside. At $h = 0.03125$ still $2.6863$. Richardson $2M(h/2) - M(h)$ fixes it earlier, $2.6870$ from pair $(0.5, 0.25)$ still outside, $2.7001$ from $(0.25, 0.125)$ inside.
 
-Grading interval is half per cent each side, kept out of the question on purpose. One run at one step proves nothing, the 4th figure has to be shown settled.
+Grading is half per cent each side, and the question asks for that accuracy without naming the range. One run at one step proves nothing, accuracy has to be shown.
 
 Check by other routes. Convolution series $M(t) = \sum_{j \ge 1} P(S_j \le t)$, each $P(S_j \le 6)$ by repeated numerical convolution of $f$, gives $2.70496$. Simulation of $400\,000$ paths gives $2.7068 \pm 0.0017$.
 
 Result.
 
-$M(6) = 2.70496$, so $2.705$ at 4 significant figures, inside $2.691$ to $2.718$.
+$M(6) = 2.70496$, so $2.705$ to 3 decimals, inside the accepted $2.691$ to $2.718$.
 
-4 figures on parameters is enough. $k = 3.080$ with $\lambda = 1.696$ gives $2.7050$. Nearby roundings $k = 3.08, \lambda = 1.70$ and $k = 3.1, \lambda = 1.70$ give $2.6980$ and $2.7011$, still inside.
+Keeping 4 figures on the parameters is enough. $k = 3.080$ with $\lambda = 1.696$ gives $2.7050$. Nearby roundings $k = 3.08, \lambda = 1.70$ and $k = 3.1, \lambda = 1.70$ give $2.6980$ and $2.7011$, still inside.
 
 Rounding $k$ to $3$ with $\lambda = 4^{1/3}$ looks attractive but breaks. That law has $S(6) = 0.0182$ against drawn $0.0200$, nine per cent gap, visible on log axis, and returns $M(6) = 2.8947$, outside.
 
@@ -62,18 +62,16 @@ Answer: $2.705$.
 
 ## Rubric
 
-- c1 (4 pts, final answer): Final value of $E[N(6)]$ lands in $2.691$ to $2.718$ inclusive, half per cent each side of true $2.70496$. The question does not give this interval, the solver has to converge its own scheme to reach it. Outside that interval is wrong, so coarse grid values $2.7496$ and $2.6679$ fail, extrapolated $2.6870$ and $2.7916$ fail, asymptotic $2.7535$ fails, $t/E[X] = 2.9555$ fails.
+- c1 (4 pts, final answer): Final value of $E[N(6)]$ is within half a per cent of $2.70496$, that is in $2.691$ to $2.718$, and the response reached it by a converged numerical method rather than by a guess or a closed-form formula. The question asks for half a per cent, not a fixed figure count, so any value in that range counts and nothing outside it does. $2.7496$, $2.6679$, $2.6870$, $2.7916$, $2.7535$ and $2.9555$ all fail.
 - c2 (1 pts): Response says which parameters it used and they are $k = 3.080$, $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, that law gives $2.8947$ which is outside interval.
-- c3 (2 pts): Response names its method and it is renewal equation $M = F + M * f$, or convolution series $\sum_j P(S_j \le t)$, or simulation. Not a closed form or asymptotic formula. Log-logistic renewal function has no closed form, so giving $t/\mu$ or asymptotic expansion as the method loses this point even when number happens to land inside interval.
-- c4 (3 pts): Response shows its scheme reached the 4th figure. Any one counts: a deterministic scheme at two or more steps with the value settling, an extrapolation of two steps, two methods that agree, or a simulation with a standard error near $0.003$ or below. One run at one step earns nothing, and so does a simulation with no uncertainty estimate, or a step too coarse for the scheme such as right-endpoint recursion at $h = 0.0625$, still at $2.6679$.
+- c3 (2 pts): Response names its method and it is one that actually computes the finite-time renewal function: the renewal equation $M = F + M * f$, the convolution series $\sum_j P(S_j \le t)$, or simulation of the process. This law has no closed form, so offering $t/\mu$ or the asymptotic expansion as the method loses this point even when the number lands in range.
+- c4 (3 pts): Response gives objective evidence for half a per cent accuracy, one of: two successive refinements whose values agree to within $0.013$ of each other, with the finer one reported; a Richardson extrapolation of two steps of a scheme whose order is stated; two different methods agreeing to within $0.013$; or a simulation with a reported standard error of $0.003$ or less. A single run at a single step, or any claim of convergence with no numbers shown, earns nothing.
 
 Common wrong answers: 2.7496, 2.6679, 2.7535, 2.9555, 2.8947, 2.6870, 2.7916, 2.4555
 
 ## References box
 
-This replaces the legacy reference text shown below the box, which belongs to an earlier version of this task. That older wording describes limiting residual life, a closed form answer, the Beta function and quadrature of the equilibrium residual-life density. None of that applies now. The question asks for the renewal function at finite time, $E[N(6)]$, which has no closed form for this law, and the attached notes verify it by numerical routes only. Ignore the legacy box.
-
-Renewal equation and renewal function: W. Feller, An Introduction to Probability Theory and Its Applications, vol. II, 2nd ed., Wiley, 1971, chapter XI. S. M. Ross, Stochastic Processes, 2nd ed., Wiley, 1996, sections 3.3 and 3.4, which derives the asymptotic expansion $M(t) = t/\mu + (\sigma^2 - \mu^2)/(2\mu^2) + o(1)$ and notes how slowly it comes in. Numerical solution of renewal equations by product integration: P. Linz, Analytical and Numerical Methods for Volterra Equations, SIAM, 1985, chapter 7. Moments of the log-logistic distribution through the Beta function: N. L. Johnson, S. Kotz and N. Balakrishnan, Continuous Univariate Distributions, vol. 2, 2nd ed., Wiley, 1995, chapter 23 (the Fisk distribution). Uploaded file verification_notes.txt gives the two gridline crossings the curve was drawn through, the distance from curve to nearest gridline at every other labelled abscissa, and solves $\lambda$ and $k$ from the crossings. It records that this law has no closed form renewal function, then computes $M(6)$ by three independent numerical routes, product integration of the renewal equation at four step sizes, the convolution series $\sum_j P(S_j \le 6)$ with convolutions done numerically, and a simulation of 400000 paths. After that it tables four discretisation schemes against the accepted interval, what each closed form shortcut returns, what rounding $k$ to $3$ does, and what each near miss reading of the figure would give. Program and its full output are at the end.
+Renewal equation and renewal function: W. Feller, An Introduction to Probability Theory and Its Applications, vol. II, 2nd ed., Wiley, 1971, chapter XI. S. M. Ross, Stochastic Processes, 2nd ed., Wiley, 1996, sections 3.3 and 3.4, which derives the asymptotic expansion $M(t) = t/\mu + (\sigma^2 - \mu^2)/(2\mu^2) + o(1)$ and notes how slowly it comes in. Numerical solution of renewal equations by product integration: P. Linz, Analytical and Numerical Methods for Volterra Equations, SIAM, 1985, chapter 7. The log-logistic law itself, with its mean through $(\pi/k)/\sin(\pi/k)$: N. L. Johnson, S. Kotz and N. Balakrishnan, Continuous Univariate Distributions, vol. 2, 2nd ed., Wiley, 1995, chapter 23 (the Fisk distribution). Uploaded file verification_notes.txt gives the two gridline crossings the curve was drawn through, the distance from curve to nearest gridline at every other labelled abscissa, and solves $\lambda$ and $k$ from the crossings. It records that this law has no closed form renewal function, then computes $M(6)$ by three independent numerical routes, product integration of the renewal equation at four step sizes, the convolution series $\sum_j P(S_j \le 6)$ with convolutions done numerically, and a simulation of 400000 paths. After that it tables four discretisation schemes against the accepted interval, what each closed form shortcut returns, what rounding $k$ to $3$ does, and what each near miss reading of the figure would give. Program and its full output are at the end.
 
 ## Verify field
 
