@@ -1,0 +1,13 @@
+iter 1000: length 56.41 reach 0.991 ratio 56.9
+iter 2000: length 53.60 reach 0.986 ratio 54.4
+iter 3000: length 52.15 reach 0.971 ratio 53.7
+iter 4000: length 51.92 reach 0.967 ratio 53.7
+iter 5000: length 51.88 reach 0.966 ratio 53.7
+iter 6000: length 51.86 reach 0.962 ratio 53.9
+iter 7000: length 51.86 reach 0.957 ratio 54.2
+iter 8000: length 51.89 reach 0.951 ratio 54.5
+iter 9000: length 51.94 reach 0.945 ratio 55.0
+iter 10000: length 52.02 reach 0.939 ratio 55.4
+iter 11000: length 52.10 reach 0.934 ratio 55.8
+iter 12000: length 52.20 reach 0.932 ratio 56.0
+after tightening: crossings in z-projection 6 still 5_2: True

@@ -1,0 +1,13 @@
+== axis curve in the figure's view
+crossings: 12  Gauss word: 1U 2O 3U 4O 5U 6U 7U 8U 9O 10U 4U 11U 6O 7O 12U 1O 2U 9U 10O 3O 11O 5O 8O 12O
+determinant: 7  Alexander: 2*t**2 - 3*t + 2  Jones: +1t^1 -1t^2 +2t^3 -1t^4 +1t^5 -1t^6
+== full chain with closure in the same view
+crossings: 41  on the closure segment: 0
+  t = 2: |Alexander(chain)| = 33554432, |Alexander(axis)| = 128, ratio t^18
+  t = 3: |Alexander(chain)| = 1035574967097, |Alexander(axis)| = 2673, ratio t^18
+  t = 5: |Alexander(chain)| = 441074371337890625, |Alexander(axis)| = 115625, ratio t^18
+  t = 7: |Alexander(chain)| = 2162131039866392391097, |Alexander(axis)| = 1327753, ratio t^18
+Alexander polynomials agree up to a unit: True  determinant of the chain diagram: 7
+== isotopy margin
+axis clearance 9.2 A, largest C-alpha offset from the axis 2.33 A, margin 4.5 A
+The backbone is the knot 5_2. Crossing number 5. KEY = 5

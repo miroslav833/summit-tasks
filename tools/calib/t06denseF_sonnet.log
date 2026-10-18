@@ -1,0 +1,5 @@
+done #2 59s answer=5
+done #1 65s answer=5
+t06denseF_sonnet #2: answer=5 stop=end_turn out_tokens=6649 thinking=5562 59s RIGHT
+t06denseF_sonnet #1: answer=5 stop=end_turn out_tokens=7583 thinking=6667 65s RIGHT
+t06denseF_sonnet: correct 2/2, cut-offs 0 (cap 128000)

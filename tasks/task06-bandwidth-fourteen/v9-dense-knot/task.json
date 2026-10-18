@@ -1,0 +1,68 @@
+{
+  "schema_version": "summit-task-package-v1",
+  "task": {
+    "domain": "mathematics",
+    "subdomain": "Low-dimensional topology: knot theory, identification of the knot type of a closed space curve (protein backbone)",
+    "modality": "image_reference",
+    "taskType": "image_multistep_discrete_reasoning",
+    "imageCreationTool": "matplotlib and numpy (own z-buffer tube renderer of a constructed C-alpha trace)",
+    "imageNecessityExplanation": "The structure exists only in the figure. The path of the chain, which parts pass in front of which, and the positions of the termini are not given in the text, and the knot type depends on them.",
+    "questionText": "The figure shows the $C_\\alpha$ backbone of a $200$-residue protein as returned by a structure prediction model, drawn as a smooth tube coloured from blue at the N terminus to red at the C terminus; helical segments appear as coils. The drawing is a projection of the three-dimensional structure. Where one part of the chain passes in front of another part, the part behind is interrupted. The two termini lie on the outside of the structure, and the dashed segment joins them; it closes the chain into a closed curve and adds no crossing.\n\nThe closed curve is a knot. What is the minimal crossing number of this knot, that is, the smallest number of crossings in any diagram of its knot type? Give a single integer.",
+    "answerType": "exact_match",
+    "finalAnswer": [
+      "5"
+    ],
+    "acceptableAnswerVariants": [
+      "$5$",
+      "crossing number 5",
+      "five"
+    ],
+    "multipleChoiceOptions": [],
+    "answerPrecision": {
+      "kind": "none"
+    },
+    "solution": "Step 1: Reduce the drawing to the path of the chain.\nThe chain runs from the N terminus (blue) to the C terminus (red) through 8 helices and 5 strands joined by loops. Crossings between consecutive turns of one helix, and crossings of a loop with its own neighbouring residues, never change the knot type, because each helix is an unknotted coil that can be straightened to its axis without passing through any other part of the chain, because the chain never comes closer to another part than a helix diameter. So replace every helix by its axis and every strand and loop by a smooth line through it, and keep only the crossings between different parts of the chain. The dashed closure adds no crossing.\n\nStep 2: Record the remaining crossings.\nFollowing the chain from N to C in the drawing, 12 crossings between different parts remain, with the part in front read from the gaps in the tube. The yellow helix around residue 133 passes over the dark blue loop around residue 3, sign $+1$. The dark blue helix around residue 17 passes over the orange loop around residue 144, sign $+1$. The orange helix around residue 162 passes over the dark blue strand around residue 24, sign $+1$. The blue strand around residue 25 passes over the cyan strand around residue 67, sign $-1$. The red helix around residue 168 passes over the blue strand around residue 26, sign $-1$. The green helix around residue 81 passes over the blue loop around residue 30, sign $-1$. The green loop around residue 92 passes over the blue helix around residue 41, sign $+1$. The red helix around residue 175 passes over the blue loop around residue 47, sign $+1$. The cyan loop around residue 63 passes over the orange strand around residue 147, sign $+1$. The orange loop around residue 157 passes over the cyan loop around residue 65, sign $+1$. The orange helix around residue 164 passes over the cyan strand around residue 68, sign $-1$. The red strand around residue 192 passes over the yellow loop around residue 126, sign $+1$. Numbering the crossings in the order of the first visit gives the Gauss word 1U 2O 3U 4O 5U 6U 7U 8U 9O 10U 4U 11U 6O 7O 12U 1O 2U 9U 10O 3O 11O 5O 8O 12O (O over, U under), which is the diagram of a single closed curve with 12 crossings.\n\nStep 3: Compute an invariant from the diagram.\nLabel the 12 arcs between consecutive undercrossings and write, for each crossing, the colouring relation $2a_{\\rm over} = a_{\\rm in} + a_{\\rm out}$. Dropping one relation and one arc and taking the determinant gives the knot determinant $7$. The Alexander polynomial from the same crossing data (Fox calculus with the crossing signs listed above) is $\\Delta(t) = 2t^2 - 3t + 2$.\n\nStep 4: Identify the knot and its crossing number.\nA knot with at most four crossings is the unknot, the trefoil or the figure-eight knot, with determinants $1$, $3$ and $5$. Determinant $7$ excludes all three, so the crossing number is at least $5$. The only knots with five crossings are $5_1$ (determinant $5$, $\\Delta = t^4 - t^3 + t^2 - t + 1$) and $5_2$ (determinant $7$, $\\Delta = 2t^2 - 3t + 2$), and the diagram of Step 2 reduces to the standard five-crossing diagram of $5_2$ (the Jones polynomial of the diagram, $t - t^2 + 2t^3 - t^4 + t^5 - t^6$, is that of $5_2$, and the Jones polynomial separates all knots with at most nine crossings). The backbone forms the knot $5_2$, the knot type of the ubiquitin hydrolase UCH-L3 family, and its minimal crossing number is $5$.\n\nAnswer: $5$.",
+    "references": "For knot types of proteins and the reduction of a backbone to a knot diagram see W. R. Taylor, A deeply knotted protein structure and how it might fold, Nature 406 (2000), 916-919, and M. Jamroz, W. Niemyska, E. J. Rawdon, A. Stasiak, K. C. Millett, P. Sulkowski and J. I. Sulkowska, KnotProt: a database of proteins with knots and slipknots, Nucleic Acids Research 43 (2015), D306-D314. The $5_2$ knot of the ubiquitin hydrolase UCH-L3 is PDB entry 1XD3. Knot tables with determinants, Alexander and Jones polynomials are in D. Rolfsen, Knots and Links, AMS Chelsea, 2003, Appendix C, and the KnotInfo table (knotinfo.math.indiana.edu). Fox colourings and the determinant are explained in R. H. Fox, A quick trip through knot theory, in Topology of 3-manifolds, Prentice-Hall, 1962. The uploaded file verification_notes.txt gives the construction of the backbone (axis curve, helices, strands and loops with coordinates), the coarse-grained diagram in the view of the figure with every crossing located on the chain, the determinant, Alexander and Jones polynomials computed from that diagram, and an independent check from the full 200-residue chain in the same projection (its Alexander polynomial agrees with the axis curve's). The programs are embedded with their output.",
+    "rubric": {
+      "criteria": [
+        {
+          "id": "c1",
+          "description": "Gives $5$.",
+          "points": 5,
+          "isFinalAnswer": true
+        },
+        {
+          "id": "c2",
+          "description": "Reduces the drawing to a knot diagram by replacing helices by their axes and keeping only the crossings between different parts of the chain, and computes an invariant of that diagram (determinant $7$, Alexander polynomial $2t^2 - 3t + 2$, or an equivalent) that shows the knot is not the unknot, trefoil or figure-eight knot.",
+          "points": 2,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c3",
+          "description": "Identifies the knot as $5_2$ (not $5_1$, not a trefoil) and justifies the crossing number, at least $5$ because the determinant is not $1$, $3$ or $5$, and at most $5$ because the diagram reduces to, or the invariants match, the five-crossing knot $5_2$.",
+          "points": 2,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c4",
+          "description": "States that crossings inside a single helix and the dashed closure do not affect the knot type.",
+          "points": 1,
+          "isFinalAnswer": false
+        }
+      ],
+      "commonWrongAnswers": [
+        "3",
+        "0",
+        "41",
+        "6"
+      ]
+    },
+    "image": {
+      "entry": "image.png"
+    },
+    "referenceFile": {
+      "entry": "reference.txt",
+      "fileName": "verification_notes.txt"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+done #1 600s answer=None
+done #3 600s answer=None
+done #5 600s answer=None
+done #4 600s answer=None
+done #2 600s answer=None
+t06dense #1: answer=None stop=timeout out_tokens=1000000000 thinking=None 600s CUT
+t06dense #3: answer=None stop=timeout out_tokens=1000000000 thinking=None 600s CUT
+t06dense #5: answer=None stop=timeout out_tokens=1000000000 thinking=None 600s CUT
+t06dense #4: answer=None stop=timeout out_tokens=1000000000 thinking=None 600s CUT
+t06dense #2: answer=None stop=timeout out_tokens=1000000000 thinking=None 600s CUT
+t06dense: correct 0/5, cut-offs 5 (cap 128000)

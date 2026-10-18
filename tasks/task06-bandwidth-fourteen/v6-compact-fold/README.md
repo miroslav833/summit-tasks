@@ -1,0 +1,5 @@
+# task06 v6: compact lattice fold (3x3x3 HP model), abandoned before screening
+
+Built 2026-10-18 evening as the fallback after the v5 knot came back too easy. Idea: the Sali, Shakhnovich and Karplus compact 27-mer on the 3x3x3 cube; the figure shows one compact conformation with H and P beads (exploded three-layer 3D view, work/draw_cube.py), the question asks for the minimum number of H-H contacts over all 103,346 compact conformations. work/enum_cube.py enumerates all compact conformations (103,346 up to the 48 cube symmetries, direction kept, 28 contacts each, saved in work/cube_paths.npz). work/design_seq.py and design_seq2.py search sequences where the parity and site-degree bound (odd positions on the 14 corner and face sites, even positions on the 12 edge sites and the centre) is tight or off by one and the optimum is unique.
+
+Dropped the same evening when the owner set the rule that a task the solver cannot finish within ten minutes is a bad task: the decisive step here is a search over compact folds, which is exactly the shape that produces cut-offs. The enumeration and the renderer are kept for a possible counting or verification question later.

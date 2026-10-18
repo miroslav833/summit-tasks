@@ -1,0 +1,34 @@
+== figure diagram
+crossings in the figure: 12, writhe -2
+smallest distance between two crossings: 0.071 of the figure width; smallest crossing angle 20.9 degrees; smallest depth separation 0.021 of width
+  crossing  1 at (-1.984,-2.385) sign +1
+  crossing  2 at (-1.202,-2.894) sign +1
+  crossing  3 at (+0.567,-2.646) sign +1
+  crossing  4 at (+2.937,-0.216) sign -1
+  crossing  5 at (-1.916,+2.149) sign -1
+  crossing  6 at (-2.348,+1.314) sign -1
+  crossing  7 at (-2.823,-0.245) sign +1
+  crossing  8 at (-0.425,-3.794) sign +1
+  crossing  9 at (+0.150,-3.427) sign -1
+  crossing 10 at (+2.142,+2.147) sign -1
+  crossing 11 at (+1.793,+2.647) sign -1
+  crossing 12 at (+0.559,+2.819) sign -1
+Alexander polynomial: t**4 - 2*t**3 + 3*t**2 - 2*t + 1
+determinant: 9  Fox 3-colourings: 9
+Jones polynomial: -1t^-5 +1t^-4 -1t^-3 +2t^-2 -1t^-1 +2t^0 -1t^1
+
+== reference diagrams (planar closed braids)
+8_20 as closed braid: 8 crossings, Alexander t**4 - 2*t**3 + 3*t**2 - 2*t + 1, det 9, 3-colourings 9, Jones -1t^-5 +1t^-4 -1t^-3 +2t^-2 -1t^-1 +2t^0 -1t^1
+granny 3_1 # 3_1: 6 crossings, Alexander t**4 - 2*t**3 + 3*t**2 - 2*t + 1, det 9, 3-colourings 27, Jones +1t^2 +2t^4 -2t^5 +1t^6 -2t^7 +1t^8
+square 3_1 # 3_1*: 6 crossings, Alexander t**4 - 2*t**3 + 3*t**2 - 2*t + 1, det 9, 3-colourings 27, Jones -1t^-3 +1t^-2 -1t^-1 +3t^0 -1t^1 +1t^2 -1t^3
+trefoil 3_1: 3 crossings, Alexander t**2 - t + 1, det 3, 3-colourings 9, Jones +1t^1 +1t^3 -1t^4
+
+== checks
+Alexander polynomial of the figure equals that of 8_20, granny and square: True
+Jones of the figure equals Jones of the closed braid 8_20: True
+Jones of the figure equals KnotInfo 8_20 (either chirality): True
+Jones differs from granny and square: True
+3-colourings: figure 9  granny 27  square 27
+
+The closed backbone is the knot 8_20. Its crossing number is 8 (KnotInfo; 8_20 is a prime, non-alternating
+knot, the diagram in the figure has 12 crossings and is not minimal). KEY = 8

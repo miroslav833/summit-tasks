@@ -1,0 +1,18 @@
+== the figure
+crossings: 12  writhe: 6
+Gauss word (crossing, O/U): 1O 2U 3O 4U 5O 1U 2O 3U 4O 5U 6O 7U 8O 9U 10O 11U 7O 8U 12O 10U 11O 12U 9O 6U
+alternating: True  nugatory crossings: [6]
+Jones: -1t^-1 +2t^0 -3t^1 +6t^2 -7t^3 +10t^4 -10t^5 +9t^6 -8t^7 +5t^8 -3t^9 +1t^10  span: 11  determinant: 65
+
+== the same construction with a straight neck (the nugatory crossing removed)
+crossings: 11  alternating: True  nugatory: []  Jones span: 11  determinant: 65
+
+== the two summands from their closed braids
+5_1: crossings 5 alternating True reduced True det 5 Jones +1t^2 +1t^4 -1t^5 +1t^6 -1t^7
+6_3: crossings 6 alternating True reduced True det 13 Jones -1t^-3 +2t^-2 -2t^-1 +3t^0 -2t^1 +2t^2 -1t^3
+Jones(figure) = V(5_1) V(6_3) up to mirror: True
+
+== checks
+12 crossings, alternating, one nugatory crossing; after removing it 11 crossings, alternating, reduced.
+Reduced alternating diagrams are minimal (Kauffman, Murasugi, Thistlethwaite 1987), so c(K) = 11. KEY = 11
+The naive count of the drawn crossings gives 12, the expected wrong answer.

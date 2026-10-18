@@ -1,0 +1,6 @@
+t06v9c #1: answer=None stop=timeout out_tokens=1000000000 thinking=None 1800s CUT
+t06v9c #2: answer=5 stop=end_turn out_tokens=125919 thinking=124670 1077s RIGHT
+t06v9c #3: answer=5 stop=end_turn out_tokens=110864 thinking=109434 981s RIGHT
+t06v9c #4: answer=None stop=timeout out_tokens=1000000000 thinking=None 1800s CUT
+t06v9c #5: answer=None stop=timeout out_tokens=1000000000 thinking=None 1800s CUT
+t06v9c: correct 2/5, cut-offs 3 (cap 128000)

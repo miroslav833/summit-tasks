@@ -1,0 +1,207 @@
+{
+ "view": [
+  -0.29218137756801177,
+  -2.299383830896993,
+  -0.608759060011907
+ ],
+ "crossings": [
+  {
+   "id": 1,
+   "over": 133,
+   "under": 3,
+   "sign": 1,
+   "over_kind": [
+    "helix",
+    128,
+    139
+   ],
+   "under_kind": [
+    "loop",
+    1,
+    6
+   ]
+  },
+  {
+   "id": 2,
+   "over": 17,
+   "under": 144,
+   "sign": 1,
+   "over_kind": [
+    "helix",
+    7,
+    17
+   ],
+   "under_kind": [
+    "loop",
+    140,
+    144
+   ]
+  },
+  {
+   "id": 3,
+   "over": 162,
+   "under": 24,
+   "sign": 1,
+   "over_kind": [
+    "helix",
+    159,
+    168
+   ],
+   "under_kind": [
+    "strand",
+    21,
+    28
+   ]
+  },
+  {
+   "id": 4,
+   "over": 25,
+   "under": 67,
+   "sign": -1,
+   "over_kind": [
+    "strand",
+    21,
+    28
+   ],
+   "under_kind": [
+    "strand",
+    66,
+    70
+   ]
+  },
+  {
+   "id": 5,
+   "over": 168,
+   "under": 26,
+   "sign": -1,
+   "over_kind": [
+    "helix",
+    159,
+    168
+   ],
+   "under_kind": [
+    "strand",
+    21,
+    28
+   ]
+  },
+  {
+   "id": 6,
+   "over": 81,
+   "under": 30,
+   "sign": -1,
+   "over_kind": [
+    "helix",
+    75,
+    91
+   ],
+   "under_kind": [
+    "loop",
+    29,
+    31
+   ]
+  },
+  {
+   "id": 7,
+   "over": 92,
+   "under": 41,
+   "sign": 1,
+   "over_kind": [
+    "loop",
+    92,
+    95
+   ],
+   "under_kind": [
+    "helix",
+    32,
+    43
+   ]
+  },
+  {
+   "id": 8,
+   "over": 175,
+   "under": 47,
+   "sign": 1,
+   "over_kind": [
+    "helix",
+    175,
+    185
+   ],
+   "under_kind": [
+    "loop",
+    44,
+    48
+   ]
+  },
+  {
+   "id": 9,
+   "over": 63,
+   "under": 147,
+   "sign": 1,
+   "over_kind": [
+    "loop",
+    61,
+    65
+   ],
+   "under_kind": [
+    "strand",
+    145,
+    152
+   ]
+  },
+  {
+   "id": 10,
+   "over": 157,
+   "under": 65,
+   "sign": 1,
+   "over_kind": [
+    "loop",
+    153,
+    158
+   ],
+   "under_kind": [
+    "loop",
+    61,
+    65
+   ]
+  },
+  {
+   "id": 11,
+   "over": 164,
+   "under": 68,
+   "sign": -1,
+   "over_kind": [
+    "helix",
+    159,
+    168
+   ],
+   "under_kind": [
+    "strand",
+    66,
+    70
+   ]
+  },
+  {
+   "id": 12,
+   "over": 192,
+   "under": 126,
+   "sign": 1,
+   "over_kind": [
+    "strand",
+    189,
+    195
+   ],
+   "under_kind": [
+    "loop",
+    122,
+    127
+   ]
+  }
+ ],
+ "gauss": "1U 2O 3U 4O 5U 6U 7U 8U 9O 10U 4U 11U 6O 7O 12U 1O 2U 9U 10O 3O 11O 5O 8O 12O",
+ "writhe": 4,
+ "det": 7,
+ "alexander": "2*t**2 - 3*t + 2",
+ "jones": "+1t^1 -1t^2 +2t^3 -1t^4 +1t^5 -1t^6",
+ "nugatory": []
+}

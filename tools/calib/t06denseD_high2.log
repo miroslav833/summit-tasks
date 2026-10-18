@@ -1,0 +1,5 @@
+done #1 485s answer=3
+done #2 677s answer=5
+t06denseD_high2 #1: answer=3 stop=end_turn out_tokens=43759 thinking=42842 485s WRONG
+t06denseD_high2 #2: answer=5 stop=end_turn out_tokens=61937 thinking=61069 677s RIGHT
+t06denseD_high2: correct 1/2, cut-offs 0 (cap 100000)

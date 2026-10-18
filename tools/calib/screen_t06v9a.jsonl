@@ -1,0 +1,5 @@
+{"label": "t06v9a", "attempt": 1, "stop": "timeout", "out_tokens": 1000000000, "thinking": null, "seconds": 1800, "answer": null, "error": false, "tail": "killed at timeout: still thinking past the Summit-size budget"}
+{"label": "t06v9a", "attempt": 2, "stop": "timeout", "out_tokens": 1000000000, "thinking": null, "seconds": 1800, "answer": null, "error": false, "tail": "killed at timeout: still thinking past the Summit-size budget"}
+{"label": "t06v9a", "attempt": 3, "stop": "timeout", "out_tokens": 1000000000, "thinking": null, "seconds": 1800, "answer": null, "error": false, "tail": "killed at timeout: still thinking past the Summit-size budget"}
+{"label": "t06v9a", "attempt": 4, "stop": "timeout", "out_tokens": 1000000000, "thinking": null, "seconds": 1800, "answer": null, "error": false, "tail": "killed at timeout: still thinking past the Summit-size budget"}
+{"label": "t06v9a", "attempt": 5, "stop": "timeout", "out_tokens": 1000000000, "thinking": null, "seconds": 1800, "answer": null, "error": false, "tail": "killed at timeout: still thinking past the Summit-size budget"}

@@ -1,0 +1,3 @@
+t06knot_sonnet #1: answer=8 stop=end_turn out_tokens=36224 thinking=35586 282s RIGHT
+t06knot_sonnet #2: answer=8 stop=end_turn out_tokens=26579 thinking=25735 201s RIGHT
+t06knot_sonnet: correct 2/2, cut-offs 0 (cap 128000)

@@ -1,0 +1,3 @@
+The figure shows the $C_\alpha$ backbone of a protein structure returned by a structure prediction model. The chain is drawn as a tube from the N terminus to the C terminus, coloured from blue at the N terminus to red at the C terminus. Where one part of the chain passes in front of another part, the part behind is interrupted. Both termini lie on the outside of the structure, and the dashed segment joins them; it closes the chain into a closed curve and adds no crossing.
+
+The closed curve is a knot. What is the minimal crossing number of this knot, that is, the smallest number of crossings in any diagram of its knot type? Give a single integer.

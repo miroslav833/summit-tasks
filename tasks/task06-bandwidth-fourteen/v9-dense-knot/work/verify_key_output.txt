@@ -1,0 +1,20 @@
+residues: 200  view: [-0.2922, -2.2994, -0.6088]
+secondary structure: loop 1-6, helix 7-17, loop 18-20, strand 21-28, loop 29-31, helix 32-43, loop 44-48, helix 49-60, loop 61-65, strand 66-70, loop 71-74, helix 75-91, loop 92-95, helix 96-110, loop 111-113, strand 114-121, loop 122-127, helix 128-139, loop 140-144, strand 145-152, loop 153-158, helix 159-168, loop 169-174, helix 175-185, loop 186-188, strand 189-195, loop 196-198, loop 199-200
+C-alpha spacing 3.04-3.95 A, smallest non-bonded distance 4.03 A
+
+== 1. axis curve
+crossings in the z-projection: 6  determinant: 7  Jones: +1t^1 -1t^2 +2t^3 -1t^4 +1t^5 -1t^6  equals 5_2: True
+axis clearance 9.2 A, chain offset from the axis at most 2.3 A: isotopy margin 4.6 A
+
+== 2. the drawn chain with its closure
+crossings in the drawing: 41  on the closure segment: 0  between parts more than six residues apart: 26
+smallest depth separation at those crossings: 7.01 A, smallest crossing angle 22.2 degrees
+  t = 2: |Alexander(chain)| = 33554432, |Alexander(axis)| = 8, ratio t^22
+  t = 3: |Alexander(chain)| = 1035574967097, |Alexander(axis)| = 33, ratio t^22
+  t = 5: |Alexander(chain)| = 441074371337890625, |Alexander(axis)| = 185, ratio t^22
+  t = 7: |Alexander(chain)| = 2162131039866392391097, |Alexander(axis)| = 553, ratio t^22
+Alexander polynomials agree up to a unit: True  determinant of the chain diagram: 7
+
+== checks
+The closed backbone is the knot 5_2; its crossing number is 5. KEY = 5
+Expected wrong answers: 3 (trefoil assumed), 0 (unknot), the number of crossings drawn (41).

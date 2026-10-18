@@ -1,0 +1,5 @@
+done #2 38s answer=32
+done #1 49s answer=32
+t06nmr_sonnet #2: answer=32 stop=end_turn out_tokens=4495 thinking=3632 38s RIGHT
+t06nmr_sonnet #1: answer=32 stop=end_turn out_tokens=5639 thinking=4642 49s RIGHT
+t06nmr_sonnet: correct 2/2, cut-offs 0 (cap 128000)

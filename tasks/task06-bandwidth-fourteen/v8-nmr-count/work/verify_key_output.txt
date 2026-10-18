@@ -1,0 +1,49 @@
+atoms: 36  restraint pairs: [(1, 6), (3, 8), (6, 11), (8, 13), (10, 15), (13, 18), (15, 20), (17, 22), (20, 25), (22, 27), (24, 29), (27, 32), (29, 34), (31, 36)]
+consecutive C-alpha distances: min 3.69 max 4.09 A
+smallest non-bonded distance: 3.90 A
+restraint distances (A): [8.6, 8.7, 8.6, 8.1, 9.8, 9.2, 8.9, 8.5, 8.3, 6.7, 12.9, 7.0, 8.7, 8.6]
+
+== Route A: branch and prune
+complete conformations found: 32
+all pairs of solutions differ (largest coordinate difference at least 7.03 A)
+smallest violation of a restraint by a rejected candidate: 0.012 A (general position holds)
+
+== Route B: free reflection vertices
+  vertex  4: free
+  vertex  5: fixed by (1,6)
+  vertex  6: fixed by (1,6)
+  vertex  7: fixed by (3,8)
+  vertex  8: fixed by (3,8)
+  vertex  9: free
+  vertex 10: fixed by (6,11)
+  vertex 11: fixed by (6,11)
+  vertex 12: fixed by (8,13)
+  vertex 13: fixed by (8,13)
+  vertex 14: fixed by (10,15)
+  vertex 15: fixed by (10,15)
+  vertex 16: free
+  vertex 17: fixed by (13,18)
+  vertex 18: fixed by (13,18)
+  vertex 19: fixed by (15,20)
+  vertex 20: fixed by (15,20)
+  vertex 21: fixed by (17,22)
+  vertex 22: fixed by (17,22)
+  vertex 23: free
+  vertex 24: fixed by (20,25)
+  vertex 25: fixed by (20,25)
+  vertex 26: fixed by (22,27)
+  vertex 27: fixed by (22,27)
+  vertex 28: fixed by (24,29)
+  vertex 29: fixed by (24,29)
+  vertex 30: free
+  vertex 31: fixed by (27,32)
+  vertex 32: fixed by (27,32)
+  vertex 33: fixed by (29,34)
+  vertex 34: fixed by (29,34)
+  vertex 35: fixed by (31,36)
+  vertex 36: fixed by (31,36)
+free vertices: [4, 9, 16, 23, 30] -> 2^5 = 32
+
+== checks
+Route A and Route B agree. KEY = 32
+naive count 2^(n-3-m) = 2^(19) = 524288 (wrong); 2^(n-3) = 8589934592 (wrong)

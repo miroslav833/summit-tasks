@@ -1,0 +1,5 @@
+done #1 188s answer=5
+done #2 190s answer=3
+t06dense_sonnet #1: answer=5 stop=end_turn out_tokens=22699 thinking=22210 188s RIGHT
+t06dense_sonnet #2: answer=3 stop=end_turn out_tokens=23235 thinking=22395 190s WRONG
+t06dense_sonnet: correct 1/2, cut-offs 0 (cap 128000)

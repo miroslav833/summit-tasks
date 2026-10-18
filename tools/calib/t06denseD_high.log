@@ -1,0 +1,7 @@
+done #2 280s answer=3
+done #1 345s answer=5
+done #3 629s answer=5
+t06denseD_high #2: answer=3 stop=end_turn out_tokens=25904 thinking=24945 280s WRONG
+t06denseD_high #1: answer=5 stop=end_turn out_tokens=32214 thinking=31190 345s RIGHT
+t06denseD_high #3: answer=5 stop=end_turn out_tokens=62890 thinking=61952 629s RIGHT
+t06denseD_high: correct 2/3, cut-offs 0 (cap 128000)
