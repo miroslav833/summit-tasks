@@ -67,6 +67,15 @@ of the bound; Sonnet cut off. 6 columns, key 11 with a half-integral bound and f
 cut-off, Sonnet 13. The window between is what the search_ca5 filter (LP integrality gap, so the bound has no
 tight structure to construct from) is for.
 
+## M/G/1 queue read from a plot (added 2026-10-17, measured on task08, closed)
+
+Weibull service-time survival curve on log-log axes with a 1-2-5 grid, passing exactly through two gridline crossings;
+key the standard deviation of the steady-state waiting time (Pollaczek-Khinchine mean plus Takacs second moment), four
+routes in tasks/task08-fractional-chromatic-number/work/mg1-v2/verify_key.py. Two figures, nearest misses 16 to 25
+percent: Opus 6/6 (with and without a hint) and Sonnet 2/2, every run in 30 to 40 s. The Takacs formula is recalled by
+Sonnet, and a clean full-resolution figure lets both models separate an exact crossing from a 16 percent miss. The
+plot lever alone does not carry a question; it worked on task11 only through invented gridlines.
+
 ## Shapes already burned
 
 - Dessins d'enfants and Shabat polynomials at 9 to 12 edges: Opus solves on the first try (task01, task02).

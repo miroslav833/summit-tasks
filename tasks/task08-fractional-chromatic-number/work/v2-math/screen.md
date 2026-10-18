@@ -1,0 +1,3 @@
+Revision (20 vertices, key 35/11). Opus 0/1: the run hit the 64k output-token ceiling without an answer (cut-off; its reply began with reading the figure and never reached a final line). Sonnet 0/1 (answered 19/6, 61 min, 135k tokens): read all 40 edges correctly, found the twelve triangles, alpha = 7 and chi = 4, then the vertex-deleted bound 19/6 (weight 0 on vertex 3, 1/6 on the other nineteen) and declared it tight.
+
+Original 12-vertex version (key 13/4), kept in work/v1: Opus 1/1 correct (10.5 min, 64k tokens); Sonnet 0/1 (answered 3 after misreading a crossing). Summit verdict on it: too easy, failed at the weaker-model probe (Sonnet 2/3 correct).

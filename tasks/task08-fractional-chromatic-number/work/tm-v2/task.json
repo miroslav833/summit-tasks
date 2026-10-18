@@ -1,0 +1,68 @@
+{
+  "schema_version": "summit-task-package-v1",
+  "task": {
+    "domain": "engineering",
+    "subdomain": "Materials testing: design of a fatigue test programme (pairwise covering test matrices with constraints)",
+    "modality": "image_reference",
+    "taskType": "image_multistep_discrete_reasoning",
+    "imageCreationTool": "matplotlib (original table figure of the factors, levels and unavailable combinations)",
+    "imageNecessityExplanation": "The factors, their levels and above all the seven unavailable level combinations are given only in the figure; the minimum number of specimens depends on exactly which combinations are unavailable (without them the answer would be 9, and other sets of seven give 10, 11 or 12 with many or few optimal programmes).",
+    "questionText": "A fatigue test programme on metal injection moulded Ti-6Al-7Nb varies the five factors listed in the figure, each at three levels: the powder, the specimen geometry, the space-holder content, the oxygen content and the load ratio. Every specimen is made and tested at one level of each factor. The seven level combinations listed in the lower table of the figure are not available; a specimen containing any of them cannot be made or tested.\n\nThe programme must cover every admissible pair of levels of two different factors, which is to say that for any two factors and any level of the first with any level of the second, unless that combination is one of the seven unavailable ones, at least one specimen must carry both levels. No other requirement is imposed.\n\nFind the smallest number of specimens with which this can be done. Give a single integer.",
+    "answerType": "exact_match",
+    "finalAnswer": [
+      "10"
+    ],
+    "acceptableAnswerVariants": [
+      "$10$",
+      "10 specimens",
+      "ten"
+    ],
+    "multipleChoiceOptions": [],
+    "answerPrecision": {
+      "kind": "none"
+    },
+    "solution": "Step 1: Set up the counting objects.\nWrite the factors as $A$ (powder), $B$ (specimen geometry), $C$ (space-holder content), $D$ (oxygen content), $E$ (load ratio), with levels $0, 1, 2$ in the order of the figure, so that the unavailable combinations are $A_0E_1$, $A_1B_0$, $A_1C_2$, $A_2B_1$, $B_1C_1$, $B_1D_1$ and $D_0E_0$. A specimen is a choice of one level per factor containing none of them; there are $105$ admissible specimens. The pairs to be covered are the $90 - 7 = 83$ admissible level pairs. Each specimen carries exactly one level pair for each of the ten factor pairs.\n\nStep 2: The bound that comes first, and why it is not the answer.\nThe factor pairs $AD$, $BE$, $CD$ and $CE$ keep all $9$ of their level pairs, and one specimen covers one level pair of a given factor pair, so at least $9$ specimens are needed. Nine specimens would have to form an orthogonal array on each of these factor pairs at once, and the unavailable combinations make that impossible, as the next step shows in a way that counts.\n\nStep 3: Lower bound $10$.\nCall two admissible level pairs incompatible if no admissible specimen contains both. Consider the ten pairs\n$$A_0D_0,\\ A_0D_1,\\ A_0D_2,\\ A_1E_0,\\ A_1E_2,\\ A_2E_0,\\ A_2E_2,\\ B_0E_1,\\ B_1E_1,\\ B_2E_1 .$$\nThey are pairwise incompatible: the three $A_0D_m$ disagree on $D$ with one another and on $A$ with the $A_1E_n$ and $A_2E_n$; the $A_1E_n$ and $A_2E_n$ disagree on $A$ or on $E$ with one another; the three $B_jE_1$ disagree on $B$ with one another and on $E$ with the $A_1E_n$ and $A_2E_n$ (which have $n \\in \\{0, 2\\}$); and $A_0D_m$ with $B_jE_1$ would put $A_0$ and $E_1$ in one specimen, which is unavailable. In words: the TiH$_2$ specimens must appear with all three oxygen levels, so there are at least three of them; the HDH and the gas-atomised specimens must each appear with the load ratios $-1$ and $0.5$, so there are at least two of each; and the load ratio $0.1$ must appear with all three geometries, on three further specimens, none of which can use TiH$_2$ powder and none of which is among the HDH or gas-atomised specimens just counted, since those carry other load ratios. That is $3 + 2 + 2 + 3 = 10$ specimens at least.\n\nStep 4: Upper bound $10$, the decisive step.\nThe ten specimens\n$A_0B_0C_1D_0E_2$, $A_0B_1C_2D_2E_0$, $A_0B_2C_0D_1E_2$, $A_1B_1C_0D_0E_1$, $A_1B_1C_0D_2E_2$, $A_1B_2C_1D_1E_0$, $A_2B_0C_0D_2E_0$, $A_2B_0C_2D_1E_1$, $A_2B_2C_1D_2E_1$, $A_2B_2C_2D_0E_2$\nare all admissible (none contains $A_0E_1$, $A_1B_0$, $A_1C_2$, $A_2B_1$, $B_1C_1$, $B_1D_1$ or $D_0E_0$). Listing the level pairs they carry, factor pair by factor pair: $AB$ gives $A_0B_0$, $A_0B_1$, $A_0B_2$, $A_1B_1$ (twice), $A_1B_2$, $A_2B_0$ (twice), $A_2B_2$ (twice), all $7$ admissible pairs; $AC$ gives $A_0C_0$, $A_0C_1$, $A_0C_2$, $A_1C_0$ (twice), $A_1C_1$, $A_2C_0$, $A_2C_1$, $A_2C_2$ (twice), all $8$; $AD$ gives all nine $A_iD_m$, since the three $A_0$ specimens carry $D_0$, $D_2$, $D_1$, the three $A_1$ specimens $D_0$, $D_2$, $D_1$ and the four $A_2$ specimens $D_2$, $D_1$, $D_2$, $D_0$; $AE$ gives $A_0E_2$, $A_0E_0$, $A_1E_1$, $A_1E_2$, $A_1E_0$, $A_2E_0$, $A_2E_1$, $A_2E_2$, all $8$; $BC$ gives $B_0C_1$, $B_1C_2$, $B_2C_0$, $B_1C_0$, $B_2C_1$, $B_0C_0$, $B_0C_2$, $B_2C_2$, all $8$; $BD$ gives $B_0D_0$, $B_1D_2$, $B_2D_1$, $B_1D_0$, $B_2D_2$, $B_0D_2$, $B_0D_1$, $B_2D_0$, all $8$; $BE$, $CD$ and $CE$ give all $9$ each (for $CD$: $C_1D_0$, $C_2D_2$, $C_0D_1$, $C_0D_0$, $C_0D_2$, $C_1D_1$, $C_2D_1$, $C_1D_2$, $C_2D_0$); $DE$ gives $D_0E_2$, $D_2E_0$, $D_1E_2$, $D_0E_1$, $D_2E_2$, $D_1E_0$, $D_1E_1$, $D_2E_1$, all $8$. All $83$ admissible pairs are covered, so $10$ specimens suffice. This programme is the only one with $10$ specimens: with exactly $10$, every one of the ten pairs of Step 3 sits on its own specimen, which fixes the powder and one more level of each specimen, and the remaining levels are then forced one by one; the verification notes confirm by complete enumeration that no other programme of $10$ exists.\n\nStep 5: Conclusion.\nSteps 3 and 4 give the minimum $10$. The bound $9$ of Step 2 is not attainable. Constructions that start from a $3 \\times 3$ array for two of the factors, or add specimens one at a time covering as many new pairs as possible, end at $11$ or more, because only one arrangement of $10$ specimens works.\n\nAnswer: $10$.",
+    "references": "Pairwise covering test suites (covering arrays of strength two) with constraints between factor levels, and the practice of building them greedily: D. M. Cohen, S. R. Dalal, M. L. Fredman and G. C. Patton, The AETG system: an approach to testing based on combinatorial design, IEEE Transactions on Software Engineering 23 (1997), 437-444. Covering arrays in general, their lower bounds and the hardness of finding minimum ones: C. J. Colbourn, Combinatorial aspects of covering arrays, Le Matematiche 59 (2004), 125-172. The uploaded file verification_notes.txt lists the 105 admissible specimens and the 83 admissible pairs, checks the set of 10 pairwise incompatible pairs against every admissible specimen with the reason for each incompatible couple, checks the 10-specimen programme pair by pair, confirms the minimum by an integer programme and shows by complete enumeration that the 10-specimen programme is unique; the program is embedded with its output.",
+    "rubric": {
+      "criteria": [
+        {
+          "id": "c1",
+          "description": "Gives $10$.",
+          "points": 5,
+          "isFinalAnswer": true
+        },
+        {
+          "id": "c2",
+          "description": "Exhibits an explicit programme of $10$ admissible specimens covering every admissible level pair (a correct $10$-row test matrix).",
+          "points": 3,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c3",
+          "description": "Proves that $9$ specimens are not enough by a valid argument, for instance a set of $10$ admissible level pairs no two of which fit into one admissible specimen (such as $A_0D_0$, $A_0D_1$, $A_0D_2$, $A_1E_0$, $A_1E_2$, $A_2E_0$, $A_2E_2$, $B_0E_1$, $B_1E_1$, $B_2E_1$), or an equivalent counting argument.",
+          "points": 1,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c4",
+          "description": "States the bound of $9$ specimens from a factor pair with $9$ admissible level pairs and recognises that the unavailable combinations make it unattainable.",
+          "points": 1,
+          "isFinalAnswer": false
+        }
+      ],
+      "commonWrongAnswers": [
+        "9",
+        "11",
+        "12",
+        "13"
+      ]
+    },
+    "image": {
+      "entry": "image.png"
+    },
+    "referenceFile": {
+      "entry": "reference.txt",
+      "fileName": "verification_notes.txt"
+    }
+  }
+}

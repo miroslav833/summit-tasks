@@ -1,0 +1,22 @@
+vertices: 12 edges: 24 4-regular: True
+independent sets: 113 (maximal: 22), alpha = 4, n/alpha = 3
+triangles: [[1, 8, 10], [1, 9, 10], [2, 9, 10], [3, 5, 12], [4, 11, 12]] ; K4 subgraphs: 0 ; omega = 3
+maximal independent sets: [[1, 2, 4], [1, 3, 11], [1, 7, 12], [2, 8, 12], [3, 9, 11], [3, 10, 11], [4, 5, 10], [5, 8, 9], [6, 9, 12], [6, 10, 12], [7, 10, 12], [1, 2, 6, 11], [1, 2, 6, 12], [1, 3, 4, 7], [2, 4, 5, 8], [2, 5, 6, 11], [3, 4, 7, 8], [3, 4, 7, 10], [3, 7, 8, 9], [5, 6, 9, 11], [5, 6, 10, 11], [7, 8, 9, 12]]
+proper 3-colouring exists: False ; 4-colouring: {1: 1, 2: 1, 3: 2, 4: 1, 5: 3, 6: 3, 7: 2, 8: 2, 9: 2, 10: 3, 11: 3, 12: 4}
+fractional clique: total weight 13/4, largest weight of an independent set 1
+weight of every maximal independent set: [([1, 2, 4], '1'), ([1, 3, 11], '1'), ([1, 7, 12], '3/4'), ([2, 8, 12], '3/4'), ([3, 9, 11], '1'), ([3, 10, 11], '1'), ([4, 5, 10], '1'), ([5, 8, 9], '1'), ([6, 9, 12], '3/4'), ([6, 10, 12], '3/4'), ([7, 10, 12], '3/4'), ([1, 2, 6, 11], '1'), ([1, 2, 6, 12], '1'), ([1, 3, 4, 7], '1'), ([2, 4, 5, 8], '1'), ([2, 5, 6, 11], '3/4'), ([3, 4, 7, 8], '3/4'), ([3, 4, 7, 10], '1'), ([3, 7, 8, 9], '1'), ([5, 6, 9, 11], '1'), ([5, 6, 10, 11], '1'), ([7, 8, 9, 12], '1')]
+CHECK 3: every fractional colouring has weight at least 13/4
+fractional colouring: total weight 13/4, coverage {1: '1', 2: '1', 3: '1', 4: '1', 5: '1', 6: '1', 7: '1', 8: '1', 9: '1', 10: '1', 11: '1', 12: '1'}
+13:4-colouring (13 independent sets, every vertex in at least 4): [[1, 2, 6, 11], [1, 2, 6, 12], [1, 2, 6, 12], [1, 3, 4, 7], [5, 6, 9, 11], [2, 4, 5, 8], [4, 5, 10], [4, 5, 10], [3, 7, 8, 9], [7, 8, 9, 12], [7, 8, 9, 12], [3, 10, 11], [3, 10, 11]]
+CHECK 4: a fractional colouring of weight 13/4 exists; with CHECK 3 the fractional chromatic number is 13/4
+exact rational simplex (standard library): fractional clique number = 13/4 ; an optimal weighting: {1: '1/2', 2: '1/4', 3: '1/4', 4: '1/4', 5: '1/4', 8: '1/4', 9: '1/2', 10: '1/2', 11: '1/4', 12: '1/4'}
+scipy HiGHS (primal LP over the 22 maximal independent sets): minimum weight = 3.2500000000 (13/4 = 3.25)
+CHECK 5: two independent LP solutions give 13/4
+best induced-subgraph ratio |S|/alpha(G[S]) over all 4095 subsets: 3 (for instance S = (1, 8, 10))
+6:2-colouring exists: False
+7:2-colouring exists: True; one such colouring (vertex: colour set): {1: [0, 1], 2: [0, 6], 3: [1, 5], 4: [4, 5], 5: [2, 4], 6: [0, 6], 7: [3, 5], 8: [2, 3], 9: [2, 3], 10: [4, 5], 11: [0, 1], 12: [3, 6]}
+9:3-colouring exists: False
+10:3-colouring exists: True; one such colouring (vertex: colour set): {1: [0, 1, 2], 2: [0, 2, 9], 3: [1, 7, 8], 4: [7, 8, 9], 5: [3, 6, 9], 6: [0, 2, 6], 7: [4, 5, 7], 8: [3, 4, 5], 9: [3, 4, 5], 10: [6, 7, 8], 11: [0, 1, 6], 12: [2, 4, 5]}
+12:4-colouring exists: False
+2-fold chromatic number 7 (best 2-fold weight 7/2), 3-fold chromatic number 10 (best 3-fold weight 10/3); no 12:4-colouring, so the 13:4-colouring of CHECK 4 is a smallest 4-fold colouring
+ALL CHECKS PASSED. Fractional chromatic number 13/4; n/alpha = 3, omega = 3, chi = 4.

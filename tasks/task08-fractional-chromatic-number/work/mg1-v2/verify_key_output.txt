@@ -1,0 +1,70 @@
+beta = 1.58221, eta = 3.15168; check S(2.5) = 0.50000, S(10) = 0.002000
+curve at every labelled t inside the frame (lines at 1, 2, 5 of each decade, frame 1e-4 to 1):
+   t =    1: S = 0.8499, nearest line 1, off by 17.7 percent
+   t =  1.5: S = 0.7343, nearest line 1, off by 36.2 percent
+   t =    2: S = 0.6145, nearest line 0.5, off by 22.9 percent
+   t =  2.5: S = 0.5, nearest line 0.5, off by 0.0 percent
+   t =    3: S = 0.3966, nearest line 0.5, off by 26.1 percent
+   t =    4: S = 0.2327, nearest line 0.2, off by 16.3 percent
+   t =    5: S = 0.1255, nearest line 0.1, off by 25.5 percent
+   t =    6: S = 0.06269, nearest line 0.05, off by 25.4 percent
+   t =    7: S = 0.02917, nearest line 0.02, off by 45.9 percent
+   t =    8: S = 0.0127, nearest line 0.01, off by 27.0 percent
+   t =   10: S = 0.002, nearest line 0.002, off by 0.0 percent
+   t =   12: S = 0.0002503, nearest line 0.0002, off by 25.2 percent
+   t =   15: S = 7.47e-06, below the frame
+   t =   20: S = 8.29e-09, below the frame
+   t =   25: S = 3.14e-12, below the frame
+   t =   30: S = 4.47e-16, below the frame
+Route 1, Gamma-function moments: E[S] = 2.82870, E[S^2] = 11.34576, E[S^3] = 57.00954, rho = 0.70718
+   E[W] = 4.84324, E[W^2] = 63.13789, Var W = 39.68096, sd W = 6.29928
+Route 2, quadrature: E[S^n] = 2.82870, 11.34576, 57.00954, sd W = 6.29928
+Route 3, geometric sum of equilibrium residuals: E[R] = 2.00547, E[R^2] = 6.71799, E[W] = 4.84324, sd W = 6.29928
+Route 4, Lindley simulation (20 batches of 2e6 customers): sd W = 6.295 +/- 0.008
+Answer key: 6.2993, two significant figures 6.3
+Wrong: sd W taken equal to E[W] (exponential waiting time) = 4.843
+Wrong: M/M/1 with the same mean, sd of the queueing delay = 9.237
+Wrong: E[W^2] without the factor 2, sd = 4.028
+Wrong: sd of the sojourn time W + S instead = 6.559
+Near-miss readings (each pair of labelled t at the nearest line):
+   (2, 0.5) with (4, 0.2): beta = 1.215, eta = 2.704, sd W = 5.3 -> 5.3
+   (2, 0.5) with (5, 0.1): beta = 1.310, eta = 2.646, sd W = 4.442 -> 4.4
+   (2, 0.5) with (6, 0.05): beta = 1.332, eta = 2.633, sd W = 4.286 -> 4.3
+   (2, 0.5) with (7, 0.02): beta = 1.381, eta = 2.608, sd W = 3.983 -> 4.0
+   (2, 0.5) with (8, 0.01): beta = 1.366, eta = 2.616, sd W = 4.073 -> 4.1
+   (2, 0.5) with (10, 0.002): beta = 1.363, eta = 2.617, sd W = 4.091 -> 4.1
+   (2, 0.5) with (12, 0.0002): beta = 1.400, eta = 2.598, sd W = 3.882 -> 3.9
+   (2.5, 0.5) with (4, 0.2): beta = 1.792, eta = 3.067, sd W = 5.163 -> 5.2
+   (2.5, 0.5) with (5, 0.1): beta = 1.732, eta = 3.089, sd W = 5.425 -> 5.4
+   (2.5, 0.5) with (6, 0.05): beta = 1.672, eta = 3.113, sd W = 5.731 -> 5.7
+   (2.5, 0.5) with (7, 0.02): beta = 1.681, eta = 3.109, sd W = 5.682 -> 5.7
+   (2.5, 0.5) with (8, 0.01): beta = 1.628, eta = 3.131, sd W = 5.989 -> 6.0
+   (2.5, 0.5) with (12, 0.0002): beta = 1.599, eta = 3.144, sd W = 6.179 -> 6.2
+   (3, 0.5) with (4, 0.2): beta = 2.928, eta = 3.400, sd W = 6.556 -> 6.6
+   (3, 0.5) with (5, 0.1): beta = 2.350, eta = 3.506, sd W = 7.806 -> 7.8
+   (3, 0.5) with (6, 0.05): beta = 2.112, eta = 3.569, sd W = 8.823 -> 8.8
+   (3, 0.5) with (7, 0.02): beta = 2.042, eta = 3.590, sd W = 9.229 -> 9.2
+   (3, 0.5) with (8, 0.01): beta = 1.931, eta = 3.627, sd W = 10.04 -> 10.0
+   (3, 0.5) with (10, 0.002): beta = 1.822, eta = 3.669, sd W = 11.11 -> 11.0
+   (3, 0.5) with (12, 0.0002): beta = 1.810, eta = 3.674, sd W = 11.25 -> 11.0
+   (4, 0.2) with (5, 0.1): beta = 1.605, eta = 2.974, sd W = 5.07 -> 5.1
+   (4, 0.2) with (6, 0.05): beta = 1.532, eta = 2.932, sd W = 5.058 -> 5.1
+   (4, 0.2) with (7, 0.02): beta = 1.587, eta = 2.964, sd W = 5.066 -> 5.1
+   (4, 0.2) with (8, 0.01): beta = 1.517, eta = 2.923, sd W = 5.058 -> 5.1
+   (4, 0.2) with (10, 0.002): beta = 1.474, eta = 2.897, sd W = 5.062 -> 5.1
+   (4, 0.2) with (12, 0.0002): beta = 1.517, eta = 2.923, sd W = 5.058 -> 5.1
+   (5, 0.1) with (6, 0.05): beta = 1.443, eta = 2.806, sd W = 4.689 -> 4.7
+   (5, 0.1) with (7, 0.02): beta = 1.575, eta = 2.945, sd W = 4.994 -> 5.0
+   (5, 0.1) with (8, 0.01): beta = 1.475, eta = 2.840, sd W = 4.756 -> 4.8
+   (5, 0.1) with (10, 0.002): beta = 1.432, eta = 2.793, sd W = 4.666 -> 4.7
+   (5, 0.1) with (12, 0.0002): beta = 1.494, eta = 2.861, sd W = 4.799 -> 4.8
+   (6, 0.05) with (7, 0.02): beta = 1.731, eta = 3.184, sd W = 6.054 -> 6.1
+   (6, 0.05) with (8, 0.01): beta = 1.495, eta = 2.880, sd W = 4.897 -> 4.9
+   (6, 0.05) with (10, 0.002): beta = 1.428, eta = 2.783, sd W = 4.631 -> 4.6
+   (6, 0.05) with (12, 0.0002): beta = 1.507, eta = 2.898, sd W = 4.951 -> 5.0
+   (7, 0.02) with (8, 0.01): beta = 1.222, eta = 2.292, sd W = 3.345 -> 3.3
+   (7, 0.02) with (10, 0.002): beta = 1.298, eta = 2.447, sd W = 3.63 -> 3.6
+   (7, 0.02) with (12, 0.0002): beta = 1.443, eta = 2.721, sd W = 4.276 -> 4.3
+   (8, 0.01) with (10, 0.002): beta = 1.343, eta = 2.566, sd W = 3.945 -> 3.9
+   (8, 0.01) with (12, 0.0002): beta = 1.517, eta = 2.922, sd W = 5.057 -> 5.1
+   (10, 0.002) with (12, 0.0002): beta = 1.729, eta = 3.476, sd W = 8.754 -> 8.8

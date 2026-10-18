@@ -1,92 +1,94 @@
-"""Verification of the answer key: the smallest covering array with six columns, x1..x5 over {0,1,2} and x6 over {0,1},
-avoiding the ten forbidden pairs of the figure, has 10 rows; exactly two 10-row covering arrays exist.
+# Number of Hamiltonian cycles of the drawn graph (28 vertices, 42 edges, all of degree 3).
+# Run: python3 verify_key.py (standard library only)
+import itertools
+from collections import Counter
 
-Self-contained, python3 standard library only (scipy, when installed, adds an integer-programming solve and the
-enumeration of all optimal arrays).  Run: python3 verify_key.py
+EDGES = "AG AJ AS BK BS BV CH CL CY DI DN DW EL EP EZ FS FX FZ GT Gb HJ Ha IM Ib JV KQ KU LR MO MX NT NV OQ OZ PU PX QY RT Ra Ub WY Wa".split()
+V = sorted({v for e in EDGES for v in e}, key=lambda v: (v.islower(), v))
+ADJ = {v: sorted({e[1] if e[0] == v else e[0] for e in EDGES if v in e}, key=lambda v: (v.islower(), v)) for v in V}
+EDGESET = {frozenset(e) for e in EDGES}
 
-Columns x1..x6 are written A..F.  Forbidden pairs: A1B1, A1C2, A1E1, A2C0, A2D0, C0E0, C1F0, C2E1, D0E1, D2F0.
-  (1) admissible rows: 136 of 486; admissible symbol pairs: 110 of 120;
-  (2) trivial lower bound 9 (column pairs BC, BD, BE, CD keep all 9 symbol pairs);
-  (3) lower bound 10: the pairs B0E1, B1E1, B2E1, C0D0, C1D0, C2D0, D1E0, D1E2, D2E0, D2E2 are pairwise incompatible;
-  (4) upper bound 10: an explicit 10-row covering array;
-  (5) integer programme: minimum 10, exactly two optimal arrays;
-  (6) wrong routes: the trivial bound 9, the unconstrained value CAN(2, 3^5 2^1) = 11, greedy constructions.
-"""
-import itertools, random
+print("1. The graph")
+print(f"   vertices {len(V)}, edges {len(EDGES)}, degrees {sorted(Counter(len(ADJ[v]) for v in V).items())}")
+for v in V: print(f"   {v}: {' '.join(ADJ[v])}")
+# girth by breadth-first search from every vertex
+def girth():
+    best = 99
+    for s in V:
+        dist, par, q = {s: 0}, {s: None}, [s]
+        for x in q:
+            for y in ADJ[x]:
+                if y not in dist: dist[y] = dist[x] + 1; par[y] = x; q.append(y)
+                elif par[x] != y: best = min(best, dist[x] + dist[y] + 1)
+    return best
+print(f"   girth {girth()} (no triangles and no 4-cycles)")
 
-LEVELS = [3, 3, 3, 3, 3, 2]; k = 6; L = "ABCDEF"
-def P(s): return ((L.index(s[0]), int(s[1])), (L.index(s[2]), int(s[3])))
-FORB = {P(s) for s in "A1B1 A1C2 A1E1 A2C0 A2D0 C0E0 C1F0 C2E1 D0E1 D2F0".split()}
-def name(p): return f"{L[p[0][0]]}{p[0][1]}{L[p[1][0]]}{p[1][1]}"
-def admissible(r): return all(((i, r[i]), (j, r[j])) not in FORB for i, j in itertools.combinations(range(k), 2))
-ROWS = [r for r in itertools.product(*[range(l) for l in LEVELS]) if admissible(r)]
-PAIRS = [((i, a), (j, b)) for i, j in itertools.combinations(range(k), 2) for a in range(LEVELS[i]) for b in range(LEVELS[j]) if ((i, a), (j, b)) not in FORB]
-def covers(r, p): return r[p[0][0]] == p[0][1] and r[p[1][0]] == p[1][1]
-def word(r): return "".join(map(str, r))
-print(f"admissible rows: {len(ROWS)} of 486; admissible symbol pairs: {len(PAIRS)} of 120; forbidden: {sorted(name(p) for p in FORB)}")
-assert len(ROWS) == 136 and len(PAIRS) == 110
-assert all(any(covers(r, p) for r in ROWS) for p in PAIRS)
+print("2. Route 1: depth-first search for Hamiltonian cycles through A")
+cycles = set()
+def dfs(path, seen):
+    v = path[-1]
+    if len(path) == len(V):
+        if "A" in ADJ[v]: cycles.add(frozenset(frozenset(p) for p in zip(path, path[1:] + ["A"])))
+        return
+    for w in ADJ[v]:
+        if w not in seen:
+            seen.add(w); path.append(w); dfs(path, seen); path.pop(); seen.remove(w)
+dfs(["A"], {"A"})
+print(f"   distinct Hamiltonian cycles (as edge sets): {len(cycles)}")
 
-per = {(i, j): sum(1 for p in PAIRS if p[0][0] == i and p[1][0] == j) for i, j in itertools.combinations(range(k), 2)}
-print("admissible symbol pairs per column pair:", {f"{L[i]}{L[j]}": v for (i, j), v in per.items()}, "-> trivial bound", max(per.values()))
+print("3. Route 2: complements of perfect matchings")
+# In a cubic graph a Hamiltonian cycle uses two of the three edges at every vertex, so the unused edges form a
+# perfect matching; conversely a perfect matching whose complement is connected leaves a Hamiltonian cycle.
+def connected(edges):
+    adj = {v: [] for v in V}
+    for a, b in edges: adj[a].append(b); adj[b].append(a)
+    seen, q = {V[0]}, [V[0]]
+    for x in q:
+        for y in adj[x]:
+            if y not in seen: seen.add(y); q.append(y)
+    return len(seen) == len(V)
+matchings = good = 0
+def rec(M, covered):
+    global matchings, good
+    free = [v for v in V if v not in covered]
+    if not free:
+        matchings += 1
+        rest = [tuple(e) for e in EDGESET if e not in M]
+        if connected(rest): good += 1
+        return
+    v = free[0]
+    for w in ADJ[v]:
+        if w not in covered:
+            M.add(frozenset((v, w))); rec(M, covered | {v, w}); M.remove(frozenset((v, w)))
+rec(set(), frozenset())
+print(f"   perfect matchings {matchings}, of which {good} leave a single 28-cycle")
+assert good == len(cycles) == 52
 
-# ---------- (3) lower bound ----------
-EXCL = [P(s) for s in "B0E1 B1E1 B2E1 C0D0 C1D0 C2D0 D1E0 D1E2 D2E0 D2E2".split()]
-for r in ROWS: assert sum(covers(r, p) for p in EXCL) <= 1, r
-print("exclusive set:", [name(p) for p in EXCL])
-def why(p, q):
-    d = {}
-    for (f, l) in (p[0], p[1], q[0], q[1]):
-        if f in d and d[f] != l: return f"both need column {L[f]} with different symbols"
-        d[f] = l
-    bad = [((x, d[x]), (z, d[z])) for x, z in itertools.combinations(sorted(d), 2) if ((x, d[x]), (z, d[z])) in FORB]
-    if bad: return "together they contain the forbidden pair " + name(bad[0])
-    return "no admissible completion of the remaining columns " + ",".join(L[f] for f in range(k) if f not in d)
-reasons = {}
-for p, q in itertools.combinations(EXCL, 2): reasons.setdefault(why(p, q), []).append(f"{name(p)}/{name(q)}")
-for reason, lst in reasons.items(): print(f"   {len(lst)} couples: {reason}: {lst}")
-print("CHECK 3: no admissible row contains two of the 10 pairs, so every covering array has at least 10 rows")
+print("4. Case split used in the written solution")
+def has(c, a, b): return frozenset((a, b)) in c
+for x in ADJ["D"]:
+    part = [c for c in cycles if not has(c, "D", x)]
+    other = [w for w in ADJ["D"] if w != x]
+    # second level: which edge is left out at the first neighbour of D that the cycle uses
+    y = other[0]; sub = Counter(next(w for w in ADJ[y] if not has(c, y, w)) for c in part)
+    detail = ", ".join(f"{y}{w} left out: {sub[w]}" for w in ADJ[y] if w != "D")
+    print(f"   D{x} left out: {len(part)}   ({detail})")
 
-# ---------- (4) upper bound ----------
-DESIGN = [tuple(int(c) for c in w) for w in "001211 010110 011021 022000 100020 101101 120221 202120 212201 221111".split()]
-assert all(admissible(r) for r in DESIGN) and len(DESIGN) == 10
-unc = [name(p) for p in PAIRS if not any(covers(r, p) for r in DESIGN)]
-print("array:", [word(r) for r in DESIGN], "; uncovered admissible pairs:", unc)
-assert not unc
-for (i, j), v in per.items():
-    got = sorted({(r[i], r[j]) for r in DESIGN})
-    print(f"   column pair {L[i]}{L[j]}: {len(got)} of {v} admissible pairs present: {got}")
-print("CHECK 4: the 10-row array covers all 110 admissible pairs; with CHECK 3 the minimum is 10")
+print("5. Parity check: every edge lies on an even number of Hamiltonian cycles (Smith's theorem for cubic graphs)")
+through = {e: sum(1 for c in cycles if frozenset(e) in c) for e in EDGES}
+print("   " + " ".join(f"{e}:{n}" for e, n in through.items()))
+assert all(n % 2 == 0 for n in through.values()) and sum(through.values()) == 28 * 52
+print(f"   all even; sum over edges = {sum(through.values())} = 28 x 52")
 
-# ---------- (5) integer programme ----------
-try:
-    import numpy as np
-    from scipy.optimize import milp, LinearConstraint, Bounds
-    A = np.array([[1.0 if covers(r, p) else 0.0 for r in ROWS] for p in PAIRS])
-    c = np.ones(len(ROWS)); cons = [LinearConstraint(A, lb=1, ub=np.inf)]
-    N = int(round(milp(c, constraints=cons, integrality=np.ones(len(ROWS)), bounds=Bounds(0, 1)).fun))
-    print("integer programme (HiGHS): minimum number of rows =", N); assert N == 10
-    sols = []
-    while True:
-        r2 = milp(c, constraints=cons, integrality=np.ones(len(ROWS)), bounds=Bounds(0, 1))
-        if r2.status != 0 or int(round(r2.fun)) > N: break
-        sel = [i for i in range(len(ROWS)) if r2.x[i] > 0.5]; sols.append(tuple(sorted(ROWS[i] for i in sel)))
-        cut = np.zeros(len(ROWS)); cut[sel] = 1; cons.append(LinearConstraint(cut.reshape(1, -1), lb=-np.inf, ub=N - 1))
-    print(f"all optimal arrays: {len(sols)}")
-    for s_ in sols: print("   ", [word(r) for r in s_])
-    assert len(sols) == 2 and tuple(sorted(DESIGN)) in sols
-    print("CHECK 5: the integer programme agrees; exactly two 10-row covering arrays exist")
-except ImportError:
-    print("scipy not installed: integer programme skipped (CHECK 3 and CHECK 4 are complete without it)")
+print("6. The 52 cycles, each written from A")
+def walk(c):
+    adj = {v: [] for v in V}
+    for e in c:
+        a, b = tuple(e); adj[a].append(b); adj[b].append(a)
+    path = ["A", min(adj["A"])]
+    while len(path) < len(V): path.append(next(w for w in adj[path[-1]] if w != path[-2]))
+    return "".join(path)
+for i, s in enumerate(sorted(walk(c) for c in cycles), 1): print(f"   {i:2d}. {s}")
 
-# ---------- (6) wrong routes ----------
-sizes = []
-for t in range(200):
-    rng = random.Random(t); unc_ = set(range(len(PAIRS))); used = 0
-    while unc_:
-        best = max(sum(1 for pi in unc_ if covers(r, PAIRS[pi])) for r in ROWS)
-        cands = [r for r in ROWS if sum(1 for pi in unc_ if covers(r, PAIRS[pi])) == best]
-        r = rng.choice(cands); unc_ -= {pi for pi in unc_ if covers(r, PAIRS[pi])}; used += 1
-    sizes.append(used)
-print("randomised greedy construction (200 runs), sizes reached:", {s: sizes.count(s) for s in sorted(set(sizes))})
-print("ALL CHECKS PASSED. Minimum number of rows 10 (two optimal arrays); trivial bound 9; unconstrained value 11.")
+print("7. Wrong answers: 104 counts each cycle once per direction; 26 halves twice; 48, 50, 51 lose cycles in the case split")
+print("ALL CHECKS PASSED: the graph has 52 Hamiltonian cycles")

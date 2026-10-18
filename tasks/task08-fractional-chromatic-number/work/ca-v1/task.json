@@ -1,0 +1,69 @@
+{
+  "schema_version": "summit-task-package-v1",
+  "task": {
+    "domain": "mathematics",
+    "subdomain": "Combinatorial design theory: covering arrays avoiding forbidden pairs",
+    "modality": "image_reference",
+    "taskType": "image_multistep_discrete_reasoning",
+    "imageCreationTool": "matplotlib (original chart of the forbidden symbol pairs)",
+    "imageNecessityExplanation": "The seven forbidden pairs are given only in the figure; the minimum number of rows depends on exactly which pairs are forbidden (with none forbidden the answer would be 11, and other sets of seven forbidden pairs give 10, 11 or 12 with many or few optimal arrays).",
+    "questionText": "An array has $N$ rows and $5$ columns, and every entry is one of the symbols $0$, $1$, $2$. Write $x_1, \\dots, x_5$ for the entries of a row. The figure marks seven forbidden pairs: a cell marked F in the row labelled $x_i = a$ and the column labelled $x_j = b$ means that no row of the array may have $x_i = a$ and $x_j = b$ at the same time. Every row of the array must avoid all seven forbidden pairs.\n\nThe array is called covering if, for every two distinct columns $i$ and $j$ and every pair of symbols $(a, b)$ that is not forbidden for the columns $(i, j)$, some row of the array has $x_i = a$ and $x_j = b$. Nothing else is required.\n\nFind the smallest $N$ for which a covering array exists. Give a single integer.",
+    "answerType": "exact_match",
+    "finalAnswer": [
+      "10"
+    ],
+    "acceptableAnswerVariants": [
+      "$10$",
+      "10 rows",
+      "ten",
+      "N = 10"
+    ],
+    "multipleChoiceOptions": [],
+    "answerPrecision": {
+      "kind": "none"
+    },
+    "solution": "Step 1: Set up the counting objects.\nThe forbidden pairs read from the figure are $(x_1 = 0, x_5 = 1)$, $(x_1 = 1, x_2 = 0)$, $(x_1 = 1, x_3 = 2)$, $(x_1 = 2, x_2 = 1)$, $(x_2 = 1, x_3 = 1)$, $(x_2 = 1, x_4 = 1)$ and $(x_4 = 0, x_5 = 0)$. Write $A, B, C, D, E$ for the columns $x_1, \\dots, x_5$ and $A_a$ for the entry $x_1 = a$, so that the forbidden pairs are $A_0E_1$, $A_1B_0$, $A_1C_2$, $A_2B_1$, $B_1C_1$, $B_1D_1$, $D_0E_0$. An admissible row is a word of length $5$ over $\\{0, 1, 2\\}$ containing none of them; there are $105$ admissible rows. The pairs to be covered are the $90 - 7 = 83$ admissible symbol pairs. Each row carries exactly one symbol pair for each of the ten column pairs.\n\nStep 2: The bound that comes first, and why it is not the answer.\nThe column pairs $AD$, $BE$, $CD$ and $CE$ keep all $9$ of their symbol pairs, and one row covers one symbol pair of a given column pair, so $N \\ge 9$. Nine rows would have to form an orthogonal array on each of these column pairs at once, and the forbidden pairs make that impossible, as the next step shows in a way that counts. The unconstrained covering array number for five columns and three symbols is $11$, but it is not relevant here: the forbidden pairs remove seven pairs from the covering requirement, and the answer turns out to be smaller.\n\nStep 3: Lower bound $10$.\nCall two admissible symbol pairs incompatible if no admissible row contains both. Consider the ten pairs\n$$A_0D_0,\\ A_0D_1,\\ A_0D_2,\\ A_1E_0,\\ A_1E_2,\\ A_2E_0,\\ A_2E_2,\\ B_0E_1,\\ B_1E_1,\\ B_2E_1 .$$\nThey are pairwise incompatible: the three $A_0D_m$ disagree in column $D$ with one another and in column $A$ with the $A_1E_n$ and $A_2E_n$; the $A_1E_n$ and $A_2E_n$ disagree in column $A$ or in column $E$ with one another; the three $B_jE_1$ disagree in column $B$ with one another and in column $E$ with the $A_1E_n$ and $A_2E_n$ (which have $n \\in \\{0, 2\\}$); and $A_0D_m$ with $B_jE_1$ would put $x_1 = 0$ and $x_5 = 1$ in one row, which is forbidden. In words: the rows with $x_1 = 0$ must show all three symbols in column $D$, so there are at least three of them; the rows with $x_1 = 1$ and the rows with $x_1 = 2$ must each show the symbols $0$ and $2$ in column $E$, so there are at least two of each; and the symbol $1$ in column $E$ must meet all three symbols of column $B$, on three further rows, none of which can have $x_1 = 0$ and none of which is among the four rows just counted, since those have $x_5 \\in \\{0, 2\\}$. That is $3 + 2 + 2 + 3 = 10$ rows at least.\n\nStep 4: Upper bound $10$, the decisive step.\nThe ten rows (written $x_1 x_2 x_3 x_4 x_5$)\n$$00102,\\ 01220,\\ 02012,\\ 11001,\\ 11022,\\ 12110,\\ 20020,\\ 20211,\\ 22121,\\ 22202$$\nare all admissible: none contains $A_0E_1$, $A_1B_0$, $A_1C_2$, $A_2B_1$, $B_1C_1$, $B_1D_1$ or $D_0E_0$. Listing the symbol pairs they carry, column pair by column pair: $AB$ gives $A_0B_0$, $A_0B_1$, $A_0B_2$, $A_1B_1$ (twice), $A_1B_2$, $A_2B_0$ (twice), $A_2B_2$ (twice), all $7$ admissible pairs; $AC$ gives $A_0C_0$, $A_0C_1$, $A_0C_2$, $A_1C_0$ (twice), $A_1C_1$, $A_2C_0$, $A_2C_1$, $A_2C_2$ (twice), all $8$; $AD$ gives all nine $A_aD_m$, since the three rows with $x_1 = 0$ carry $D_0$, $D_2$, $D_1$, the three rows with $x_1 = 1$ carry $D_0$, $D_2$, $D_1$ and the four rows with $x_1 = 2$ carry $D_2$, $D_1$, $D_2$, $D_0$; $AE$ gives $A_0E_2$, $A_0E_0$, $A_1E_1$, $A_1E_2$, $A_1E_0$, $A_2E_0$, $A_2E_1$, $A_2E_2$, all $8$; $BC$ gives $B_0C_1$, $B_1C_2$, $B_2C_0$, $B_1C_0$, $B_2C_1$, $B_0C_0$, $B_0C_2$, $B_2C_2$, all $8$; $BD$ gives $B_0D_0$, $B_1D_2$, $B_2D_1$, $B_1D_0$, $B_2D_2$, $B_0D_2$, $B_0D_1$, $B_2D_0$, all $8$; $BE$, $CD$ and $CE$ give all $9$ each (for $CD$: $C_1D_0$, $C_2D_2$, $C_0D_1$, $C_0D_0$, $C_0D_2$, $C_1D_1$, $C_2D_1$, $C_1D_2$, $C_2D_0$); $DE$ gives $D_0E_2$, $D_2E_0$, $D_1E_2$, $D_0E_1$, $D_2E_2$, $D_1E_0$, $D_1E_1$, $D_2E_1$, all $8$. All $83$ admissible pairs are covered, so $N = 10$ is attained. This array is the only covering array with $10$ rows: with exactly $10$ rows every one of the ten pairs of Step 3 sits on its own row, which fixes $x_1$ and one more entry of each row, and the remaining entries are then forced one by one; the verification notes confirm by complete enumeration that no other $10$-row covering array exists.\n\nStep 5: Conclusion.\nSteps 3 and 4 give the minimum $N = 10$. The bound $9$ of Step 2 is not attainable, and the unconstrained value $11$ is one too many. Constructions that start from a $3 \\times 3$ orthogonal array on two of the columns, or add rows one at a time covering as many new pairs as possible, end at $11$ or more, because only one arrangement of $10$ rows works.\n\nAnswer: $10$.",
+    "references": "Covering arrays avoiding forbidden edges (CAFEs), which is exactly the object of the question, with the reduction to graph homomorphisms and the hardness of the minimum size: P. Danziger, E. Mendelsohn, L. Moura and B. Stevens, Covering arrays avoiding forbidden edges, Theoretical Computer Science 410 (2009), 5403-5414. Covering arrays in general, their lower bounds and known small values such as $\\mathrm{CAN}(2, 5, 3) = 11$: C. J. Colbourn, Combinatorial aspects of covering arrays, Le Matematiche 59 (2004), 125-172. The uploaded file verification_notes.txt lists the 105 admissible rows and the 83 admissible pairs, checks the set of 10 pairwise incompatible pairs against every admissible row with the reason for each incompatible couple, checks the 10-row array pair by pair, confirms the minimum by an integer programme and shows by complete enumeration that the 10-row array is unique; the program is embedded with its output.",
+    "rubric": {
+      "criteria": [
+        {
+          "id": "c1",
+          "description": "Gives $10$.",
+          "points": 5,
+          "isFinalAnswer": true
+        },
+        {
+          "id": "c2",
+          "description": "Exhibits an explicit covering array of $10$ admissible rows (every admissible symbol pair present, no forbidden pair in any row).",
+          "points": 3,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c3",
+          "description": "Proves that $9$ rows are not enough by a valid argument, for instance a set of $10$ admissible symbol pairs no two of which fit into one admissible row (such as $A_0D_0$, $A_0D_1$, $A_0D_2$, $A_1E_0$, $A_1E_2$, $A_2E_0$, $A_2E_2$, $B_0E_1$, $B_1E_1$, $B_2E_1$ in the notation of the solution), or an equivalent counting argument.",
+          "points": 1,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c4",
+          "description": "States the bound of $9$ rows from a column pair with $9$ admissible symbol pairs and recognises that the forbidden pairs make it unattainable.",
+          "points": 1,
+          "isFinalAnswer": false
+        }
+      ],
+      "commonWrongAnswers": [
+        "9",
+        "11",
+        "12",
+        "13"
+      ]
+    },
+    "image": {
+      "entry": "image.png"
+    },
+    "referenceFile": {
+      "entry": "reference.txt",
+      "fileName": "verification_notes.txt"
+    }
+  }
+}

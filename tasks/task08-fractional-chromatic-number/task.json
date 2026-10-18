@@ -2,60 +2,59 @@
   "schema_version": "summit-task-package-v1",
   "task": {
     "domain": "mathematics",
-    "subdomain": "Combinatorial design theory: covering arrays avoiding forbidden pairs",
+    "subdomain": "Graph theory: enumeration of Hamiltonian cycles in a cubic graph",
     "modality": "image_reference",
     "taskType": "image_multistep_discrete_reasoning",
-    "imageCreationTool": "matplotlib (original chart of the forbidden symbol pairs)",
-    "imageNecessityExplanation": "The ten forbidden pairs are given only in the figure; the minimum number of rows depends on exactly which pairs are forbidden (with none forbidden the answer would be 11, and other sets of ten give 10, 11 or 12).",
-    "questionText": "An array has $N$ rows and $6$ columns. The entries $x_1, \\dots, x_5$ of a row are symbols from $\\{0, 1, 2\\}$ and the entry $x_6$ is a symbol from $\\{0, 1\\}$. The figure marks ten forbidden pairs: a cell marked F in the row labelled $x_i = a$ and the column labelled $x_j = b$ means that no row of the array may have $x_i = a$ and $x_j = b$ at the same time. Every row of the array must avoid all ten forbidden pairs.\n\nThe array is called covering if, for every two distinct columns $i$ and $j$ and every pair of symbols $(a, b)$ allowed in those columns that is not forbidden, some row of the array has $x_i = a$ and $x_j = b$. Nothing else is required.\n\nFind the smallest $N$ for which a covering array exists. Give a single integer.",
+    "imageCreationTool": "matplotlib (original drawing of a 28-vertex cubic graph)",
+    "imageNecessityExplanation": "The graph exists only in the figure: the question gives no vertex or edge, and the answer is a property of that particular edge set, so it cannot be found without reading all 42 edges from the drawing.",
+    "questionText": "The figure shows a simple undirected graph on $28$ vertices, labelled $A$ to $Z$, $a$ and $b$. The edges are the straight segments drawn between the circles. Where two segments cross, the crossing point is not a vertex and the two edges do not meet.\n\nA Hamiltonian cycle is a cycle that passes through every vertex exactly once. Two Hamiltonian cycles count as the same if they use the same set of edges, so the starting vertex and the direction of travel do not matter.\n\nHow many Hamiltonian cycles does the graph have? Give a single integer.",
     "answerType": "exact_match",
     "finalAnswer": [
-      "10"
+      "52"
     ],
     "acceptableAnswerVariants": [
-      "$10$",
-      "10 rows",
-      "ten",
-      "N = 10"
+      "$52$",
+      "52 cycles",
+      "fifty-two"
     ],
     "multipleChoiceOptions": [],
     "answerPrecision": {
       "kind": "none"
     },
-    "solution": "Step 1: Set up the counting objects.\nWrite $A, \\dots, F$ for the columns $x_1, \\dots, x_6$ and $A_a$ for the entry $x_1 = a$. The forbidden pairs read from the figure are $A_1B_1$, $A_1C_2$, $A_1E_1$, $A_2C_0$, $A_2D_0$, $C_0E_0$, $C_1F_0$, $C_2E_1$, $D_0E_1$ and $D_2F_0$. An admissible row avoids all of them; there are $136$ admissible rows out of $3^5 \\cdot 2 = 486$. The pairs to be covered are the $120 - 10 = 110$ admissible symbol pairs, and each row carries exactly one symbol pair for each of the fifteen column pairs.\n\nStep 2: The bounds that come first.\nThe column pairs $BC$, $BD$, $BE$ and $CD$ keep all $9$ of their symbol pairs, so $N \\ge 9$. Without forbidden pairs the smallest covering array with five ternary and one binary column has $11$ rows; the forbidden pairs remove requirements as well as rows, and the answer is smaller.\n\nStep 3: Lower bound $10$.\nCall two admissible symbol pairs incompatible if no admissible row contains both. The ten pairs\n$$B_0E_1,\\ B_1E_1,\\ B_2E_1,\\ C_0D_0,\\ C_1D_0,\\ C_2D_0,\\ D_1E_0,\\ D_1E_2,\\ D_2E_0,\\ D_2E_2$$\nare pairwise incompatible. Pairs that need one column with two different symbols account for most couples: the three $B_jE_1$ differ in $B$, the three $C_iD_0$ differ in $C$, the four $D_mE_n$ differ in $D$ or $E$ among themselves, every $B_jE_1$ differs in $E$ from every $D_mE_n$ (where $n \\in \\{0, 2\\}$), and every $C_iD_0$ differs in $D$ from every $D_mE_n$ (where $m \\in \\{1, 2\\}$). The remaining nine couples, $B_jE_1$ with $C_iD_0$, put $x_4 = 0$ and $x_5 = 1$ into one row, which is the forbidden pair $D_0E_1$. In words: the symbol $1$ in column $E$ must meet all three symbols of column $B$, the symbol $0$ in column $D$ must meet all three symbols of column $C$ on rows that cannot have $x_5 = 1$, and the four pairs $(x_4, x_5) \\in \\{1, 2\\} \\times \\{0, 2\\}$ need four more rows. Hence $N \\ge 3 + 3 + 4 = 10$.\n\nStep 4: Upper bound $10$, the decisive step.\nThe ten rows (written $x_1 x_2 x_3 x_4 x_5 x_6$)\n$$001211,\\ 010110,\\ 011021,\\ 022000,\\ 100020,\\ 101101,\\ 120221,\\ 202120,\\ 212201,\\ 221111$$\ncontain no forbidden pair. Column pair by column pair they carry every admissible symbol pair: $AB$ all $8$ (everything except $A_1B_1$), $AC$ all $7$, $AD$ all $8$, $AE$ all $8$, $AF$ all $6$; $BC$, $BD$, $BE$ all $9$ each; $BF$ all $6$; $CD$ all $9$; $CE$ all $7$ (missing only $C_0E_0$ and $C_2E_1$); $CF$ all $5$ (missing only $C_1F_0$); $DE$ all $8$ (missing only $D_0E_1$); $DF$ all $5$ (missing only $D_2F_0$); $EF$ all $6$. For instance $CD$ is read off as $C_1D_2$, $C_0D_1$, $C_1D_0$, $C_2D_0$, $C_0D_0$, $C_1D_1$, $C_0D_2$, $C_2D_1$, $C_2D_2$, $C_1D_1$, and $DE$ as $D_2E_1$, $D_1E_0$, $D_0E_2$, $D_0E_0$, $D_0E_2$, $D_1E_1$, $D_2E_2$, $D_1E_2$, $D_2E_0$, $D_1E_1$. All $110$ admissible pairs are covered, so $N = 10$ is attained. A $10$-row array must use each of the ten pairs of Step 3 on its own row, which leaves very little freedom: exactly two covering arrays with $10$ rows exist (the verification notes enumerate them), so the construction cannot be found by local improvements of a greedy array.\n\nStep 5: Conclusion.\nSteps 3 and 4 give the minimum $N = 10$. The bound $9$ is not attainable, and the unconstrained value $11$ is one too many; constructions that add rows greedily end at $11$ to $16$.\n\nAnswer: $10$.",
-    "references": "Covering arrays avoiding forbidden edges, which is exactly the object of the question, and the hardness of their minimum size: P. Danziger, E. Mendelsohn, L. Moura and B. Stevens, Covering arrays avoiding forbidden edges, Theoretical Computer Science 410 (2009), 5403-5414. Covering arrays in general and their known small values: C. J. Colbourn, Combinatorial aspects of covering arrays, Le Matematiche 59 (2004), 125-172. The uploaded file verification_notes.txt lists the 136 admissible rows and 110 admissible pairs, checks the set of ten pairwise incompatible pairs against every admissible row with the reason for each couple, checks the 10-row array column pair by column pair, confirms the minimum by an integer programme and enumerates the two optimal arrays; the program is embedded with its output.",
+    "solution": "Step 1: Read the graph.\nThe figure has $42$ edges: $AG, AJ, AS, BK, BS, BV, CH, CL, CY, DI, DN, DW, EL, EP, EZ, FS, FX, FZ, GT, Gb, HJ, Ha, IM, Ib, JV, KQ, KU, LR, MO, MX, NT, NV, OQ, OZ, PU, PX, QY, RT, Ra, Ub, WY, Wa$. Every vertex has degree $3$, so the graph is cubic ($28 \\cdot 3 / 2 = 42$). It has no triangles and no $4$-cycles (girth $5$), it is not planar and it has no symmetry other than the identity, so the count has to be done by a search.\n\nStep 2: Reduce to one choice per vertex.\nA Hamiltonian cycle uses exactly two of the three edges at every vertex, so the unused edges form a perfect matching, and a perfect matching gives a Hamiltonian cycle exactly when the remaining $28$ edges form one cycle rather than several. Two propagation rules drive a hand search: if an edge is left out, the other two edges at both of its ends are used; if two edges at a vertex are used, the third is left out. A branch dies when a vertex keeps fewer than two usable edges or when the used edges close a cycle shorter than $28$.\n\nStep 3: The case split.\nSplit on the edge left out at $D$ (its neighbours are $I$, $N$, $W$), and inside each case on the edge left out at the next vertex.\n- $DI$ left out ($DN$, $DW$ used): split at $N$. Leaving out $NT$ gives $14$ cycles, leaving out $NV$ gives $8$; total $22$.\n- $DN$ left out ($DI$, $DW$ used): split at $I$. Leaving out $IM$ gives $7$, leaving out $Ib$ gives $7$; total $14$.\n- $DW$ left out ($DI$, $DN$ used): split at $I$. Leaving out $IM$ gives $9$, leaving out $Ib$ gives $7$; total $16$.\nHence the graph has $22 + 14 + 16 = 52$ Hamiltonian cycles. For example $A\\,G\\,T\\,N\\,D\\,I\\,b\\,U\\,K\\,B\\,V\\,J\\,H\\,C\\,L\\,R\\,a\\,W\\,Y\\,Q\\,O\\,M\\,X\\,P\\,E\\,Z\\,F\\,S$ (back to $A$) is one of them; the verification notes list all $52$.\n\nStep 4: Checks.\n(i) In a cubic graph every edge lies on an even number of Hamiltonian cycles (Smith's theorem, Thomason 1978). The counts through the edges at $D$ are $52 - 22 = 30$ for $DI$, $52 - 14 = 38$ for $DN$ and $52 - 16 = 36$ for $DW$, all even, and they add up to $104 = 2 \\cdot 52$ because each cycle uses two of the three edges. (ii) The count was confirmed by two independent programs: a depth-first search for cycles through $A$, and an enumeration of all $98$ perfect matchings of which exactly $52$ leave a single $28$-cycle.\n\nStep 5: The traps.\nCounting each cycle once per direction gives $104$. The hand search is long, and losing cycles in a branch gives $48$, $50$ or $51$; losing two cycles can leave every parity even, so the parity check does not catch it.\n\nAnswer: $52$.",
+    "references": "Counting Hamiltonian cycles is #P-complete in general, so no formula is expected and the count is a finite search: L. G. Valiant, The complexity of enumeration and reliability problems, SIAM Journal on Computing 8 (1979), 410-421. The parity check used in the solution (every edge of a cubic graph lies on an even number of Hamiltonian cycles, Smith's theorem): A. G. Thomason, Hamiltonian cycles and uniquely edge colourable graphs, Annals of Discrete Mathematics 3 (1978), 259-268. The uploaded file verification_notes.txt gives the adjacency list, counts the cycles by a depth-first search and by perfect matchings (both 52), gives the case split of the solution, checks the parity of every edge and lists all 52 cycles; the program is embedded with its output.",
     "rubric": {
       "criteria": [
         {
           "id": "c1",
-          "description": "Gives $10$.",
+          "description": "Gives $52$ as the final answer.",
           "points": 5,
           "isFinalAnswer": true
         },
         {
           "id": "c2",
-          "description": "Exhibits an explicit covering array of $10$ admissible rows (every admissible symbol pair present, no forbidden pair in any row).",
-          "points": 3,
-          "isFinalAnswer": false
-        },
-        {
-          "id": "c3",
-          "description": "Proves that $9$ rows are not enough by a valid argument, for instance ten admissible symbol pairs no two of which fit into one admissible row (such as $(x_2,x_5) = (0,1), (1,1), (2,1)$, $(x_3,x_4) = (0,0), (1,0), (2,0)$ and $(x_4,x_5) = (1,0), (1,2), (2,0), (2,2)$), or an equivalent counting argument.",
+          "description": "Reads the graph correctly: $28$ vertices, $42$ edges, every vertex of degree $3$ (an edge list or adjacency list matching the figure).",
           "points": 1,
           "isFinalAnswer": false
         },
         {
+          "id": "c3",
+          "description": "Organises the count by which edge is left out at a vertex (equivalently, by perfect matchings whose complement is a single cycle) and reports case totals that add up to $52$, for instance $22$, $14$ and $16$ for the edges $DI$, $DN$, $DW$ left out at $D$.",
+          "points": 3,
+          "isFinalAnswer": false
+        },
+        {
           "id": "c4",
-          "description": "States the bound of $9$ rows from a column pair with $9$ admissible symbol pairs and recognises that it is not attained.",
+          "description": "Counts each cycle once, not once per direction or starting vertex.",
           "points": 1,
           "isFinalAnswer": false
         }
       ],
       "commonWrongAnswers": [
-        "9",
-        "11",
-        "12",
-        "13"
+        "50",
+        "48",
+        "104",
+        "51"
       ]
     },
     "image": {

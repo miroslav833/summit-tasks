@@ -1,0 +1,11 @@
+/home/Trustvs/Turing/AQ_Summit/tasks/task07-fractional-chromatic-number/work/layout.py:24: RuntimeWarning: invalid value encountered in scalar divide
+  t = np.clip(np.dot(p - a, d) / np.dot(d, d), 0, 1)
+spring 94 rep 0: crossings 3, ve 0.000, vv 0.000
+spring 94 rep 1: crossings 6, ve 0.110, vv 0.240
+spring 94 rep 2: crossings 3, ve 0.000, vv 0.240
+spring 130 rep 0: crossings 6, ve 0.110, vv 0.240
+spring 130 rep 1: crossings 6, ve 0.110, vv 0.240
+spring 130 rep 2: crossings 5, ve 0.108, vv 0.197
+kk 71 rep 0: crossings 7, ve 0.110, vv 0.240
+kk 71 rep 1: crossings 7, ve 0.110, vv 0.240
+kk 71 rep 2: crossings 7, ve 0.110, vv 0.240

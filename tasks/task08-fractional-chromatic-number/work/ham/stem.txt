@@ -1,0 +1,5 @@
+The figure shows a simple undirected graph on $28$ vertices, labelled $A$ to $Z$, $a$ and $b$. The edges are the straight segments drawn between the circles. Where two segments cross, the crossing point is not a vertex and the two edges do not meet.
+
+A Hamiltonian cycle is a cycle that passes through every vertex exactly once. Two Hamiltonian cycles count as the same if they use the same set of edges, so the starting vertex and the direction of travel do not matter.
+
+How many Hamiltonian cycles does the graph have? Give a single integer.

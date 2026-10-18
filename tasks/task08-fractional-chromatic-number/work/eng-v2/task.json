@@ -1,0 +1,72 @@
+{
+  "schema_version": "summit-task-package-v1",
+  "task": {
+    "domain": "engineering",
+    "subdomain": "Fatigue and fracture of titanium alloys",
+    "modality": "image_reference",
+    "taskType": "graph_extraction_computation",
+    "imageCreationTool": "matplotlib (log-log plot generated from the stated growth law and closure model)",
+    "imageNecessityExplanation": "The Paris constants, the slope, the thresholds and the displacement between the two load ratios, from which the closure level follows, are given only by the plot; nothing in the text states the growth law or the closure level.",
+    "questionText": "The figure shows fatigue crack growth data for long cracks in a metal injection moulded Ti-6Al-7Nb alloy: the crack growth rate $da/dN$ against the stress intensity factor range $\\Delta K$ on logarithmic axes, measured at the load ratios $R = 0.1$ and $R = 0.7$. The dashed lines are the Paris-law fits to the straight parts of the two data sets. The difference between the two data sets is caused by crack closure. Assume that the crack-opening stress intensity factor $K_{op}$ is the same fixed fraction of $K_{max}$ at every load ratio at which closure occurs, that closure is absent when $K_{min} \\ge K_{op}$, and that the growth rate depends only on the effective range $\\Delta K_{eff} = K_{max} - \\max(K_{op}, K_{min})$.\n\nA wide plate of the same material carries a constant-amplitude cyclic stress with $\\sigma_{max} = 400$ MPa at $R = 0.4$. A surface pore is treated as an edge crack of initial length $a_0 = 0.20$ mm, with the geometry factor $Y = 1.12$ taken as constant, so that $K = Y \\sigma \\sqrt{\\pi a}$. The plate fails when $K_{max}$ reaches the fracture toughness $K_{IC} = 55$ MPa$\\sqrt{\\mathrm{m}}$. Use the Paris fits for the whole of the crack growth and ignore the deviation of the data near the threshold.\n\nFind the number of cycles from $a_0$ to failure. Give the answer to three significant figures.",
+    "answerType": "exact_match",
+    "finalAnswer": [
+      "$2.47 \\times 10^{6}$ cycles"
+    ],
+    "acceptableAnswerVariants": [
+      "2.47e6 cycles",
+      "2470000 cycles",
+      "$2.47 \\times 10^6$",
+      "2.47 million cycles",
+      "2.47E+06"
+    ],
+    "multipleChoiceOptions": [],
+    "answerPrecision": {
+      "kind": "significant_figures",
+      "digits": 3
+    },
+    "solution": "Step 1: Read the two Paris fits from the figure.\nBoth dashed lines have the same slope. The fit to the $R = 0.7$ data passes through the grid intersections $da/dN = 10^{-9}$ m/cycle at $\\Delta K = 10$ MPa$\\sqrt{\\mathrm{m}}$ and $da/dN = 10^{-6}$ m/cycle at $\\Delta K = 100$ MPa$\\sqrt{\\mathrm{m}}$, so its exponent is $m = \\log(10^{3})/\\log(10) = 3$ and its coefficient is $C = 10^{-9}/10^{3} = 1.0 \\times 10^{-12}$ m/cycle per (MPa$\\sqrt{\\mathrm{m}}$)$^{3}$. The fit to the $R = 0.1$ data is the same line displaced to the right by a factor of $2$: it passes through $10^{-9}$ m/cycle at $\\Delta K = 20$ and $10^{-6}$ m/cycle at $\\Delta K = 200$ MPa$\\sqrt{\\mathrm{m}}$, and the two thresholds ($\\approx 2.5$ and $\\approx 5$ MPa$\\sqrt{\\mathrm{m}}$) are displaced by the same factor.\n\nStep 2: Infer the closure level.\nWrite $K_{op} = k\\,K_{max}$. A load ratio with $K_{min} \\ge K_{op}$ has $\\Delta K_{eff} = \\Delta K$. The data set to the left (faster growth at a given $\\Delta K$) is the one in which the whole range is effective, so the $R = 0.7$ curve is the closure-free curve, $da/dN = C\\,\\Delta K_{eff}^{3}$, and $k < 0.7$. At $R = 0.1$, $\\Delta K = 0.9\\,K_{max}$ and $\\Delta K_{eff} = (1 - k)\\,K_{max}$, so $\\Delta K_{eff} = U_{0.1}\\,\\Delta K$ with $U_{0.1} = (1-k)/0.9$. Equal growth rates occur at equal $\\Delta K_{eff}$, so the displacement of the $R = 0.1$ curve is $1/U_{0.1} = 2$, giving $U_{0.1} = 0.5$ and $k = 1 - 0.9 \\times 0.5 = 0.55$.\n\nStep 3: The decisive step: at $R = 0.4$ closure is present, and neither measured curve applies as it stands.\nAt $R = 0.4$, $K_{min} = 0.40\\,K_{max} < K_{op} = 0.55\\,K_{max}$, so the crack closes during part of every cycle and $\\Delta K_{eff} = K_{max} - K_{op} = 0.45\\,K_{max}$. With $\\Delta K = 0.6\\,K_{max}$ this is $\\Delta K_{eff} = U_{0.4}\\,\\Delta K$ with $U_{0.4} = 0.45/0.60 = 0.75$. The growth law of the plate is therefore $da/dN = C\\,(0.75\\,\\Delta K)^{3} = C_{eff}\\,\\Delta K^{3}$ with $C_{eff} = 0.75^{3} \\times 10^{-12} = 4.2188e-13$ m/cycle per (MPa$\\sqrt{\\mathrm{m}}$)$^{3}$. Taking the crack to be closure-free at $R = 0.4$ (the $R = 0.7$ fit), using the $R = 0.1$ fit, or interpolating between the two curves in $R$ all give wrong lives.\n\nStep 4: Stress range, critical crack length and the range of $\\Delta K$.\n$\\sigma_{min} = R\\,\\sigma_{max} = 160$ MPa and $\\Delta \\sigma = \\sigma_{max} - \\sigma_{min} = 240$ MPa. Failure occurs when $K_{max} = Y \\sigma_{max} \\sqrt{\\pi a_c} = K_{IC}$, so $a_c = \\dfrac{1}{\\pi}\\left(\\dfrac{K_{IC}}{Y \\sigma_{max}}\\right)^{2} = \\dfrac{1}{\\pi}\\left(\\dfrac{55}{1.12 \\times 400}\\right)^{2} = 4.798$ mm (with $\\Delta\\sigma$ in place of $\\sigma_{max}$ one would get $13.3$ mm, which is wrong). The applied range grows from $\\Delta K(a_0) = 1.12 \\times 240 \\times \\sqrt{\\pi \\times 0.20 \\times 10^{-3}} = 6.74$ MPa$\\sqrt{\\mathrm{m}}$ to $\\Delta K(a_c) = 33.0$ MPa$\\sqrt{\\mathrm{m}}$; the effective range runs from $5.05$ to $24.7$ MPa$\\sqrt{\\mathrm{m}}$, above the intrinsic threshold and inside the straight part of the data.\n\nStep 5: Integrate the Paris law.\nWith $da/dN = C_{eff} (Y \\Delta\\sigma \\sqrt{\\pi a})^{m}$ and $m = 3$,\n$$N = \\int_{a_0}^{a_c} \\frac{da}{C_{eff}\\,(Y \\Delta\\sigma \\sqrt{\\pi})^{3}\\, a^{3/2}} = \\frac{2}{C_{eff}\\,(Y \\Delta\\sigma \\sqrt{\\pi})^{3}}\\left(a_0^{-1/2} - a_c^{-1/2}\\right).$$\nHere $Y \\Delta\\sigma \\sqrt{\\pi} = 1.12 \\times 240 \\times \\sqrt{\\pi} = 476.4$ MPa$\\sqrt{\\mathrm{m}}\\,$m$^{-1/2}$, its cube is $1.0815e+08$, and $2/(C_{eff} \\times 1.0815e+08) = 43836$ cycles$\\,$m$^{1/2}$. With $a_0^{-1/2} = (0.20 \\times 10^{-3})^{-1/2} = 70.71$ m$^{-1/2}$ and $a_c^{-1/2} = (4.798 \\times 10^{-3})^{-1/2} = 14.44$ m$^{-1/2}$,\n$$N = 43836 \\times (70.71 - 14.44) = 2.467e+06 \\approx 2.47 \\times 10^{6} \\text{ cycles}.$$\n\nStep 6: Conclusion.\nThe plate survives $2.47 \\times 10^{6}$ cycles. The closure-free law (the $R = 0.7$ fit used directly) gives $1.04e+06$, which is the life one obtains by assuming that closure has vanished at $R = 0.4$; the $R = 0.1$ fit gives $8.33 \\times 10^{6}$; a log-linear interpolation between the two curves at $R = 0.4$ gives $2.94 \\times 10^{6}$; computing $a_c$ from $\\Delta\\sigma$ gives $2.72 \\times 10^{6}$.\n\nAnswer: $2.47 \\times 10^{6}$ cycles.",
+    "references": "Crack closure and the effective stress intensity range: W. Elber, The significance of fatigue crack closure, in Damage Tolerance in Aircraft Structures, ASTM STP 486 (1971), 230-242. The power-law relation between growth rate and stress intensity range: P. C. Paris and F. Erdogan, A critical analysis of crack propagation laws, Journal of Basic Engineering 85 (1963), 528-534. The uploaded file verification_notes.txt states the growth law and closure model from which the figure was generated (so the fits are exact), lists every plotted point, derives the closure level from the displacement of the two curves and the effective range at $R = 0.4$, computes the critical crack length and the life by the closed form and by two numerical integrations, and computes the values reached by the wrong routes; the program is embedded with its output.",
+    "rubric": {
+      "criteria": [
+        {
+          "id": "c1",
+          "description": "Gives $2.47 \\times 10^{6}$ cycles (three significant figures; any equivalent numerical form).",
+          "points": 5,
+          "isFinalAnswer": true
+        },
+        {
+          "id": "c2",
+          "description": "Reads the Paris fit of the $R = 0.7$ data as $m = 3$ and $C = 1.0 \\times 10^{-12}$ m/cycle per (MPa$\\sqrt{\\mathrm{m}}$)$^3$, and infers the closure level $K_{op}/K_{max} = 0.55$ (equivalently $U = 0.5$ at $R = 0.1$) from the displacement factor $2$ between the two curves.",
+          "points": 2,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c3",
+          "description": "Recognises that closure is still present at $R = 0.4$ because $K_{min} = 0.40\\,K_{max}$ is below $K_{op} = 0.55\\,K_{max}$, and derives $\\Delta K_{eff} = 0.75\\,\\Delta K$ (equivalently $C_{eff} = 4.22 \\times 10^{-13}$) for the plate.",
+          "points": 2,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c4",
+          "description": "Obtains the critical crack length $a_c = 4.80$ mm from $K_{max} = Y \\sigma_{max} \\sqrt{\\pi a_c} = K_{IC}$ with $\\sigma_{max} = 400$ MPa.",
+          "points": 1,
+          "isFinalAnswer": false
+        }
+      ],
+      "commonWrongAnswers": [
+        "$1.04 \\times 10^{6}$ cycles",
+        "$8.33 \\times 10^{6}$ cycles",
+        "$2.94 \\times 10^{6}$ cycles",
+        "$3.62 \\times 10^{6}$ cycles",
+        "$2.72 \\times 10^{6}$ cycles"
+      ]
+    },
+    "image": {
+      "entry": "image.png"
+    },
+    "referenceFile": {
+      "entry": "reference.txt",
+      "fileName": "verification_notes.txt"
+    }
+  }
+}

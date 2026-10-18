@@ -1,0 +1,5 @@
+Constant-K_op version (key 1.2e6, this package; screened before the last rewording of the final stem sentence, see below): Opus 3/3 correct (88 s, 89 s, 78 s; each read C = 1e-12 and m = 3, K_op = 6 from equal-rate pairs such as 14 against 18 and 24 against 27 or from the merging point near 54, the transition at K_max = 15 (a_t = 0.357 mm), the two closed-form stages 4.85e5 + 7.12e5). Sonnet 0/1 (answered 1.0e6: it read "use the Paris fit of the R = 0.7 data as the closure-free growth law for the whole of the crack growth" as an instruction to ignore closure and integrated with delta K throughout). That sentence was then reworded to "take the dashed Paris fit as the relation between da/dN and delta K_eff for the whole of the crack growth", which removes the misreading; no new screen was run after the rewording.
+
+Closure-0.55 version (key 2.47e6, archived in work/eng-v2): Opus 3/3 correct (58 s, 50 s, 39 s), Sonnet 1/1 correct (2 min).
+
+Closure-0.30 version (key 1.04e6, archived in work/eng-v1): Opus 3/3 correct (56 s, 85 s, 82 s), Sonnet 1/1 correct (2 min).

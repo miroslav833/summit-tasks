@@ -1,0 +1,6 @@
+task08-ham28 #1: answer=52 stop=end_turn out_tokens=81413 thinking=80088 596s RIGHT
+task08-ham28 #2: answer=52 stop=end_turn out_tokens=117144 thinking=115783 871s RIGHT
+task08-ham28 #3: answer=None stop=stop_sequence out_tokens=512000 thinking=512000 3778s CUT
+task08-ham28 #4: answer=52 stop=end_turn out_tokens=246037 thinking=244677 1827s RIGHT
+task08-ham28 #5: answer=52 stop=end_turn out_tokens=127011 thinking=125813 966s RIGHT
+task08-ham28: correct 4/5, cut-offs 1

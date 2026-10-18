@@ -1,0 +1,18 @@
+sigma_max = 400.0 MPa, sigma_min = 160.0 MPa, delta sigma = 240.0 MPa; K_max = 794.06 sqrt(a), delta K = 476.44 sqrt(a) (a in m)
+a_c = (K_IC/(Y sigma_max))^2/pi = 4.7975 mm; K_max at a0 = 11.230 MPa sqrt m, K_min at a0 = 4.492 < K_op = 6.0: closure present at a0
+transition: K_min = K_op when K_max = K_op/R = 15.0 MPa sqrt m, a_t = 0.3568 mm; dK_eff at a0 = 5.230 (above the intrinsic threshold 2.5), at a_t = 9.00; closure-free dK from 9.00 to 33.00
+ROUTE 1 (closed forms): part 1 (closure, dK_eff = K_max - K_op = B sqrt(a) - 6.0): N1 = (2/(C B^2)) [-1/w - K_op/(2 w^2)] from w0 = 5.2297 to w_t = 9.0000 = 484538.2
+                        part 2 (closure-free, dK_eff = dK): N2 = 2/(C A^3) [a_t^(-1/2) - a_c^(-1/2)] = 711994.1
+                        N = N1 + N2 = 1196532.3 cycles = 1.1965e+06
+ROUTE 2 (Simpson on the piecewise law): N = 1196532.3 cycles
+ROUTE 3 (scipy quad): N = 1196532.3 cycles
+with the near-threshold knee factor kept in the law: N = 1209824.3 cycles (+1.11 percent; the stem says to use the Paris fit)
+ANSWER KEY (2 s.f.): 1.2e+06 cycles = 1.2 x 10^6  (3 s.f. would be 1.2e+06)
+wrong route A, closure ignored (intrinsic law with dK throughout): N = 1.0407e+06 -> 1e+06
+wrong route B, closure kept throughout (dK_eff = K_max - K_op up to a_c, transition ignored): N = 8.8576e+05 -> 8.9e+05
+wrong route C, K_op taken as the fixed fraction 0.534 of K_max that holds at a0 (U = 0.776 throughout): N = 2.2256e+06 -> 2.2e+06
+wrong route D, the R = 0.1 data treated as a parallel Paris line a factor 2 to the right (U = 0.5): N = 8.3255e+06 -> 8.3e+06
+wrong route E, a_c computed with delta sigma instead of sigma_max (a_c = 13.33 mm): N = 1.3033e+06 -> 1.3e+06
+sensitivity: K_op read as 5.5: N = 1.1077e+06 -> 1.1e+06
+sensitivity: K_op read as 6.5: N = 1.3344e+06 -> 1.3e+06
+ALL CHECKS PASSED.

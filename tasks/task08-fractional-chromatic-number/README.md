@@ -1,62 +1,78 @@
-# task08: smallest covering array with six columns avoiding ten forbidden pairs
+# task08: number of Hamiltonian cycles of a drawn 28-vertex cubic graph
 
-Mathematics, subdomain: Combinatorial design theory: covering arrays avoiding forbidden pairs. The five-column version (key 10, solved by Opus 3/3 locally) is archived in work/ca-v1. Earlier contents of this folder (fractional chromatic number; three crack-growth versions; four test-matrix versions) are archived under work/.
+Mathematics, subdomain: Graph theory: enumeration of Hamiltonian cycles in a cubic graph. Earlier contents of this folder (fractional chromatic number, crack growth, test matrices, covering arrays, M/G/1 queue) are archived under work/.
 
 ## Question
 
-An array has $N$ rows and $6$ columns. The entries $x_1, \dots, x_5$ of a row are symbols from $\{0, 1, 2\}$ and the entry $x_6$ is a symbol from $\{0, 1\}$. The figure marks ten forbidden pairs: a cell marked F in the row labelled $x_i = a$ and the column labelled $x_j = b$ means that no row of the array may have $x_i = a$ and $x_j = b$ at the same time. Every row of the array must avoid all ten forbidden pairs.
+The figure shows a simple undirected graph on $28$ vertices, labelled $A$ to $Z$, $a$ and $b$. The edges are the straight segments drawn between the circles. Where two segments cross, the crossing point is not a vertex and the two edges do not meet.
 
-The array is called covering if, for every two distinct columns $i$ and $j$ and every pair of symbols $(a, b)$ allowed in those columns that is not forbidden, some row of the array has $x_i = a$ and $x_j = b$. Nothing else is required.
+A Hamiltonian cycle is a cycle that passes through every vertex exactly once. Two Hamiltonian cycles count as the same if they use the same set of edges, so the starting vertex and the direction of travel do not matter.
 
-Find the smallest $N$ for which a covering array exists. Give a single integer.
+How many Hamiltonian cycles does the graph have? Give a single integer.
 
 ## Answer
 
-10
+52
 
 ## Solution
 
-Step 1: Set up the counting objects.
-Write $A, \dots, F$ for the columns $x_1, \dots, x_6$ and $A_a$ for the entry $x_1 = a$. The forbidden pairs read from the figure are $A_1B_1$, $A_1C_2$, $A_1E_1$, $A_2C_0$, $A_2D_0$, $C_0E_0$, $C_1F_0$, $C_2E_1$, $D_0E_1$ and $D_2F_0$. An admissible row avoids all of them; there are $136$ admissible rows out of $3^5 \cdot 2 = 486$. The pairs to be covered are the $120 - 10 = 110$ admissible symbol pairs, and each row carries exactly one symbol pair for each of the fifteen column pairs.
+Step 1: Read the graph.
+The figure has $42$ edges: $AG, AJ, AS, BK, BS, BV, CH, CL, CY, DI, DN, DW, EL, EP, EZ, FS, FX, FZ, GT, Gb, HJ, Ha, IM, Ib, JV, KQ, KU, LR, MO, MX, NT, NV, OQ, OZ, PU, PX, QY, RT, Ra, Ub, WY, Wa$. Every vertex has degree $3$, so the graph is cubic ($28 \cdot 3 / 2 = 42$). It has no triangles and no $4$-cycles (girth $5$), it is not planar and it has no symmetry other than the identity, so the count has to be done by a search.
 
-Step 2: The bounds that come first.
-The column pairs $BC$, $BD$, $BE$ and $CD$ keep all $9$ of their symbol pairs, so $N \ge 9$. Without forbidden pairs the smallest covering array with five ternary and one binary column has $11$ rows; the forbidden pairs remove requirements as well as rows, and the answer is smaller.
+Step 2: Reduce to one choice per vertex.
+A Hamiltonian cycle uses exactly two of the three edges at every vertex, so the unused edges form a perfect matching, and a perfect matching gives a Hamiltonian cycle exactly when the remaining $28$ edges form one cycle rather than several. Two propagation rules drive a hand search: if an edge is left out, the other two edges at both of its ends are used; if two edges at a vertex are used, the third is left out. A branch dies when a vertex keeps fewer than two usable edges or when the used edges close a cycle shorter than $28$.
 
-Step 3: Lower bound $10$.
-Call two admissible symbol pairs incompatible if no admissible row contains both. The ten pairs
-$$B_0E_1,\ B_1E_1,\ B_2E_1,\ C_0D_0,\ C_1D_0,\ C_2D_0,\ D_1E_0,\ D_1E_2,\ D_2E_0,\ D_2E_2$$
-are pairwise incompatible. Pairs that need one column with two different symbols account for most couples: the three $B_jE_1$ differ in $B$, the three $C_iD_0$ differ in $C$, the four $D_mE_n$ differ in $D$ or $E$ among themselves, every $B_jE_1$ differs in $E$ from every $D_mE_n$ (where $n \in \{0, 2\}$), and every $C_iD_0$ differs in $D$ from every $D_mE_n$ (where $m \in \{1, 2\}$). The remaining nine couples, $B_jE_1$ with $C_iD_0$, put $x_4 = 0$ and $x_5 = 1$ into one row, which is the forbidden pair $D_0E_1$. In words: the symbol $1$ in column $E$ must meet all three symbols of column $B$, the symbol $0$ in column $D$ must meet all three symbols of column $C$ on rows that cannot have $x_5 = 1$, and the four pairs $(x_4, x_5) \in \{1, 2\} \times \{0, 2\}$ need four more rows. Hence $N \ge 3 + 3 + 4 = 10$.
+Step 3: The case split.
+Split on the edge left out at $D$ (its neighbours are $I$, $N$, $W$), and inside each case on the edge left out at the next vertex.
+- $DI$ left out ($DN$, $DW$ used): split at $N$. Leaving out $NT$ gives $14$ cycles, leaving out $NV$ gives $8$; total $22$.
+- $DN$ left out ($DI$, $DW$ used): split at $I$. Leaving out $IM$ gives $7$, leaving out $Ib$ gives $7$; total $14$.
+- $DW$ left out ($DI$, $DN$ used): split at $I$. Leaving out $IM$ gives $9$, leaving out $Ib$ gives $7$; total $16$.
+Hence the graph has $22 + 14 + 16 = 52$ Hamiltonian cycles. For example $A\,G\,T\,N\,D\,I\,b\,U\,K\,B\,V\,J\,H\,C\,L\,R\,a\,W\,Y\,Q\,O\,M\,X\,P\,E\,Z\,F\,S$ (back to $A$) is one of them; the verification notes list all $52$.
 
-Step 4: Upper bound $10$, the decisive step.
-The ten rows (written $x_1 x_2 x_3 x_4 x_5 x_6$)
-$$001211,\ 010110,\ 011021,\ 022000,\ 100020,\ 101101,\ 120221,\ 202120,\ 212201,\ 221111$$
-contain no forbidden pair. Column pair by column pair they carry every admissible symbol pair: $AB$ all $8$ (everything except $A_1B_1$), $AC$ all $7$, $AD$ all $8$, $AE$ all $8$, $AF$ all $6$; $BC$, $BD$, $BE$ all $9$ each; $BF$ all $6$; $CD$ all $9$; $CE$ all $7$ (missing only $C_0E_0$ and $C_2E_1$); $CF$ all $5$ (missing only $C_1F_0$); $DE$ all $8$ (missing only $D_0E_1$); $DF$ all $5$ (missing only $D_2F_0$); $EF$ all $6$. For instance $CD$ is read off as $C_1D_2$, $C_0D_1$, $C_1D_0$, $C_2D_0$, $C_0D_0$, $C_1D_1$, $C_0D_2$, $C_2D_1$, $C_2D_2$, $C_1D_1$, and $DE$ as $D_2E_1$, $D_1E_0$, $D_0E_2$, $D_0E_0$, $D_0E_2$, $D_1E_1$, $D_2E_2$, $D_1E_2$, $D_2E_0$, $D_1E_1$. All $110$ admissible pairs are covered, so $N = 10$ is attained. A $10$-row array must use each of the ten pairs of Step 3 on its own row, which leaves very little freedom: exactly two covering arrays with $10$ rows exist (the verification notes enumerate them), so the construction cannot be found by local improvements of a greedy array.
+Step 4: Checks.
+(i) In a cubic graph every edge lies on an even number of Hamiltonian cycles (Smith's theorem, Thomason 1978). The counts through the edges at $D$ are $52 - 22 = 30$ for $DI$, $52 - 14 = 38$ for $DN$ and $52 - 16 = 36$ for $DW$, all even, and they add up to $104 = 2 \cdot 52$ because each cycle uses two of the three edges. (ii) The count was confirmed by two independent programs: a depth-first search for cycles through $A$, and an enumeration of all $98$ perfect matchings of which exactly $52$ leave a single $28$-cycle.
 
-Step 5: Conclusion.
-Steps 3 and 4 give the minimum $N = 10$. The bound $9$ is not attainable, and the unconstrained value $11$ is one too many; constructions that add rows greedily end at $11$ to $16$.
+Step 5: The traps.
+Counting each cycle once per direction gives $104$. The hand search is long, and losing cycles in a branch gives $48$, $50$ or $51$; losing two cycles can leave every parity even, so the parity check does not catch it.
 
-Answer: $10$.
+Answer: $52$.
 
 ## Rubric
 
-- c1 (5 pts, final answer): Gives $10$.
-- c2 (3 pts): Exhibits an explicit covering array of $10$ admissible rows (every admissible symbol pair present, no forbidden pair in any row).
-- c3 (1 pts): Proves that $9$ rows are not enough by a valid argument, for instance ten admissible symbol pairs no two of which fit into one admissible row (such as $(x_2,x_5) = (0,1), (1,1), (2,1)$, $(x_3,x_4) = (0,0), (1,0), (2,0)$ and $(x_4,x_5) = (1,0), (1,2), (2,0), (2,2)$), or an equivalent counting argument.
-- c4 (1 pts): States the bound of $9$ rows from a column pair with $9$ admissible symbol pairs and recognises that it is not attained.
+- c1 (5 pts, final answer): Gives $52$ as the final answer.
+- c2 (1 pts): Reads the graph correctly: $28$ vertices, $42$ edges, every vertex of degree $3$ (an edge list or adjacency list matching the figure).
+- c3 (3 pts): Organises the count by which edge is left out at a vertex (equivalently, by perfect matchings whose complement is a single cycle) and reports case totals that add up to $52$, for instance $22$, $14$ and $16$ for the edges $DI$, $DN$, $DW$ left out at $D$.
+- c4 (1 pts): Counts each cycle once, not once per direction or starting vertex.
 
-Common wrong answers: 9, 11, 12, 13
+Common wrong answers: 50, 48, 104, 51
 
 ## References box
 
-Covering arrays avoiding forbidden edges, which is exactly the object of the question, and the hardness of their minimum size: P. Danziger, E. Mendelsohn, L. Moura and B. Stevens, Covering arrays avoiding forbidden edges, Theoretical Computer Science 410 (2009), 5403-5414. Covering arrays in general and their known small values: C. J. Colbourn, Combinatorial aspects of covering arrays, Le Matematiche 59 (2004), 125-172. The uploaded file verification_notes.txt lists the 136 admissible rows and 110 admissible pairs, checks the set of ten pairwise incompatible pairs against every admissible row with the reason for each couple, checks the 10-row array column pair by column pair, confirms the minimum by an integer programme and enumerates the two optimal arrays; the program is embedded with its output.
+Counting Hamiltonian cycles is #P-complete in general, so no formula is expected and the count is a finite search: L. G. Valiant, The complexity of enumeration and reliability problems, SIAM Journal on Computing 8 (1979), 410-421. The parity check used in the solution (every edge of a cubic graph lies on an even number of Hamiltonian cycles, Smith's theorem): A. G. Thomason, Hamiltonian cycles and uniquely edge colourable graphs, Annals of Discrete Mathematics 3 (1978), 259-268. The uploaded file verification_notes.txt gives the adjacency list, counts the cycles by a depth-first search and by perfect matchings (both 52), gives the case split of the solution, checks the parity of every edge and lists all 52 cycles; the program is embedded with its output.
 
 ## Verify field
 
-Section 3 of verification_notes.txt gives the lower-bound certificate: ten admissible symbol pairs (B0E1, B1E1, B2E1, C0D0, C1D0, C2D0, D1E0, D1E2, D2E0, D2E2, where A to F stand for the columns x1 to x6), checked against all 136 admissible rows so that no row contains two of them, with the reason for every one of the 45 couples. Section 4 gives the 10-row array and checks every column pair. Section 5 confirms the minimum 10 by an integer programme (scipy HiGHS) and enumerates the two optimal arrays. Section 7 embeds the program verify_key.py with its output.
+Section 2 of verification_notes.txt counts the Hamiltonian cycles by a depth-first search from A (52 distinct edge sets). Section 3 counts them a second way, as the perfect matchings whose complement is one 28-cycle (98 perfect matchings, 52 good). Section 4 gives the case split of the solution (DI, DN, DW left out: 22, 14, 16). Section 5 checks that every edge lies on an even number of the cycles. Section 6 lists all 52 cycles. The program verify_key.py is embedded with its output.
+
+## Image necessity
+
+The graph exists only in the figure: the question gives no vertex or edge, and the answer is a property of that particular edge set, so it cannot be found without reading all 42 edges from the drawing.
 
 ## Screen
 
-Six columns (five ternary, one binary), ten forbidden pairs, key 10, two optimal arrays: Opus 3/3 correct (2.5, 4 and 10 minutes), Sonnet 1/1 correct (8 minutes). Every run proved 9 impossible by a counting argument on the unconstrained column pairs and then built one of the two optimal arrays from the forced structure (group sizes 4, 3, 3 on one column). Too easy.
+SUMMIT-MATCHING SCREEN (tools/summit_screen.py, Opus 5.5 at --effort max, 5 attempts, figure plus stem, 2026-10-18): 4/5 correct (52 in 10, 15, 16 and 30 minutes, 81k to 246k reported output tokens), 1 cut-off at the 128k output limit after 63 minutes. In band (1 to 4 of 5), one cut-off is below the unfair threshold of two. The max-effort runs counted by cutting the graph into two sides joined by six edges and pairing the crossings, with parity checks per edge.
 
-Five-column version (key 10, archived in work/ca-v1): Opus 3/3, Sonnet lost.
+Cheap subagent screen (figure plus stem, no tools), 2026-10-18. Family history in tasks/task13-hamiltonian-cycle-count/work/screen.md.
+
+This graph (28 vertices, 42 edges, girth 5, not planar, trivial automorphism group, 14 crossings, key 52):
+- Opus 0/3: 48 (DW 16, DN 12, DI 20), 50 (16, 12, 22), 51 (16, 14, 21). Every run read all 42 edges correctly and used the right method (edge left out at D, forced-edge propagation); the misses are cycles lost in the branches. 230 to 285 s, no cut-off.
+- Sonnet 0/1: 50 (16, 14, 20), 240 s.
+
+Size ladder (same family, non-planar, girth 5, trivial automorphism group):
+- 18 vertices, key 21: Opus 2/2, Sonnet 1/1.
+- 22 vertices, key 25: Opus 3/3, Sonnet 1/1.
+- 24 vertices, key 38: Opus 3/3, Sonnet 1/1.
+- 26 vertices, key 40: Opus 2/3 (40, 39, 40), Sonnet 1/1.
+- 28 vertices, key 52: Opus 0/3, Sonnet 0/1 (this package).
+Planar versions (16 and 20 vertices, fullerenes C26 and C28) were solved by face 2-colouring and symmetry and are not used.
 

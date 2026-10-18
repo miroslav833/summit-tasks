@@ -1,39 +1,46 @@
-"""Draws the figure for task08: chart of the forbidden symbol pairs of a six-column array (x1..x5 over {0,1,2}, x6 over
-{0,1}).  Produces image.png (300 dpi) and image.pdf.  Run: python3 draw_figure.py"""
-import pathlib
+# The drawn graph: 28 vertices, 42 edges, every vertex of degree 3. Positions are fixed so the figure is reproducible.
+# Run: python3 draw_figure.py (needs matplotlib)
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 
-LEVELS = [3, 3, 3, 3, 3, 2]
-FORBIDDEN = [((0, 1), (1, 1)), ((0, 1), (2, 2)), ((0, 1), (4, 1)), ((0, 2), (2, 0)), ((0, 2), (3, 0)),
-             ((2, 0), (4, 0)), ((2, 1), (5, 0)), ((2, 2), (4, 1)), ((3, 0), (4, 1)), ((3, 2), (5, 0))]
+EDGES = "AG AJ AS BK BS BV CH CL CY DI DN DW EL EP EZ FS FX FZ GT Gb HJ Ha IM Ib JV KQ KU LR MO MX NT NV OQ OZ PU PX QY RT Ra Ub WY Wa".split()
+POS = {"A": (0.202, -0.1031),
+       "B": (-0.0271, -0.1881),
+       "C": (0.8587, 0.0705),
+       "D": (-0.2273, 0.7744),
+       "E": (0.1167, -0.6798),
+       "F": (-0.4735, -0.8997),
+       "G": (-0.1002, 0.3004),
+       "H": (1.0, 0.3544),
+       "I": (-0.7073, 0.4023),
+       "J": (0.5595, 0.0971),
+       "K": (-0.3794, -0.151),
+       "L": (0.6206, -0.241),
+       "M": (-0.8686, -0.181),
+       "N": (0.0584, 0.6707),
+       "O": (-0.4371, -0.4075),
+       "P": (-0.463, -0.6618),
+       "Q": (-0.1182, -0.0303),
+       "R": (0.7087, 0.3376),
+       "S": (-0.0836, -0.5399),
+       "T": (0.2729, 0.558),
+       "U": (-0.6326, -0.1874),
+       "V": (0.1838, 0.28),
+       "W": (0.3551, 0.7811),
+       "X": (-0.8189, -0.6782),
+       "Y": (0.4046, 0.2936),
+       "Z": (-0.2394, -0.8568),
+       "a": (0.8227, 0.6848),
+       "b": (-0.5866, 0.1987)}
 
-def draw(out="image"):
-    cells = [(c, s) for c, l in enumerate(LEVELS) for s in range(l)]; n = len(cells); idx = {cs: i for i, cs in enumerate(cells)}
-    starts = [0]
-    for l in LEVELS: starts.append(starts[-1] + l)
-    fig, ax = plt.subplots(figsize=(8.4, 8.4))
-    for i, (ci, _) in enumerate(cells):
-        for j, (cj, _) in enumerate(cells):
-            ax.add_patch(Rectangle((j, n - 1 - i), 1, 1, facecolor="0.82" if ci == cj else "white", edgecolor="0.6", lw=0.5))
-    for a, b in FORBIDDEN:
-        for (p, q) in ((idx[a], idx[b]), (idx[b], idx[a])):
-            ax.add_patch(Rectangle((q, n - 1 - p), 1, 1, facecolor="black", edgecolor="0.6", lw=0.5))
-            ax.text(q + 0.5, n - 1 - p + 0.5, "F", color="white", ha="center", va="center", fontsize=11, fontweight="bold")
-    for s in starts:
-        ax.plot([s, s], [0, n], color="black", lw=1.6); ax.plot([0, n], [n - s, n - s], color="black", lw=1.6)
-    for i, (c, s) in enumerate(cells):
-        lab = f"$x_{c + 1} = {s}$"
-        ax.text(-0.3, n - 1 - i + 0.5, lab, ha="right", va="center", fontsize=10)
-        ax.text(i + 0.5, n + 0.3, lab, ha="center", va="bottom", fontsize=10, rotation=90)
-    ax.set_xlim(-3.2, n + 0.2); ax.set_ylim(-1.6, n + 3.2); ax.set_aspect("equal"); ax.axis("off")
-    ax.text(n / 2, -0.5, "F: forbidden pair of symbols (no row may contain both).  Grey: same column.", ha="center", va="top", fontsize=10.5)
-    fig.tight_layout(pad=0.3)
-    here = pathlib.Path(__file__).parent
-    fig.savefig(here / f"{out}.png", dpi=300, facecolor="white"); fig.savefig(here / f"{out}.pdf", facecolor="white"); plt.close(fig)
-    print("wrote", out + ".png", out + ".pdf")
-
-if __name__ == "__main__":
-    draw()
+fig, ax = plt.subplots(figsize=(7, 7), dpi=200)
+for e in EDGES:
+    (x1, y1), (x2, y2) = POS[e[0]], POS[e[1]]
+    ax.plot([x1, x2], [y1, y2], color="0.2", lw=1.3, zorder=1)
+for v, (x, y) in POS.items():
+    ax.scatter([x], [y], s=380, facecolor="white", edgecolor="0.1", linewidths=1.2, zorder=2)
+    ax.text(x, y, v, ha="center", va="center", fontsize=10, zorder=3)
+ax.set_aspect("equal"); ax.set_axis_off(); fig.tight_layout()
+fig.savefig("image.png"); fig.savefig("image.pdf")
+print("figure saved:", len(POS), "vertices,", len(EDGES), "edges")

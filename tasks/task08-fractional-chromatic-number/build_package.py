@@ -1,47 +1,47 @@
 import json, zipfile, pathlib, textwrap, subprocess, sys
 HERE = pathlib.Path(__file__).parent
-SLUG = "covering-array-forbidden-pairs-six-columns"
-question = r"""An array has $N$ rows and $6$ columns. The entries $x_1, \dots, x_5$ of a row are symbols from $\{0, 1, 2\}$ and the entry $x_6$ is a symbol from $\{0, 1\}$. The figure marks ten forbidden pairs: a cell marked F in the row labelled $x_i = a$ and the column labelled $x_j = b$ means that no row of the array may have $x_i = a$ and $x_j = b$ at the same time. Every row of the array must avoid all ten forbidden pairs.
+SLUG = "hamiltonian-cycles-cubic-graph-28-vertices"
+question = r"""The figure shows a simple undirected graph on $28$ vertices, labelled $A$ to $Z$, $a$ and $b$. The edges are the straight segments drawn between the circles. Where two segments cross, the crossing point is not a vertex and the two edges do not meet.
 
-The array is called covering if, for every two distinct columns $i$ and $j$ and every pair of symbols $(a, b)$ allowed in those columns that is not forbidden, some row of the array has $x_i = a$ and $x_j = b$. Nothing else is required.
+A Hamiltonian cycle is a cycle that passes through every vertex exactly once. Two Hamiltonian cycles count as the same if they use the same set of edges, so the starting vertex and the direction of travel do not matter.
 
-Find the smallest $N$ for which a covering array exists. Give a single integer."""
-final_answer = "10"
-variants = ["$10$", "10 rows", "ten", "N = 10"]
-solution = r"""Step 1: Set up the counting objects.
-Write $A, \dots, F$ for the columns $x_1, \dots, x_6$ and $A_a$ for the entry $x_1 = a$. The forbidden pairs read from the figure are $A_1B_1$, $A_1C_2$, $A_1E_1$, $A_2C_0$, $A_2D_0$, $C_0E_0$, $C_1F_0$, $C_2E_1$, $D_0E_1$ and $D_2F_0$. An admissible row avoids all of them; there are $136$ admissible rows out of $3^5 \cdot 2 = 486$. The pairs to be covered are the $120 - 10 = 110$ admissible symbol pairs, and each row carries exactly one symbol pair for each of the fifteen column pairs.
+How many Hamiltonian cycles does the graph have? Give a single integer."""
+final_answer = "52"
+variants = ["$52$", "52 cycles", "fifty-two"]
+solution = r"""Step 1: Read the graph.
+The figure has $42$ edges: $AG, AJ, AS, BK, BS, BV, CH, CL, CY, DI, DN, DW, EL, EP, EZ, FS, FX, FZ, GT, Gb, HJ, Ha, IM, Ib, JV, KQ, KU, LR, MO, MX, NT, NV, OQ, OZ, PU, PX, QY, RT, Ra, Ub, WY, Wa$. Every vertex has degree $3$, so the graph is cubic ($28 \cdot 3 / 2 = 42$). It has no triangles and no $4$-cycles (girth $5$), it is not planar and it has no symmetry other than the identity, so the count has to be done by a search.
 
-Step 2: The bounds that come first.
-The column pairs $BC$, $BD$, $BE$ and $CD$ keep all $9$ of their symbol pairs, so $N \ge 9$. Without forbidden pairs the smallest covering array with five ternary and one binary column has $11$ rows; the forbidden pairs remove requirements as well as rows, and the answer is smaller.
+Step 2: Reduce to one choice per vertex.
+A Hamiltonian cycle uses exactly two of the three edges at every vertex, so the unused edges form a perfect matching, and a perfect matching gives a Hamiltonian cycle exactly when the remaining $28$ edges form one cycle rather than several. Two propagation rules drive a hand search: if an edge is left out, the other two edges at both of its ends are used; if two edges at a vertex are used, the third is left out. A branch dies when a vertex keeps fewer than two usable edges or when the used edges close a cycle shorter than $28$.
 
-Step 3: Lower bound $10$.
-Call two admissible symbol pairs incompatible if no admissible row contains both. The ten pairs
-$$B_0E_1,\ B_1E_1,\ B_2E_1,\ C_0D_0,\ C_1D_0,\ C_2D_0,\ D_1E_0,\ D_1E_2,\ D_2E_0,\ D_2E_2$$
-are pairwise incompatible. Pairs that need one column with two different symbols account for most couples: the three $B_jE_1$ differ in $B$, the three $C_iD_0$ differ in $C$, the four $D_mE_n$ differ in $D$ or $E$ among themselves, every $B_jE_1$ differs in $E$ from every $D_mE_n$ (where $n \in \{0, 2\}$), and every $C_iD_0$ differs in $D$ from every $D_mE_n$ (where $m \in \{1, 2\}$). The remaining nine couples, $B_jE_1$ with $C_iD_0$, put $x_4 = 0$ and $x_5 = 1$ into one row, which is the forbidden pair $D_0E_1$. In words: the symbol $1$ in column $E$ must meet all three symbols of column $B$, the symbol $0$ in column $D$ must meet all three symbols of column $C$ on rows that cannot have $x_5 = 1$, and the four pairs $(x_4, x_5) \in \{1, 2\} \times \{0, 2\}$ need four more rows. Hence $N \ge 3 + 3 + 4 = 10$.
+Step 3: The case split.
+Split on the edge left out at $D$ (its neighbours are $I$, $N$, $W$), and inside each case on the edge left out at the next vertex.
+- $DI$ left out ($DN$, $DW$ used): split at $N$. Leaving out $NT$ gives $14$ cycles, leaving out $NV$ gives $8$; total $22$.
+- $DN$ left out ($DI$, $DW$ used): split at $I$. Leaving out $IM$ gives $7$, leaving out $Ib$ gives $7$; total $14$.
+- $DW$ left out ($DI$, $DN$ used): split at $I$. Leaving out $IM$ gives $9$, leaving out $Ib$ gives $7$; total $16$.
+Hence the graph has $22 + 14 + 16 = 52$ Hamiltonian cycles. For example $A\,G\,T\,N\,D\,I\,b\,U\,K\,B\,V\,J\,H\,C\,L\,R\,a\,W\,Y\,Q\,O\,M\,X\,P\,E\,Z\,F\,S$ (back to $A$) is one of them; the verification notes list all $52$.
 
-Step 4: Upper bound $10$, the decisive step.
-The ten rows (written $x_1 x_2 x_3 x_4 x_5 x_6$)
-$$001211,\ 010110,\ 011021,\ 022000,\ 100020,\ 101101,\ 120221,\ 202120,\ 212201,\ 221111$$
-contain no forbidden pair. Column pair by column pair they carry every admissible symbol pair: $AB$ all $8$ (everything except $A_1B_1$), $AC$ all $7$, $AD$ all $8$, $AE$ all $8$, $AF$ all $6$; $BC$, $BD$, $BE$ all $9$ each; $BF$ all $6$; $CD$ all $9$; $CE$ all $7$ (missing only $C_0E_0$ and $C_2E_1$); $CF$ all $5$ (missing only $C_1F_0$); $DE$ all $8$ (missing only $D_0E_1$); $DF$ all $5$ (missing only $D_2F_0$); $EF$ all $6$. For instance $CD$ is read off as $C_1D_2$, $C_0D_1$, $C_1D_0$, $C_2D_0$, $C_0D_0$, $C_1D_1$, $C_0D_2$, $C_2D_1$, $C_2D_2$, $C_1D_1$, and $DE$ as $D_2E_1$, $D_1E_0$, $D_0E_2$, $D_0E_0$, $D_0E_2$, $D_1E_1$, $D_2E_2$, $D_1E_2$, $D_2E_0$, $D_1E_1$. All $110$ admissible pairs are covered, so $N = 10$ is attained. A $10$-row array must use each of the ten pairs of Step 3 on its own row, which leaves very little freedom: exactly two covering arrays with $10$ rows exist (the verification notes enumerate them), so the construction cannot be found by local improvements of a greedy array.
+Step 4: Checks.
+(i) In a cubic graph every edge lies on an even number of Hamiltonian cycles (Smith's theorem, Thomason 1978). The counts through the edges at $D$ are $52 - 22 = 30$ for $DI$, $52 - 14 = 38$ for $DN$ and $52 - 16 = 36$ for $DW$, all even, and they add up to $104 = 2 \cdot 52$ because each cycle uses two of the three edges. (ii) The count was confirmed by two independent programs: a depth-first search for cycles through $A$, and an enumeration of all $98$ perfect matchings of which exactly $52$ leave a single $28$-cycle.
 
-Step 5: Conclusion.
-Steps 3 and 4 give the minimum $N = 10$. The bound $9$ is not attainable, and the unconstrained value $11$ is one too many; constructions that add rows greedily end at $11$ to $16$.
+Step 5: The traps.
+Counting each cycle once per direction gives $104$. The hand search is long, and losing cycles in a branch gives $48$, $50$ or $51$; losing two cycles can leave every parity even, so the parity check does not catch it.
 
-Answer: $10$."""
+Answer: $52$."""
 rubric = [
-    dict(id="c1", description=r"Gives $10$.", points=5, isFinalAnswer=True),
-    dict(id="c2", description=r"Exhibits an explicit covering array of $10$ admissible rows (every admissible symbol pair present, no forbidden pair in any row).", points=3, isFinalAnswer=False),
-    dict(id="c3", description=r"Proves that $9$ rows are not enough by a valid argument, for instance ten admissible symbol pairs no two of which fit into one admissible row (such as $(x_2,x_5) = (0,1), (1,1), (2,1)$, $(x_3,x_4) = (0,0), (1,0), (2,0)$ and $(x_4,x_5) = (1,0), (1,2), (2,0), (2,2)$), or an equivalent counting argument.", points=1, isFinalAnswer=False),
-    dict(id="c4", description=r"States the bound of $9$ rows from a column pair with $9$ admissible symbol pairs and recognises that it is not attained.", points=1, isFinalAnswer=False),
+    dict(id="c1", description=r"Gives $52$ as the final answer.", points=5, isFinalAnswer=True),
+    dict(id="c2", description=r"Reads the graph correctly: $28$ vertices, $42$ edges, every vertex of degree $3$ (an edge list or adjacency list matching the figure).", points=1, isFinalAnswer=False),
+    dict(id="c3", description=r"Organises the count by which edge is left out at a vertex (equivalently, by perfect matchings whose complement is a single cycle) and reports case totals that add up to $52$, for instance $22$, $14$ and $16$ for the edges $DI$, $DN$, $DW$ left out at $D$.", points=3, isFinalAnswer=False),
+    dict(id="c4", description=r"Counts each cycle once, not once per direction or starting vertex.", points=1, isFinalAnswer=False),
 ]
-wrong = ["9", "11", "12", "13"]
-references = r"""Covering arrays avoiding forbidden edges, which is exactly the object of the question, and the hardness of their minimum size: P. Danziger, E. Mendelsohn, L. Moura and B. Stevens, Covering arrays avoiding forbidden edges, Theoretical Computer Science 410 (2009), 5403-5414. Covering arrays in general and their known small values: C. J. Colbourn, Combinatorial aspects of covering arrays, Le Matematiche 59 (2004), 125-172. The uploaded file verification_notes.txt lists the 136 admissible rows and 110 admissible pairs, checks the set of ten pairwise incompatible pairs against every admissible row with the reason for each couple, checks the 10-row array column pair by column pair, confirms the minimum by an integer programme and enumerates the two optimal arrays; the program is embedded with its output."""
-necessity = "The ten forbidden pairs are given only in the figure; the minimum number of rows depends on exactly which pairs are forbidden (with none forbidden the answer would be 11, and other sets of ten give 10, 11 or 12)."
-verify_field = "Section 3 of verification_notes.txt gives the lower-bound certificate: ten admissible symbol pairs (B0E1, B1E1, B2E1, C0D0, C1D0, C2D0, D1E0, D1E2, D2E0, D2E2, where A to F stand for the columns x1 to x6), checked against all 136 admissible rows so that no row contains two of them, with the reason for every one of the 45 couples. Section 4 gives the 10-row array and checks every column pair. Section 5 confirms the minimum 10 by an integer programme (scipy HiGHS) and enumerates the two optimal arrays. Section 7 embeds the program verify_key.py with its output."
+wrong = ["50", "48", "104", "51"]
+references = r"""Counting Hamiltonian cycles is #P-complete in general, so no formula is expected and the count is a finite search: L. G. Valiant, The complexity of enumeration and reliability problems, SIAM Journal on Computing 8 (1979), 410-421. The parity check used in the solution (every edge of a cubic graph lies on an even number of Hamiltonian cycles, Smith's theorem): A. G. Thomason, Hamiltonian cycles and uniquely edge colourable graphs, Annals of Discrete Mathematics 3 (1978), 259-268. The uploaded file verification_notes.txt gives the adjacency list, counts the cycles by a depth-first search and by perfect matchings (both 52), gives the case split of the solution, checks the parity of every edge and lists all 52 cycles; the program is embedded with its output."""
+necessity = "The graph exists only in the figure: the question gives no vertex or edge, and the answer is a property of that particular edge set, so it cannot be found without reading all 42 edges from the drawing."
+verify_field = "Section 2 of verification_notes.txt counts the Hamiltonian cycles by a depth-first search from A (52 distinct edge sets). Section 3 counts them a second way, as the perfect matchings whose complement is one 28-cycle (98 perfect matchings, 52 good). Section 4 gives the case split of the solution (DI, DN, DW left out: 22, 14, 16). Section 5 checks that every edge lies on an even number of the cycles. Section 6 lists all 52 cycles. The program verify_key.py is embedded with its output."
 task = {"schema_version": "summit-task-package-v1", "task": {
-    "domain": "mathematics", "subdomain": "Combinatorial design theory: covering arrays avoiding forbidden pairs",
+    "domain": "mathematics", "subdomain": "Graph theory: enumeration of Hamiltonian cycles in a cubic graph",
     "modality": "image_reference", "taskType": "image_multistep_discrete_reasoning",
-    "imageCreationTool": "matplotlib (original chart of the forbidden symbol pairs)",
+    "imageCreationTool": "matplotlib (original drawing of a 28-vertex cubic graph)",
     "imageNecessityExplanation": necessity, "questionText": question, "answerType": "exact_match",
     "finalAnswer": [final_answer], "acceptableAnswerVariants": variants, "multipleChoiceOptions": [],
     "answerPrecision": {"kind": "none"}, "solution": solution, "references": references,
@@ -57,25 +57,23 @@ def build_reference():
     src = (HERE / "verify_key.py").read_text(); out = (HERE / "work" / "verify_key_output.txt").read_text()
     assert "ALL CHECKS PASSED" in out
     pyver = subprocess.run([sys.executable, "--version"], capture_output=True, text=True).stdout.strip()
-    txt = f"""VERIFICATION NOTES: smallest covering array with six columns (five ternary, one binary) avoiding ten forbidden pairs
+    txt = f"""VERIFICATION NOTES: number of Hamiltonian cycles of the drawn 28-vertex cubic graph
 
-Answer key: 10.
+Answer key: 52.
 
-1. The instance (from the figure). Columns x1 to x6, written A to F; x1..x5 over 0, 1, 2 and x6 over 0, 1. Forbidden pairs
-   A1B1, A1C2, A1E1, A2C0, A2D0, C0E0, C1F0, C2E1, D0E1, D2F0. Admissible rows: 136 of 486. Admissible symbol pairs: 110 of
-   120, each realised by some admissible row.
-2. Trivial bound: BC, BD, BE, CD keep 9 symbol pairs each, so at least 9 rows. Without forbidden pairs the minimum would be
-   11 (the covering array number for five ternary columns and one binary column).
-3. Lower bound 10: the pairs B0E1, B1E1, B2E1, C0D0, C1D0, C2D0, D1E0, D1E2, D2E0, D2E2 are pairwise incompatible; 36 couples
-   need one column with two different symbols, 9 couples (BjE1 with CiD0) contain the forbidden pair D0E1. Checked against
-   all 136 admissible rows by the program; 42 different ten-pair certificates exist.
-4. Upper bound 10: 001211, 010110, 011021, 022000, 100020, 101101, 120221, 202120, 212201, 221111 (rows written x1..x6),
-   checked column pair by column pair.
-5. Integer programme (scipy HiGHS): minimum 10; enumeration with no-good cuts gives exactly two optimal arrays.
-6. Wrong routes: 9 (trivial bound), 11 (unconstrained value, or the best construction found), greedy constructions 11 to 16.
+1. The graph (from the figure). 28 vertices A to Z, a, b; 42 edges; every vertex of degree 3; girth 5; trivial
+   automorphism group (checked separately with networkx); drawn with 14 edge crossings, none at a vertex.
+2. Route 1: depth-first search for Hamiltonian cycles through A, stored as edge sets: 52.
+3. Route 2: the unused edges of a Hamiltonian cycle in a cubic graph form a perfect matching. The graph has 98 perfect
+   matchings; for exactly 52 of them the other 28 edges form one cycle.
+4. Case split of the solution: edge left out at D. DI: 22 (NT left out 14, NV left out 8). DN: 14 (IM left out 7,
+   Ib left out 7). DW: 16 (IM left out 9, Ib left out 7). Total 52.
+5. Parity: every edge lies on an even number of Hamiltonian cycles (Smith's theorem); the counts per edge are printed
+   and add up to 28 x 52 = 1456.
+6. All 52 cycles, each written from A.
+7. Wrong routes: 104 (each cycle counted in both directions), 48, 50, 51 (cycles lost in the case split).
 
-7. Program verify_key.py (run with {pyver}; command: python3 verify_key.py; standard library only, scipy optional
-   for section 5; running time about a minute)
+8. Program verify_key.py (run with {pyver}; command: python3 verify_key.py; standard library only; under a second)
 
 {textwrap.indent(src, "   ")}
 
@@ -83,23 +81,23 @@ Answer key: 10.
 
 {textwrap.indent(out, "   ")}
 
-8. Figure script draw_figure.py (same Python; command: python3 draw_figure.py; needs matplotlib)
+9. Figure script draw_figure.py (same Python; command: python3 draw_figure.py; needs matplotlib)
 
 {textwrap.indent((HERE / "draw_figure.py").read_text(), "   ")}
 """
     (HERE / "reference.txt").write_text(txt); print("reference.txt written")
 def build_readme(screen):
-    lines = ["# task08: smallest covering array with six columns avoiding ten forbidden pairs", "",
-             "Mathematics, subdomain: " + task["task"]["subdomain"] + ". The five-column version (key 10, solved by Opus 3/3 locally) is archived in work/ca-v1. Earlier contents of this folder (fractional chromatic number; three crack-growth versions; four test-matrix versions) are archived under work/.", "",
+    lines = ["# task08: number of Hamiltonian cycles of a drawn 28-vertex cubic graph", "",
+             "Mathematics, subdomain: " + task["task"]["subdomain"] + ". Earlier contents of this folder (fractional chromatic number, crack growth, test matrices, covering arrays, M/G/1 queue) are archived under work/.", "",
              "## Question", "", question, "", "## Answer", "", final_answer, "", "## Solution", "", solution, "", "## Rubric", ""]
     for c in rubric: lines.append(f"- {c['id']} ({c['points']} pts{', final answer' if c['isFinalAnswer'] else ''}): {c['description']}")
     lines += ["", "Common wrong answers: " + ", ".join(wrong), "", "## References box", "", references, "",
-              "## Verify field", "", verify_field, "", "## Screen", "", screen]
+              "## Verify field", "", verify_field, "", "## Image necessity", "", necessity, "", "## Screen", "", screen]
     (HERE / "README.md").write_text("\n".join(lines) + "\n"); print("README.md written")
 def build_zip():
     with zipfile.ZipFile(HERE / f"{SLUG}.zip", "w", zipfile.ZIP_DEFLATED) as z:
         for f in ("task.json", "image.png", "reference.txt"): z.write(HERE / f, f)
     print("zip written")
 if __name__ == "__main__":
-    screen = (HERE / "work" / "screen.md").read_text() if (HERE / "work" / "screen.md").exists() else "(filled in after the screen)"
+    screen = (HERE / "work" / "ham" / "screen.md").read_text()
     check(); (HERE / "task.json").write_text(json.dumps(task, indent=2, ensure_ascii=False)); build_reference(); build_readme(screen); build_zip()

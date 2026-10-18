@@ -1,0 +1,18 @@
+closure: K_op/K_max = 0.55; at R = 0.1 U = dK_eff/dK = 0.5000, curve displacement factor 1/U = 2.0000
+at R = 0.4: K_min/K_max = 0.4 < K_op/K_max = 0.55: closure present, U(0.4) = (1 - 0.55)/(1 - 0.4) = 0.7500
+growth law of the plate: da/dN = C (U dK)^3 with C_eff = C U^3 = 4.2188e-13 m/cycle per (MPa sqrt m)^3
+sigma_max = 400.0 MPa, sigma_min = 160.0 MPa, delta sigma = 240.0 MPa
+a_c = (K_IC/(Y sigma_max))^2/pi = 4.7975 mm;  dK at a0 = 6.738, at a_c = 33.00 MPa sqrt m;  dK_eff at a0 = 5.053, at a_c = 24.75
+thresholds: intrinsic 2.5 MPa sqrt m (dK_eff at a0 is above it), apparent at R = 0.1 5.00 MPa sqrt m
+ROUTE 1 (closed form): N = 2/((m-2) C_eff (Y ds sqrt(pi))^m) [a0^(-1/2) - ac^(-1/2)] = 2466808.8 cycles = 2.4668e+06
+ROUTE 2 (Simpson, 20000 intervals): N = 2466808.8 cycles
+ROUTE 3 (scipy quad): N = 2466808.8 cycles (abs err 3.1e-04)
+with the near-threshold knee factor kept in the law: N = 2505220.5 cycles (+1.56 percent; the stem says to use the Paris fits)
+ANSWER KEY (3 s.f.): 2.47e+06 cycles = 2.47 x 10^6
+wrong route A, closure assumed absent at R = 0.4 (R = 0.7 fit used directly): N = 1.0407e+06 -> 1.04e+06
+wrong route B, R = 0.1 fit used (C U(0.1)^3 = 1.250e-13): N = 8.3255e+06 -> 8.33e+06
+wrong route C, log-linear interpolation of the two curves in R (displacement 2^(1/2)): N = 2.9435e+06 -> 2.94e+06
+wrong route D, Elber's U = 0.5 + 0.4 R = 0.66 instead of the closure level in the figure: N = 3.6198e+06 -> 3.62e+06
+wrong route E, a_c computed with delta sigma instead of sigma_max (a_c = 13.33 mm): N = 2.7200e+06 -> 2.72e+06
+wrong route F, sigma_max in place of delta sigma in the range: N = 5.3283e+05 -> 5.33e+05
+ALL CHECKS PASSED.

@@ -1,0 +1,16 @@
+closure: K_op/K_max = 0.3; at R = 0.1 U = dK_eff/dK = 0.7778, curve shift factor 1/U = 1.2857
+at R = 0.4: K_min/K_max = 0.4 >= K_op/K_max = 0.3: closure-free, intrinsic constants C = 1e-12, m = 3
+sigma_max = 400.0 MPa, sigma_min = 160.0 MPa, delta sigma = 240.0 MPa
+a_c = (K_IC/(Y sigma_max))^2/pi = 4.7975 mm;  dK at a0 = 6.738 MPa sqrt m, at a_c = 33.00 MPa sqrt m
+thresholds: intrinsic 2.5 MPa sqrt m, apparent at R = 0.1 3.214 MPa sqrt m; dK at a0 is above both
+ROUTE 1 (closed form): N = 2/((m-2) C (Y ds sqrt(pi))^m) [a0^(-1/2) - ac^(-1/2)] = 1040685.0 cycles = 1.0407e+06
+ROUTE 2 (Simpson, 20000 intervals): N = 1040685.0 cycles
+ROUTE 3 (scipy quad): N = 1040685.0 cycles (abs err 1.3e-04)
+with the near-threshold knee factor kept in the law: N = 1045693.1 cycles (+0.48 percent; the stem says to use the Paris fit)
+ANSWER KEY (3 s.f.): 1.04e+06 cycles = 1.04 x 10^6
+wrong route A, R = 0.1 fit applied at R = 0.4 (C_eff = C U^3 = 4.705e-13): N = 2.2118e+06 -> 2.21e+06
+wrong route B, log-linear interpolation of the two curves in R (shift factor U^(1/2)): N = 1.5172e+06 -> 1.52e+06
+wrong route C, a_c computed with delta sigma instead of sigma_max (a_c = 13.33 mm): N = 1.1475e+06 -> 1.15e+06
+wrong route D, Y omitted everywhere: N = 1.5023e+06 -> 1.5e+06
+wrong route E, K_max range used instead of delta K (sigma_max in place of delta sigma): N = 2.2479e+05 -> 2.25e+05
+ALL CHECKS PASSED.

@@ -1,0 +1,18 @@
+admissible specimens: 105 of 243; admissible level pairs: 83 of 90; unavailable: ['A0E1', 'A1B0', 'A1C2', 'A2B1', 'B1C1', 'B1D1', 'D0E0']
+admissible pairs per factor pair: {'AB': 7, 'AC': 8, 'AD': 9, 'AE': 8, 'BC': 8, 'BD': 8, 'BE': 9, 'CD': 9, 'CE': 9, 'DE': 8} -> trivial bound 9
+exclusive set: ['A0D0', 'A0D1', 'A0D2', 'A1E0', 'A1E2', 'A2E0', 'A2E2', 'B0E1', 'B1E1', 'B2E1']
+CHECK 3: no admissible specimen contains two of the 10 pairs, so every programme has at least 10 specimens
+   3 couples: both need factor D at different levels: ['A0D0/A0D1', 'A0D0/A0D2', 'A0D1/A0D2']
+   16 couples: both need factor A at different levels
+   9 couples: together they contain the unavailable combination A0E1
+   14 couples: both need factor E at different levels
+   3 couples: both need factor B at different levels: ['B0E1/B1E1', 'B0E1/B2E1', 'B1E1/B2E1']
+design: ['A0B0C1D0E2', 'A0B1C2D2E0', 'A0B2C0D1E2', 'A1B1C0D0E1', 'A1B1C0D2E2', 'A1B2C1D1E0', 'A2B0C0D2E0', 'A2B0C2D1E1', 'A2B2C1D2E1', 'A2B2C2D0E2'] ; uncovered admissible pairs: []
+CHECK 4: the 10-specimen programme covers all 83 admissible pairs; with CHECK 3 the minimum is 10
+integer programme (HiGHS): minimum number of specimens = 10
+all optimal programmes: 1
+    ['A0B0C1D0E2', 'A0B1C2D2E0', 'A0B2C0D1E2', 'A1B1C0D0E1', 'A1B1C0D2E2', 'A1B2C1D1E0', 'A2B0C0D2E0', 'A2B0C2D1E1', 'A2B2C1D2E1', 'A2B2C2D0E2']
+exclusive sets of size 10 (each one a complete lower-bound proof): 47
+CHECK 5: the integer programme agrees, the optimal programme is unique, and the lower bound has many proofs
+randomised greedy construction (200 runs), sizes reached: {12: 24, 13: 88, 14: 71, 15: 17}
+ALL CHECKS PASSED. Minimum number of specimens 10, unique programme; trivial bound 9; greedy constructions 11 or more.
