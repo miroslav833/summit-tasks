@@ -30,7 +30,7 @@ So answer is $52$.
 
 - c1 (5 pts, final answer): Final answer is $52$.
 - c2 (1 pts): Response reads graph correctly, with $28$ vertices and $42$ edges and each vertex of degree $3$, and gives edge list or adjacency list which agrees with figure.
-- c3 (3 pts): Response organises count by edge which is left out at one vertex, or in same way by perfect matchings whose complement is one cycle, and its case totals add up to $52$, as for example $22$, $14$ and $16$ when $DI$, $DN$ and $DW$ are left out at $D$.
+- c3 (3 pts): Response counts by exhaustive case split, either on edge which is left out at one vertex, for example $DI$, $DN$ or $DW$ at $D$, with forced edges carried through each branch, or on perfect matchings whose complement is one cycle, and each branch it reports ends either in full $28$-cycle or in contradiction.
 - c4 (1 pts): Response counts each cycle once, and not once for each direction or each starting vertex.
 
 Common wrong answers: 50, 48, 104, 51
@@ -45,7 +45,7 @@ Section 2 of verification_notes.txt counts Hamiltonian cycles by depth-first sea
 
 ## Image necessity
 
-Graph is given in figure only, since text names no vertex and no edge, and answer is property of that one edge set, so it cannot be found without reading all 42 edges from drawing.
+Text gives vertex labels, A to Z, a and b, but no edge, and adjacency of graph is given in figure only, so answer, which is property of that one edge set, cannot be found without reading all 42 edges from drawing.
 
 ## Screen
 

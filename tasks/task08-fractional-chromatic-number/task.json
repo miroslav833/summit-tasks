@@ -6,7 +6,7 @@
     "modality": "image_reference",
     "taskType": "image_multistep_discrete_reasoning",
     "imageCreationTool": "matplotlib (original drawing of a 28-vertex cubic graph)",
-    "imageNecessityExplanation": "Graph is given in figure only, since text names no vertex and no edge, and answer is property of that one edge set, so it cannot be found without reading all 42 edges from drawing.",
+    "imageNecessityExplanation": "Text gives vertex labels, A to Z, a and b, but no edge, and adjacency of graph is given in figure only, so answer, which is property of that one edge set, cannot be found without reading all 42 edges from drawing.",
     "questionText": "Figure shows simple undirected graph on $28$ vertices, which are labelled $A$ to $Z$, $a$ and $b$, and its edges are straight segments drawn between circles. Where two segments cross, crossing point is not vertex, and those two edges do not meet there.\n\n\"Hamiltonian cycle\" is cycle which passes through each vertex exactly once, and two Hamiltonian cycles are counted as same cycle when they use same set of edges, so starting vertex and direction of travel do not matter.\n\nHow many Hamiltonian cycles does this graph have? Give your answer as single integer.",
     "answerType": "exact_match",
     "finalAnswer": [
@@ -39,7 +39,7 @@
         },
         {
           "id": "c3",
-          "description": "Response organises count by edge which is left out at one vertex, or in same way by perfect matchings whose complement is one cycle, and its case totals add up to $52$, as for example $22$, $14$ and $16$ when $DI$, $DN$ and $DW$ are left out at $D$.",
+          "description": "Response counts by exhaustive case split, either on edge which is left out at one vertex, for example $DI$, $DN$ or $DW$ at $D$, with forced edges carried through each branch, or on perfect matchings whose complement is one cycle, and each branch it reports ends either in full $28$-cycle or in contradiction.",
           "points": 3,
           "isFinalAnswer": false
         },
