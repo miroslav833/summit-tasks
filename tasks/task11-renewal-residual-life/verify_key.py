@@ -26,9 +26,10 @@ for t in labelled:
     nearest = min([c*e for c in (1, 2, 5, 10)], key=lambda v: abs(math.log10(y / v)))
     print(f"   t = {t:3d}: S = {y:.4g}, nearest line {nearest:g}, off by {abs(y/nearest-1)*100:.0f} percent")
 
-LO, HI = 2.691, 2.718          # the acceptance interval stated in the question
+KEY3 = "2.705"                 # the answer the question asks for: E[N(6)] rounded to 3 decimals
 def verdict(v):
-    return "IN " if LO <= v <= HI else "OUT"
+    r = f"{v:.3f}"
+    return "rounds to 2.705" if r == KEY3 else f"rounds to {r}, wrong"
 
 F = lambda t: 1.0 - S(t)
 f = lambda t: (k/lam) * (t/lam)**(k-1) / (1.0 + (t/lam)**k)**2
@@ -93,9 +94,9 @@ def trap_dF(T, h):
         M[i] = (Fv[i] + acc + dF[0]*M[i-1]/2) / (1 - dF[0]/2)
     return M[-1]
 print("Scheme comparison, trapezoidal product rule on dF (second order, implicit):")
-for h in (1.0, 0.5, 0.25):
+for h in (1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125):
     v = trap_dF(T, h); print(f"   h = {h:<6}: M({T:g}) = {v:.4f}  {verdict(v)}")
-print("   Even this second-order scheme is outside the interval at h = 1, so no scheme survives a")
+print("   Even this second-order scheme needs h = 0.0625 before it rounds to 2.705, so no scheme survives a")
 print("   single coarse run: the step has to be refined or two steps extrapolated.")
 
 # Midpoint / lattice rule: converges to the same limit from ABOVE, and a coarse Richardson step overshoots
@@ -144,7 +145,7 @@ print("   The key is unchanged under honest rounding of the true parameters:")
 for kk, ll in ((3.08, 1.696), (3.1, 1.70), (3.08, 1.70), (3.07, 1.70), (3.08, 1.69)):
     vv = M_params(kk, ll, T); print(f"      k = {kk}, lambda = {ll}: M(6) = {vv:.4f}  {verdict(vv)}")
 
-print(f"Answer key: {M1:.6f}, four significant figures {M1:.4g}; accepted interval {LO} to {HI}")
+print(f"Answer key: {M1:.6f}, which is {M1:.3f} at 3 decimals; the 3-decimal bin runs 2.7045 to 2.7055, so the key sits {M1-2.7045:.5f} above its lower edge")
 
 # The shortcuts that do not work
 m = lam * (math.pi/k) / math.sin(math.pi/k)

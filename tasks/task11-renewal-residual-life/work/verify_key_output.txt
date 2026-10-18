@@ -21,59 +21,62 @@ curve at every labelled t and the distance to the nearest gridline (lines at 1, 
    t =  60: S = 1.696e-05 (below the axis)
    t =  80: S = 6.993e-06 (below the axis)
    t = 100: S = 3.517e-06 (below the axis)
-Route 1, renewal equation on  1000 intervals: M(6) = 2.704964  IN 
-Route 1, renewal equation on  2000 intervals: M(6) = 2.704964  IN 
-Route 1, renewal equation on  4000 intervals: M(6) = 2.704964  IN 
-Route 1, renewal equation on  8000 intervals: M(6) = 2.704964  IN 
-Route 2, convolution series sum_j P(S_j <= 6): M(6) = 2.704964  IN 
-Route 3, simulation of 400000 paths: E[N(6)] = 2.7068 (standard error 0.0017)  IN 
+Route 1, renewal equation on  1000 intervals: M(6) = 2.704964  rounds to 2.705
+Route 1, renewal equation on  2000 intervals: M(6) = 2.704964  rounds to 2.705
+Route 1, renewal equation on  4000 intervals: M(6) = 2.704964  rounds to 2.705
+Route 1, renewal equation on  8000 intervals: M(6) = 2.704964  rounds to 2.705
+Route 2, convolution series sum_j P(S_j <= 6): M(6) = 2.704964  rounds to 2.705
+Route 3, simulation of 400000 paths: E[N(6)] = 2.7068 (standard error 0.0017)  rounds to 2.707, wrong
 Scheme comparison, trapezoidal product rule on dF (second order, implicit):
-   h = 1.0   : M(6) = 2.7496  OUT
-   h = 0.5   : M(6) = 2.7155  IN 
-   h = 0.25  : M(6) = 2.7076  IN 
-   Even this second-order scheme is outside the interval at h = 1, so no scheme survives a
+   h = 1.0   : M(6) = 2.7496  rounds to 2.750, wrong
+   h = 0.5   : M(6) = 2.7155  rounds to 2.716, wrong
+   h = 0.25  : M(6) = 2.7076  rounds to 2.708, wrong
+   h = 0.125 : M(6) = 2.7056  rounds to 2.706, wrong
+   h = 0.0625: M(6) = 2.7051  rounds to 2.705
+   h = 0.03125: M(6) = 2.7050  rounds to 2.705
+   Even this second-order scheme needs h = 0.0625 before it rounds to 2.705, so no scheme survives a
    single coarse run: the step has to be refined or two steps extrapolated.
 Midpoint / lattice rule (converges from above):
-   h = 1.0    : M(6) = 2.9501  OUT
-   h = 0.5    : M(6) = 2.8312  OUT
-   h = 0.25   : M(6) = 2.7678  OUT
-   h = 0.125  : M(6) = 2.7363  OUT
-   h = 0.0625 : M(6) = 2.7206  OUT
-   h = 0.03125: M(6) = 2.7128  IN 
-   Richardson on its two coarsest values overshoots: 2.7916  OUT
+   h = 1.0    : M(6) = 2.9501  rounds to 2.950, wrong
+   h = 0.5    : M(6) = 2.8312  rounds to 2.831, wrong
+   h = 0.25   : M(6) = 2.7678  rounds to 2.768, wrong
+   h = 0.125  : M(6) = 2.7363  rounds to 2.736, wrong
+   h = 0.0625 : M(6) = 2.7206  rounds to 2.721, wrong
+   h = 0.03125: M(6) = 2.7128  rounds to 2.713, wrong
+   Richardson on its two coarsest values overshoots: 2.7916  rounds to 2.792, wrong
    The schemes straddle the answer; only a refined or correctly extrapolated one lands inside.
 Discretisation trap, discrete renewal recursion with right-endpoint cell masses:
-   h = 1.0    : M(6) = 2.2395  OUT
-   h = 0.5    : M(6) = 2.4417  OUT   Richardson with the previous step: 2.6440  OUT
-   h = 0.25   : M(6) = 2.5644  OUT   Richardson with the previous step: 2.6870  OUT
-   h = 0.125  : M(6) = 2.6322  OUT   Richardson with the previous step: 2.7001  IN 
-   h = 0.0625 : M(6) = 2.6679  OUT   Richardson with the previous step: 2.7037  IN 
-   h = 0.03125: M(6) = 2.6863  OUT   Richardson with the previous step: 2.7046  IN 
+   h = 1.0    : M(6) = 2.2395  rounds to 2.239, wrong
+   h = 0.5    : M(6) = 2.4417  rounds to 2.442, wrong   Richardson with the previous step: 2.6440  rounds to 2.644, wrong
+   h = 0.25   : M(6) = 2.5644  rounds to 2.564, wrong   Richardson with the previous step: 2.6870  rounds to 2.687, wrong
+   h = 0.125  : M(6) = 2.6322  rounds to 2.632, wrong   Richardson with the previous step: 2.7001  rounds to 2.700, wrong
+   h = 0.0625 : M(6) = 2.6679  rounds to 2.668, wrong   Richardson with the previous step: 2.7037  rounds to 2.704, wrong
+   h = 0.03125: M(6) = 2.6863  rounds to 2.686, wrong   Richardson with the previous step: 2.7046  rounds to 2.705
    The scheme converges from below at first order: every step down to 0.03125 is outside the
    interval. Richardson extrapolation of the pair (0.25, 0.125) brings it inside.
 Rounding trap: with k = 3 and lambda = 4^(1/3) = 1.5874, S(6) = 0.018182 against the drawn 0.0200
    (nine per cent low) and S(10) = 0.003984 against the curve's 0.004213.
-   That law would give M(6) = 2.8947  OUT
+   That law would give M(6) = 2.8947  rounds to 2.895, wrong
    The key is unchanged under honest rounding of the true parameters:
-      k = 3.08, lambda = 1.696: M(6) = 2.7050  IN 
-      k = 3.1, lambda = 1.7: M(6) = 2.7011  IN 
-      k = 3.08, lambda = 1.7: M(6) = 2.6980  IN 
-      k = 3.07, lambda = 1.7: M(6) = 2.6964  IN 
-      k = 3.08, lambda = 1.69: M(6) = 2.7156  IN 
-Answer key: 2.704964, four significant figures 2.705; accepted interval 2.691 to 2.718
+      k = 3.08, lambda = 1.696: M(6) = 2.7050  rounds to 2.705
+      k = 3.1, lambda = 1.7: M(6) = 2.7011  rounds to 2.701, wrong
+      k = 3.08, lambda = 1.7: M(6) = 2.6980  rounds to 2.698, wrong
+      k = 3.07, lambda = 1.7: M(6) = 2.6964  rounds to 2.696, wrong
+      k = 3.08, lambda = 1.69: M(6) = 2.7156  rounds to 2.716, wrong
+Answer key: 2.704964, which is 2.705 at 3 decimals; the 3-decimal bin runs 2.7045 to 2.7055, so the key sits 0.00046 above its lower edge
 E[X] = 2.03015, E[X^2] = 6.57795 (both finite, r < k; the first divergent integer moment is the fourth)
-Wrong route: elementary renewal theorem alone, t/m = 2.9555  OUT
-Wrong route: asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = 2.7535  OUT
+Wrong route: elementary renewal theorem alone, t/m = 2.9555  rounds to 2.955, wrong
+Wrong route: asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = 2.7535  rounds to 2.753, wrong
    (it is still 1.8 percent above the true value at t = 6, because t is only about 3 mean gaps)
-Wrong route: t/m - 1/2 = 2.4555  OUT
+Wrong route: t/m - 1/2 = 2.4555  rounds to 2.455, wrong
 Wrong route: F(6) = 0.9800, the probability of at least one renewal, not their expected number
 Near-miss readings (the named crossing at 6 paired with a crossing the curve does not pass through):
-   (6, 0.02) with (8, 0.01): k = 2.445, M(6) = 3.6423  OUT
-   (6, 0.02) with (10, 0.005): k = 2.744, M(6) = 3.1268  OUT
-   (6, 0.02) with (15, 0.001): k = 3.290, M(6) = 2.4999  OUT
-   (6, 0.02) with (30, 0.0002): k = 2.874, M(6) = 2.9475  OUT
-   (6, 0.02) with (4, 0.05): k = 2.337, M(6) = 3.8757  OUT
-   (6, 0.02) with (3, 0.2): k = 3.615, M(6) = 2.2448  OUT
-   (6, 0.02) with (2, 0.5): k = 3.542, M(6) = 2.2962  OUT
-   (6, 0.02) with (10, 0.004): k = 3.182, M(6) = 2.6007  OUT
-   (6, 0.02) with (2, 0.4): k = 3.173, M(6) = 2.6095  OUT
+   (6, 0.02) with (8, 0.01): k = 2.445, M(6) = 3.6423  rounds to 3.642, wrong
+   (6, 0.02) with (10, 0.005): k = 2.744, M(6) = 3.1268  rounds to 3.127, wrong
+   (6, 0.02) with (15, 0.001): k = 3.290, M(6) = 2.4999  rounds to 2.500, wrong
+   (6, 0.02) with (30, 0.0002): k = 2.874, M(6) = 2.9475  rounds to 2.947, wrong
+   (6, 0.02) with (4, 0.05): k = 2.337, M(6) = 3.8757  rounds to 3.876, wrong
+   (6, 0.02) with (3, 0.2): k = 3.615, M(6) = 2.2448  rounds to 2.245, wrong
+   (6, 0.02) with (2, 0.5): k = 3.542, M(6) = 2.2962  rounds to 2.296, wrong
+   (6, 0.02) with (10, 0.004): k = 3.182, M(6) = 2.6007  rounds to 2.601, wrong
+   (6, 0.02) with (2, 0.4): k = 3.173, M(6) = 2.6095  rounds to 2.610, wrong
