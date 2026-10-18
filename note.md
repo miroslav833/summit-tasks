@@ -339,6 +339,26 @@ on extinction the process is subcritical with offspring pgf f(qs)/q and mean f'(
 The conditioning step itself is textbook for both models. Verdict: this family is solved; kept in
 v5-branching/ (work/v1-linear holds the first figure and its three-route verifier) and not packaged.
 
+task06 v6 (2026-10-18): the owner's two outside candidates (My-materials/Qwen_text_20261018_zmiz7fcnx.txt).
+Keys checked independently: alternating-bias Penney race 67/140 (sympy plus 400k-run simulation), marked-cube
+conductance race 11/29 (full six-vertex harmonic system). Figures drawn from the file's specifications
+(v6-qwen-candidates/cand1.png, cand2.png). Screen, figure plus stem: Opus and Sonnet both correct on both, 12 to
+17 seconds each, by writing the first-step or harmonic equations directly. The advertised traps (stationary
+fairness 1/2, Hamming-weight 1/3) never came into play: a model that writes the linear system does not use the
+symmetry shortcut. Both candidates are out. A first-step analysis with four to six unknowns is never a
+decisive step for these models, whatever the intended trap.
+
+task06 v7-ruin (2026-10-18): task11's final shape (both crossings named, quantity with no closed form, shortcuts
+miss the second decimal) moved to ruin theory. Lomax claims S(t) = (1 + t/sigma)^(-alpha) on log-log 1-2-5 axes,
+crossings (5, 0.02) and (20, 0.0005), sigma = 2.1613, alpha = 3.2655, loading 25 percent, question psi(4) to two
+decimals. Key 0.4433 by product integration of the defective renewal equation (converged to 5 decimals), ladder
+simulation 0.4432 +- 0.0002 (4 million runs), surplus-path simulation 0.4433 +- 0.0011. Shortcuts: exponential
+claims 0.35, heavy-tail asymptotic 0.37, De Vylder 0.35, alpha rounded to 3.25 gives 0.45. Screen: Opus 2/2 and
+Sonnet 1/1 correct (0.44) in under two minutes each; all three used the integrated tail = Lomax(alpha - 1)
+identity and Panjer's recursion for the geometric compound on a 0.25 grid, which lands within 0.001 of the key.
+Panjer turns this quantity into a short routine; the key also sits 0.0017 from a rounding boundary, so a
+harder version would be unfair rather than hard. Out.
+
 Submission note (2026-10-17): Summit has no task06 entry, so the owner revised SUM-MVB7DTW7 (the task05 entry,
 the only bandwidth question on the account) with this package, which also avoids a duplicate-check hit from a
 second bandwidth task. Lesson for the README of any revision: name the Summit entry id, not the local task
