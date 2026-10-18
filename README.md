@@ -44,6 +44,7 @@ note.md is the working log (rules, tooling, screen results, lessons).
 
 - task06 v2 (count of optimal numberings, 14 vertices, new figure): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-optimal-numberings-count.zip
 - task08 Hamiltonian cycles of a 28-vertex cubic graph (Mathematics, IMPORT AS A NEW SUBMISSION): https://github.com/miroslav833/summit-tasks/raw/main/zips/hamiltonian-cycles-cubic-graph-28-vertices.zip
+- task08 REVISION variant for SUM-MVBCQZWW only (References text and verification notes say the legacy fractional-colouring text is superseded; paste text in tasks/task08-fractional-chromatic-number/revision/references-box.txt): https://github.com/miroslav833/summit-tasks/raw/main/zips/hamiltonian-cycles-cubic-graph-28-vertices-revision.zip
 - task05 v2 (count of optimal numberings, revision of the returned task05): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-optimal-numberings-count.zip
 
 - task06 bandwidth (14 vertices): https://github.com/miroslav833/summit-tasks/raw/main/zips/graph-bandwidth-fourteen-vertices.zip
