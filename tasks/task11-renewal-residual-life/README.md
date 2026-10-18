@@ -6,13 +6,13 @@ Domain: Mathematics. Subdomain: Probability: renewal theory (the renewal functio
 
 ## Question
 
-Figure is on logarithmic axes. It shows survival function $S(t) = P(X > t)$ for inter-arrival time $X$ of renewal process. $X$ is log-logistic, $S(t) = 1/(1 + (t/\lambda)^k)$ for $t > 0$.
+Figure shows survival function $S(t) = P(X > t)$ on logarithmic axes, where $X$ is inter-arrival time of renewal process and $X$ follows log-logistic law, $S(t) = 1/(1 + (t/\lambda)^k)$ for $t > 0$.
 
-Curve passes exactly through gridline crossings at two of labelled $t$ values, at $t = 6$ and $t = 20$. Those two crossings fix $\lambda$ and $k$.
+Curve passes exactly through gridline crossings at two of labelled $t$ values, at $t = 6$ and $t = 20$, and those two crossings together fix $\lambda$ and $k$.
 
-$N(t)$ counts renewals in $(0, t]$, process starts at time $0$. Find $E[N(6)]$ with the $\lambda$ and $k$ you read from figure.
+$N(t)$ counts renewals in $(0, t]$ and process starts at time $0$, so find $E[N(6)]$ using $\lambda$ and $k$ which you read from figure. Neither parameter is round number, so keep at least 4 figures on both while you work.
 
-Neither parameter is round number so keep at least 4 figures on both while you work. This quantity has no closed form and the usual coarse schemes are still several per cent out at a step you would pick on a first try, so your value has to be good to about half a per cent. Say which method you used and show why you trust it to that accuracy. Last line of your response must be FINAL: and then the number, 3 decimal places.
+This quantity has no closed form, and usual coarse schemes are still several per cent out at step which you would pick on first try, so your value has to be good to about half per cent. Say which method you used, then show why you trust it to that accuracy. There is one more thing, last line of your response must be FINAL: and then number with 3 decimal places.
 
 ## Answer
 
@@ -20,52 +20,44 @@ Neither parameter is round number so keep at least 4 figures on both while you w
 
 ## Solution
 
-Parameters from the figure.
+Vertical gridlines sit at $1$, $2$, $5$ in each decade, and when you check curve against them it hits a crossing at exactly two labelled $t$, which are $(6, 0.02)$ and $(20, 0.0005)$, while at other labelled values it runs between lines, about $0.066$ at $t = 4$, about $0.0083$ at $t = 8$, about $0.0042$ at $t = 10$ and about $0.0012$ at $t = 15$.
 
-Vertical gridlines sit at $1$, $2$, $5$ in each decade. Curve hits a crossing at exactly two labelled $t$, these are $(6, 0.02)$ and $(20, 0.0005)$. At other labelled values it runs between lines, for example about $0.066$ at $t = 4$, about $0.0083$ at $t = 8$, about $0.0042$ at $t = 10$, about $0.0012$ at $t = 15$.
+From $(t/\lambda)^k = 1/S(t) - 1$ these two crossings give $(6/\lambda)^k = 49$ and $(20/\lambda)^k = 1999$, and dividing one by other gives $(10/3)^k = 1999/49 = 40.80$, so $k = \ln 40.80/\ln(10/3) = 3.080$ and then $\lambda = 6/49^{1/k} = 1.696$.
 
-From $(t/\lambda)^k = 1/S(t) - 1$ the two crossings give $(6/\lambda)^k = 49$ and $(20/\lambda)^k = 1999$. Divide them, $(10/3)^k = 1999/49 = 40.80$, so $k = \ln 40.80/\ln(10/3) = 3.080$ and $\lambda = 6/49^{1/k} = 1.696$.
+Renewal function $M(t) = E[N(t)]$ solves $M(t) = F(t) + \int_0^t M(t-u)\,f(u)\,du$, and for log-logistic law there is no closed form because Laplace transform of $f$ is not elementary, so $M$ has to come from numerical work. Mean is $E[X] = \lambda\,(\pi/k)/\sin(\pi/k) = 2.030$, which puts $t = 6$ at about 3 mean gaps, and asymptotics are still bad that early.
 
-No formula gives the answer here.
+For the key I took step $h$ on $[0, 6]$ and advanced $M$ by product integration on density, $M(t_i) = F(t_i) + \sum_j w_j f(u_j) M(t_i - u_j)$ with trapezoidal weights $w_j$, where $u = 0$ term drops because $f(0) = 0$ when $k > 1$, and here $F(t) = 1 - S(t)$ and $f(t) = (k/\lambda)(t/\lambda)^{k-1}/(1 + (t/\lambda)^k)^2$. On $1000$, $2000$, $4000$ and $8000$ intervals this gives $M(6) = 2.70496$ every time.
 
-Renewal function $M(t) = E[N(t)]$ solves $M(t) = F(t) + \int_0^t M(t-u)\,f(u)\,du$. For log-logistic there is no closed form, Laplace transform of $f$ is not elementary, so $M$ has to be numerical. Mean is $E[X] = \lambda\,(\pi/k)/\sin(\pi/k) = 2.030$. At $t = 6$ we are about 3 mean gaps in, asymptotics are still bad there.
+Scheme choice is what decides this question, because all schemes below reach $2.70496$ in the limit but at half per cent they sit far apart, and at step which someone picks on first try none of them is inside.
 
-Solving it, and the scheme problem.
+Trapezoidal product rule on $dF$, implicit in $M_i$, is second order and gives $2.7496$ at $h = 1$, which is $1.65$ per cent high and outside, then $2.7155$ at $h = 0.5$ and $2.7076$ at $h = 0.25$, where both are inside.
 
-Take step $h$ on $[0, 6]$ and advance $M$ by product integration on density, $M(t_i) = F(t_i) + \sum_j w_j f(u_j) M(t_i - u_j)$, trapezoidal weights $w_j$. The $u = 0$ term drops because $f(0) = 0$ when $k > 1$. Here $F(t) = 1 - S(t)$ and $f(t) = (k/\lambda)(t/\lambda)^{k-1}/(1 + (t/\lambda)^k)^2$. On $1000$, $2000$, $4000$, $8000$ intervals this gives $M(6) = 2.70496$ every time.
+Midpoint or lattice rule rounds arrival times to nearest node and comes from above slowly, giving $2.9501$, $2.8312$, $2.7678$, $2.7363$ and $2.7206$ at steps $1$, $0.5$, $0.25$, $0.125$, $0.0625$, so it needs $h$ under about $0.06$, while Richardson on its two coarsest values overshoots to $2.7916$.
 
-Scheme choice is what decides this question. All schemes below reach $2.70496$ in the limit, but at half a per cent they sit far apart, and at the step someone picks on a first try none of them is inside.
+Discrete renewal recursion is the one which people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$, and because each cell mass sits at right endpoint every renewal gets delayed by up to $h$, so it comes from below at first order with $2.2395$, $2.4417$, $2.5644$, $2.6322$ and $2.6679$ at same steps, all of them outside, and even at $h = 0.03125$ it is still $2.6863$. Richardson $2M(h/2) - M(h)$ fixes it earlier, where $2.6870$ from pair $(0.5, 0.25)$ is still outside while $2.7001$ from $(0.25, 0.125)$ is inside.
 
-Trapezoidal product rule on $dF$, implicit in $M_i$, second order. Gives $2.7496$ at $h = 1$, that is $1.65$ per cent high and outside. Then $2.7155$ at $h = 0.5$ and $2.7076$ at $h = 0.25$, both inside.
+That is why accuracy is set at half per cent, because one run at one step proves nothing and the value has to be shown settled.
 
-Midpoint or lattice rule, arrival times rounded to nearest node, comes from above and slowly: $2.9501$, $2.8312$, $2.7678$, $2.7363$, $2.7206$ at steps $1$, $0.5$, $0.25$, $0.125$, $0.0625$. Needs $h$ under about $0.06$. Richardson on its two coarsest values overshoots to $2.7916$.
+Two other routes confirm it. Convolution series $M(t) = \sum_{j \ge 1} P(S_j \le t)$ with each $P(S_j \le 6)$ done by repeated numerical convolution of $f$ gives $2.70496$, and simulation of $400\,000$ paths gives $2.7068 \pm 0.0017$.
 
-Discrete renewal recursion is the one people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$. Each cell mass sits at right endpoint, every renewal gets delayed by up to $h$, so it comes from below at first order: $2.2395$, $2.4417$, $2.5644$, $2.6322$, $2.6679$ at same steps, all outside. At $h = 0.03125$ still $2.6863$. Richardson $2M(h/2) - M(h)$ fixes it earlier, $2.6870$ from pair $(0.5, 0.25)$ still outside, $2.7001$ from $(0.25, 0.125)$ inside.
+So $M(6) = 2.70496$, which is $2.705$ to 3 decimals and inside accepted $2.691$ to $2.718$.
 
-Grading is half per cent each side, and the question asks for that accuracy without naming the range. One run at one step proves nothing, accuracy has to be shown.
+Keeping 4 figures on parameters is enough, since $k = 3.080$ with $\lambda = 1.696$ gives $2.7050$, while nearby roundings $k = 3.08, \lambda = 1.70$ and $k = 3.1, \lambda = 1.70$ give $2.6980$ and $2.7011$ and both stay inside.
 
-Check by other routes. Convolution series $M(t) = \sum_{j \ge 1} P(S_j \le t)$, each $P(S_j \le 6)$ by repeated numerical convolution of $f$, gives $2.70496$. Simulation of $400\,000$ paths gives $2.7068 \pm 0.0017$.
+Rounding $k$ to $3$ with $\lambda = 4^{1/3}$ looks attractive but it breaks, because that law has $S(6) = 0.0182$ against drawn $0.0200$, a nine per cent gap which is visible on log axis, and it returns $M(6) = 2.8947$ which is outside.
 
-Result.
+Shortcuts all fail at this $t$ and the half per cent catches each one. Elementary renewal theorem alone gives $t/E[X] = 6/2.030 = 2.9555$ and that is nine per cent high, asymptotic expansion $t/m + (E[X^2] - 2m^2)/(2m^2) = 2.7535$ is $1.8$ per cent high because $t = 6$ is only about 3 mean gaps, common slip $t/m - 1/2 = 2.4555$ is far out, and $F(6) = 0.98$ is probability of at least one renewal which is different quantity.
 
-$M(6) = 2.70496$, so $2.705$ to 3 decimals, inside the accepted $2.691$ to $2.718$.
-
-Keeping 4 figures on the parameters is enough. $k = 3.080$ with $\lambda = 1.696$ gives $2.7050$. Nearby roundings $k = 3.08, \lambda = 1.70$ and $k = 3.1, \lambda = 1.70$ give $2.6980$ and $2.7011$, still inside.
-
-Rounding $k$ to $3$ with $\lambda = 4^{1/3}$ looks attractive but breaks. That law has $S(6) = 0.0182$ against drawn $0.0200$, nine per cent gap, visible on log axis, and returns $M(6) = 2.8947$, outside.
-
-Shortcuts all fail at this $t$ and interval catches each one. Elementary renewal theorem alone, $t/E[X] = 6/2.030 = 2.9555$, nine per cent high. Asymptotic expansion $t/m + (E[X^2] - 2m^2)/(2m^2) = 2.7535$, $1.8$ per cent high, outside half per cent, because $t = 6$ is only about 3 mean gaps. Common slip $t/m - 1/2 = 2.4555$, far out. $F(6) = 0.98$ is probability of at least one renewal, different quantity.
-
-Reading curve through near misses instead of real crossings also lands elsewhere. $(6, 0.02)$ with $(8, 0.01)$ gives $3.64$, with $(10, 0.005)$ gives $3.13$, with $(15, 0.001)$ gives $2.50$, with $(3, 0.2)$ gives $2.24$.
+Reading curve through near misses instead of real crossings also lands elsewhere, where $(6, 0.02)$ with $(8, 0.01)$ gives $3.64$, with $(10, 0.005)$ gives $3.13$, with $(15, 0.001)$ gives $2.50$ and with $(3, 0.2)$ gives $2.24$.
 
 Answer: $2.705$.
 
 ## Rubric
 
-- c1 (4 pts, final answer): Final value of $E[N(6)]$ is within half a per cent of $2.70496$, that is in $2.691$ to $2.718$, and the response reached it by a converged numerical method rather than by a guess or a closed-form formula. The question asks for half a per cent, not a fixed figure count, so any value in that range counts and nothing outside it does. $2.7496$, $2.6679$, $2.6870$, $2.7916$, $2.7535$ and $2.9555$ all fail.
-- c2 (1 pts): Response says which parameters it used and they are $k = 3.080$, $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, that law gives $2.8947$ which is outside interval.
-- c3 (2 pts): Response names its method and it is one that actually computes the finite-time renewal function: the renewal equation $M = F + M * f$, the convolution series $\sum_j P(S_j \le t)$, or simulation of the process. This law has no closed form, so offering $t/\mu$ or the asymptotic expansion as the method loses this point even when the number lands in range.
-- c4 (3 pts): Response gives objective evidence for half a per cent accuracy, one of: two successive refinements whose values agree to within $0.013$ of each other, with the finer one reported; a Richardson extrapolation of two steps of a scheme whose order is stated; two different methods agreeing to within $0.013$; or a simulation with a reported standard error of $0.003$ or less. A single run at a single step, or any claim of convergence with no numbers shown, earns nothing.
+- c1 (4 pts, final answer): Final value of $E[N(6)]$ is within half per cent of $2.70496$, which means it sits in $2.691$ to $2.718$, and response reached it by converged numerical method instead of guess or closed-form formula. Question asks for that accuracy and not for fixed figure count, so any value in that range counts while nothing outside it does, and $2.7496$, $2.6679$, $2.6870$, $2.7916$, $2.7535$ and $2.9555$ all fail.
+- c2 (1 pts): Response says which parameters it used and they are $k = 3.080$ with $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, because that law gives $2.8947$ which is outside range.
+- c3 (2 pts): Response names its method and that method actually computes finite-time renewal function, so it is renewal equation $M = F + M * f$, or convolution series $\sum_j P(S_j \le t)$, or simulation of process. This law has no closed form, so giving $t/\mu$ or asymptotic expansion as the method loses this point even when number lands in range.
+- c4 (3 pts): Response gives objective evidence for half per cent accuracy, and any one of these counts: two successive refinements which agree within $0.013$ of each other with finer one reported, or Richardson extrapolation of two steps where scheme order is stated, or two different methods agreeing within $0.013$, or simulation with reported standard error of $0.003$ or less. Single run at single step earns nothing, and so does any claim of convergence with no numbers shown.
 
 Common wrong answers: 2.7496, 2.6679, 2.7535, 2.9555, 2.8947, 2.6870, 2.7916, 2.4555
 
