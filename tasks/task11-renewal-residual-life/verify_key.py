@@ -1,4 +1,4 @@
-# Expected number of renewals by time t = 6 for a renewal process with log-logistic inter-arrival times,
+# Expected number of renewals by time t = 3 for a renewal process with log-logistic inter-arrival times,
 # the parameters taken from two gridline crossings of the drawn survival function.
 # Run: python3 verify_key.py   (needs numpy and scipy)
 import math
@@ -26,14 +26,14 @@ for t in labelled:
     nearest = min([c*e for c in (1, 2, 5, 10)], key=lambda v: abs(math.log10(y / v)))
     print(f"   t = {t:3d}: S = {y:.4g}, nearest line {nearest:g}, off by {abs(y/nearest-1)*100:.0f} percent")
 
-KEY3 = "2.705"                 # the answer the question asks for: E[N(6)] rounded to 3 decimals
+KEY3 = "1.20"                 # the answer the question asks for: E[N(3)] rounded to 2 decimals
 def verdict(v):
-    r = f"{v:.3f}"
-    return "rounds to 2.705" if r == KEY3 else f"rounds to {r}, wrong"
+    r = f"{v:.2f}"
+    return "rounds to 1.20" if r == KEY3 else f"rounds to {r}, wrong"
 
 F = lambda t: 1.0 - S(t)
 f = lambda t: (k/lam) * (t/lam)**(k-1) / (1.0 + (t/lam)**k)**2
-T = 6.0
+T = 3.0
 
 # Route 1: the renewal equation M = F + M * f, solved on a uniform grid by product integration
 def renewal_M(T, n):
@@ -96,7 +96,7 @@ def trap_dF(T, h):
 print("Scheme comparison, trapezoidal product rule on dF (second order, implicit):")
 for h in (1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125):
     v = trap_dF(T, h); print(f"   h = {h:<6}: M({T:g}) = {v:.4f}  {verdict(v)}")
-print("   Even this second-order scheme needs h = 0.0625 before it rounds to 2.705, so no scheme survives a")
+print("   Even this second-order scheme needs h = 0.25 before it rounds to 1.20, so no scheme survives a")
 print("   single coarse run: the step has to be refined or two steps extrapolated.")
 
 # Midpoint / lattice rule: converges to the same limit from ABOVE, and a coarse Richardson step overshoots
@@ -115,7 +115,7 @@ for h in (1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125):
     print(f"   h = {h:<7}: M({T:g}) = {mv[h]:.4f}  {verdict(mv[h])}")
 rich = mv[0.5] + (mv[0.5]-mv[1.0])/3
 print(f"   Richardson on its two coarsest values overshoots: {rich:.4f}  {verdict(rich)}")
-print("   The schemes straddle the answer, and only a well refined or correctly extrapolated one rounds to 2.705.")
+print("   The schemes straddle the answer, and only a well refined or correctly extrapolated one rounds to 1.20.")
 
 print("Discretisation trap, discrete renewal recursion with right-endpoint cell masses:")
 prev = None
@@ -124,8 +124,8 @@ for h in (1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125):
     extra = f"   Richardson with the previous step: {2*v-prev:.4f}  {verdict(2*v-prev)}" if prev is not None else ""
     print(f"   h = {h:<7}: M({T:g}) = {v:.4f}  {verdict(v)}{extra}")
     prev = v
-print("   The scheme converges from below at first order: no step down to 0.03125 rounds to 2.705, and")
-print("   of the Richardson pairs only (0.0625, 0.03125) does; the earlier pairs stop at 2.700 and 2.704.")
+print("   The scheme converges from below at first order: no step down to 0.03125 rounds to 1.20, and")
+print("   of the Richardson pairs the first two stop at 1.18 and 1.19, and (0.25, 0.125) is the first to reach it.")
 
 # The rounding trap: forcing k to the round value 3
 k3, l3 = 3.0, 4.0**(1/3)
@@ -140,12 +140,12 @@ def M_params(kk, ll, T, n=4000):
         w = np.full(i+1, h); w[0] = w[-1] = h/2
         M[i] = Fv[i] + np.dot(w[1:]*fv[1:i+1], M[i-1::-1])
     return M[-1]
-mk3 = M_params(k3, l3, T); print(f"   That law would give M(6) = {mk3:.4f}  {verdict(mk3)}")
+mk3 = M_params(k3, l3, T); print(f"   That law would give M(3) = {mk3:.4f}  {verdict(mk3)}")
 print("   The key is unchanged under honest rounding of the true parameters:")
 for kk, ll in ((3.08, 1.696), (3.1, 1.70), (3.08, 1.70), (3.07, 1.70), (3.08, 1.69)):
-    vv = M_params(kk, ll, T); print(f"      k = {kk}, lambda = {ll}: M(6) = {vv:.4f}  {verdict(vv)}")
+    vv = M_params(kk, ll, T); print(f"      k = {kk}, lambda = {ll}: M(3) = {vv:.4f}  {verdict(vv)}")
 
-print(f"Answer key: {M1:.6f}, which is {M1:.3f} at 3 decimals; the 3-decimal bin runs 2.7045 to 2.7055, so the key sits {M1-2.7045:.5f} above its lower edge")
+print(f"Answer key: {M1:.6f}, which is {M1:.2f} at 2 decimals; the 2-decimal bin runs 1.195 to 1.205, so the key sits {1.205-M1:.5f} below its upper edge")
 
 # The shortcuts that do not work
 m = lam * (math.pi/k) / math.sin(math.pi/k)
@@ -154,7 +154,7 @@ print(f"E[X] = {m:.5f}, E[X^2] = {E2:.5f} (both finite, r < k; the first diverge
 print(f"Wrong route: elementary renewal theorem alone, t/m = {T/m:.4f}  {verdict(T/m)}")
 asy = T/m + (E2-2*m*m)/(2*m*m)
 print(f"Wrong route: asymptotic expansion t/m + (E[X^2] - 2m^2)/(2m^2) = {asy:.4f}  {verdict(asy)}")
-print(f"   (it is still 1.8 percent above the true value at t = {T:g}, because t is only about 3 mean gaps)")
+print(f"   (it is still {(T/m + (E2-2*m*m)/(2*m*m))/M1*100-100:.1f} percent above the true value at t = {T:g}, because t is only about 1.5 mean gaps)")
 print(f"Wrong route: t/m - 1/2 = {T/m - 0.5:.4f}  {verdict(T/m - 0.5)}")
 print(f"Wrong route: F({T:g}) = {F(T):.4f}, the probability of at least one renewal, not their expected number")
 
