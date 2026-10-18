@@ -11,8 +11,8 @@ and every number below is marked by what it rounds to at 2 decimals.
    t = 8, 17 percent off). From t = 40 on the curve is below the plotted range.
 2. Parameters: (t/lambda)^k = 1/S - 1 at the two crossings gives (10/3)^k = 1999/49, k = 3.0803, lambda = 1.6960.
    E[X] = 2.03015 and E[X^2] = 6.57795, both finite since r < k; the first divergent integer moment of X is the fourth.
-3. The answer, three independent ways. The renewal function solves M = F + M * f, which has no closed form for this
-   law. Product integration of that equation on 1000, 2000, 4000 and 8000 intervals gives M(3) = 1.201419 each time;
+3. The answer, three independent ways. The renewal function solves M = F + M * f, and no usable closed form is
+   known for it under this law. Product integration of that equation on 1000, 2000, 4000 and 8000 intervals gives M(3) = 1.201419 each time;
    the convolution series M(3) = sum_j P(S_j <= 3), with the convolutions taken numerically, gives 1.201419; a
    simulation of 400000 paths gives 1.2032 with a standard error of 0.0011, which agrees with the key, but its
    95 per cent band 1.2010 to 1.2054 spans 1.20 and 1.21, so it is corroboration only and does not by itself fix
