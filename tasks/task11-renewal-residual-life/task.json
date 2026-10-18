@@ -60,7 +60,7 @@
         },
         {
           "id": "c4",
-          "description": "Response shows its scheme reached the 4th figure. Any one of these counts. Deterministic scheme at two or more step sizes with the value settling. An extrapolation of two steps. Two independent methods that agree. Or, for simulation, a standard error or confidence interval small enough for the 4th figure, roughly $0.003$ or below, which needs on the order of $10^5$ paths or more, with the path length long enough that truncation does not bite. One run at one step size earns nothing here whatever it returns, and a simulation quoted with no uncertainty estimate earns nothing either. A step too coarse for the scheme also fails, for example right-endpoint recursion at $h = 0.0625$ which is still at $2.6679$.",
+          "description": "Response shows its scheme reached the 4th figure. Any one counts: a deterministic scheme at two or more steps with the value settling, an extrapolation of two steps, two methods that agree, or a simulation with a standard error near $0.003$ or below. One run at one step earns nothing, and so does a simulation with no uncertainty estimate, or a step too coarse for the scheme such as right-endpoint recursion at $h = 0.0625$, still at $2.6679$.",
           "points": 3,
           "isFinalAnswer": false
         }
