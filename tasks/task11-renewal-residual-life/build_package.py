@@ -27,7 +27,7 @@ Midpoint or lattice rule, which rounds arrival times to nearest node, comes down
 
 Discrete renewal recursion, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$, is the method which most people reach for first, and because it puts each cell mass at right endpoint it delays every renewal by up to $h$ and creeps up from below at first order, with $1.0353$, $1.1060$, $1.1498$, $1.1745$, $1.1877$ and $1.1945$ at same steps. Richardson $2M(h/2) - M(h)$ helps it, though not quickly, for pairs give $1.1767$ and $1.1937$ before $(0.25, 0.125)$ at last gives $1.1993$, which rounds to $1.20$.
 
-Two other routes agree with key, convolution series $M(t) = \sum_{j \ge 1} P(S_j \le t)$, with each $P(S_j \le 3)$ done by repeated numerical convolution of $f$, giving $1.20142$, and simulation of $400\,000$ paths giving $1.2032 \pm 0.0011$, which agrees and is just good enough to fix second decimal by itself.
+Two other routes agree with key, convolution series $M(t) = \sum_{j \ge 1} P(S_j \le t)$, with each $P(S_j \le 3)$ done by repeated numerical convolution of $f$, giving $1.20142$, and simulation of $400\,000$ paths giving $1.2032 \pm 0.0011$, which agrees with key, though its 95 per cent band from $1.2010$ to $1.2054$ is too wide to fix second decimal by itself, so it serves only as a check.
 
 Parameters must be carried to 4 figures, as question says, since $k = 3.080$ with $\lambda = 1.696$ gives $1.2015$ and second decimal is safe, whereas $\lambda = 1.69$ gives $1.2068$ and it has already moved. Rounding $k$ all way to $3$, with $\lambda = 4^{1/3}$, is tempting, but that law has $S(6) = 0.0182$ against drawn $0.0200$, a gap of nine per cent which can be seen on log axis, and it returns $M(3) = 1.3028$.
 
@@ -35,7 +35,7 @@ Shortcuts, as I say, all fail at this $t$, for elementary renewal theorem alone 
 
 Answer: $1.20$."""
 rubric = [
-    dict(id="c1", description=r"Final answer is $1.20$, which is $E[N(3)] = 1.20142$ rounded to 2 decimals as question asks, and values which come of stopping too soon are wrong, these being $1.25$ from coarse trapezoid at $h = 1$, $1.19$ from right-endpoint recursion at $h = 0.0625$, $1.18$ and $1.29$ from two Richardson steps taken too early, $1.28$ from asymptotic expansion, $1.48$ from $t/E[X]$ and $1.30$ when $k$ was rounded to $3$.", points=4, isFinalAnswer=True),
+    dict(id="c1", description=r"Final answer is $1.20$, which is $E[N(3)] = 1.20142$ rounded to 2 decimals as question asks, and it is reached by renewal equation, convolution series or simulation with numbers shown which settle second decimal, as stem demands, so bare number or one coarse run gets nothing here. Values which come of stopping too soon are wrong, these being $1.25$, $1.19$, $1.18$, $1.29$, $1.28$, $1.48$ and $1.30$.", points=4, isFinalAnswer=True),
     dict(id="c2", description=r"Response states parameters it used, and they are $k = 3.080$ and $\lambda = 1.696$ to 4 figures, as got from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$, and a response which rounds $k$ to $3$ loses this point, since that law gives $1.3028$, which rounds to $1.30$.", points=1, isFinalAnswer=False),
     dict(id="c3", description=r"Response names its method, and that method is one which really computes renewal function at finite time, either renewal equation $M = F + M * f$, convolution series $\sum_j P(S_j \le t)$ or simulation of process, so that giving $t/\mu$ or asymptotic expansion as method loses this point, even when number happens to come out near key, because this law has no closed form.", points=2, isFinalAnswer=False),
     dict(id="c4", description=r"Response shows second decimal has settled, either by halving step at least twice with ratio of successive changes between 1.5 and 2.5 for first order scheme or between 3 and 5 for second order and last change under $0.002$, or by Richardson value agreeing with finer run within $0.002$, or by two schemes agreeing within $0.002$, or by simulation with 95 per cent confidence interval whose two ends round alike. One run at one step earns nothing.", points=3, isFinalAnswer=False),
@@ -105,8 +105,9 @@ and every number below is marked by what it rounds to at 2 decimals.
 3. The answer, three independent ways. The renewal function solves M = F + M * f, which has no closed form for this
    law. Product integration of that equation on 1000, 2000, 4000 and 8000 intervals gives M(3) = 1.201419 each time;
    the convolution series M(3) = sum_j P(S_j <= 3), with the convolutions taken numerically, gives 1.201419; a
-   simulation of 400000 paths gives 1.2032 with a standard error of 0.0011, whose 95 per cent confidence band
-   1.2010 to 1.2054 rounds to 1.20 at both ends. Key 1.20 at 2 decimals.
+   simulation of 400000 paths gives 1.2032 with a standard error of 0.0011, which agrees with the key, but its
+   95 per cent band 1.2010 to 1.2054 spans 1.20 and 1.21, so it is corroboration only and does not by itself fix
+   the second decimal. Key 1.20 at 2 decimals.
 4. The discretisation trap. The second decimal is what gives the question its difficulty: all schemes below
    converge to 1.201419, but at the step a quick attempt would choose none of them rounds to 1.20.
    Trapezoidal product rule on dF, implicit in M_i (second order): 1.2481 at h = 1 and 1.2126 at 0.5 (round to
