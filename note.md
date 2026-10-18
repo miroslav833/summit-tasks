@@ -359,6 +359,14 @@ identity and Panjer's recursion for the geometric compound on a 0.25 grid, which
 Panjer turns this quantity into a short routine; the key also sits 0.0017 from a rounding boundary, so a
 harder version would be unfair rather than hard. Out.
 
+task06 v8-hidden-period (2026-10-18): misconception lever, chosen after the matched-pipeline tally showed max-effort
+Opus never ends with a wrong answer on search questions (always 5/5 or 0/5 cut). 9-state chain given as a 9 x 9
+transition table, period 3 hidden by interleaving the classes {1,4,7}, {2,5,8}, {3,6,9} in the numbering;
+question lim P(X_6n = 4 | X_0 = 1), key 3 pi_4 = 531/2245, textbook trap pi_4 = 177/2245. Cheap screen: Sonnet
+1/1 and Opus 1/1 correct within a minute; both checked the period first, found the classes and solved the 3-state
+chain P^3 on {1,4,7}. A hidden failed hypothesis is checked as routine. The lattice-renewal twin (span 2,
+answer 2/mu against 1/mu) has the same weakness and was not built. Not run on the matched pipeline.
+
 Submission note (2026-10-17): Summit has no task06 entry, so the owner revised SUM-MVB7DTW7 (the task05 entry,
 the only bandwidth question on the account) with this package, which also avoids a duplicate-check hit from a
 second bandwidth task. Lesson for the README of any revision: name the Summit entry id, not the local task
@@ -496,6 +504,13 @@ xhigh 46k to 54k. Results are appended to tools/calib/*.jsonl with stop reason, 
 tokens. Command:
 
     python3 tools/summit_screen.py --label vN --effort max --stem stem.txt --image image.png --key K --n 5
+
+Defaults since 2026-10-18: --effort max, --cap 128000 (the CLI silently continues past 128k up to 512k, so
+the script scores any attempt above 128k output tokens as a cut-off), --timeout 1800 s (an attempt still running
+after 30 minutes is far past 128k and is killed and scored as a cut-off). Results so far on this pipeline: task09
+v1 2/2 (Summit 5/5), v11 3/3 over budget (Summit 0/5 cut), v12 5/5 over budget, v13 diameter-2 5/5, v14 to v17
+gathering 5/5, v18 5/5 (73k to 116k), v19 0/5 cut, task11 renewal 5/5, archived R_min instance 0/5 cut. Max-effort
+Opus never finished with a wrong answer on a search-type question.
 
 Score exactly as Summit: correct on 1 to 4 of 5 is in band; an attempt that stops on max_tokens or has no
 FINAL ANSWER line is a cut-off, and two or more cut-offs mean "unfair". A run takes 15 to 20 minutes and
