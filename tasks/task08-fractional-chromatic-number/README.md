@@ -16,7 +16,7 @@ How many Hamiltonian cycles does this graph have? Give your answer as single int
 
 ## Solution
 
-Graph in figure has $42$ edges, which are $AG, AJ, AS, BK, BS, BV, CH, CL, CY, DI, DN, DW, EL, EP, EZ, FS, FX, FZ, GT, Gb, HJ, Ha, IM, Ib, JV, KQ, KU, LR, MO, MX, NT, NV, OQ, OZ, PU, PX, QY, RT, Ra, Ub, WY, Wa$, and each vertex has degree $3$, so graph is cubic, as $28 \cdot 3 / 2 = 42$. There are no triangles and no $4$-cycles in it, its girth being $5$, and it is not planar and has no symmetry except identity, so count cannot be shortened by faces or by symmetry and it has to be done as search.
+Graph in figure has $42$ edges, which are $AG, AJ, AS, BK, BS, BV, CH, CL, CY, DI, DN, DW, EL, EP, EZ, FS, FX, FZ, GT, Gb, HJ, Ha, IM, Ib, JV, KQ, KU, LR, MO, MX, NT, NV, OQ, OZ, PU, PX, QY, RT, Ra, Ub, WY, Wa$, and each vertex has degree $3$, so graph is cubic, as $28 \cdot 3 / 2 = 42$. Count below is done as exhaustive search.
 
 Hamiltonian cycle uses two of three edges at each vertex, so edges which it leaves out form perfect matching, and perfect matching gives Hamiltonian cycle exactly when other $28$ edges close into one cycle and not into several. Search by hand runs on two rules, that when edge is left out the other two edges at both its ends are used, and that when two edges at vertex are used its third edge is left out, and branch is dropped when some vertex keeps fewer than two usable edges or when used edges close cycle shorter than $28$.
 
@@ -41,7 +41,7 @@ Counting Hamiltonian cycles is #P-complete in general, so no formula is expected
 
 ## Verify field
 
-Section 2 of verification_notes.txt counts Hamiltonian cycles by depth-first search from A and finds 52 distinct edge sets, and section 3 counts them second way, as perfect matchings whose complement is one 28-cycle, where 52 of 98 perfect matchings are good. Section 4 gives case split of solution, 22, 14 and 16 when DI, DN and DW are left out, section 5 checks that each edge lies on even number of cycles and section 6 lists all 52 cycles, while program verify_key.py is embedded with its output.
+References field of this revision still holds legacy text from earlier version of this entry, about fractional colouring, independent sets and value 13/4, which form does not let me remove, so it does not apply here and should be disregarded, and correct references for this question are Valiant (1979) on counting Hamiltonian cycles and Thomason (1978) for Smith's parity theorem. Section 2 of verification_notes.txt counts Hamiltonian cycles by depth-first search from A and finds 52 distinct edge sets, and section 3 counts them second way, as perfect matchings whose complement is one 28-cycle, where 52 of 98 perfect matchings are good. Section 4 gives case split of solution, 22, 14 and 16 when DI, DN and DW are left out, section 5 checks that each edge lies on even number of cycles and section 6 lists all 52 cycles, while program verify_key.py is embedded with its output.
 
 ## Image necessity
 
