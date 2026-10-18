@@ -8,7 +8,7 @@ Curve passes exactly through gridline crossings at two of labelled $t$ valuesHIN
 
 $N(t)$ counts renewals in $(0, t]$, process starts at time $0$. Find $E[N(6)]$ with the $\lambda$ and $k$ you read from figure. Give 4 significant figures.
 
-Neither parameter is round number so keep 4 figures on both. Grading interval is $2.691$ to $2.718$, half per cent each side of true value. Coarse discretisation will not reach this, so refine step or extrapolate until value stops moving. Last line of your response must be FINAL: and then number.""".replace("HINT", HINT)
+Neither parameter is round number so keep 4 figures on both. This quantity has no closed form and the coarse schemes are still several per cent out at a step you would pick on a first try, so refine the step or extrapolate until the 4th figure stops moving. State which scheme you used and the values it gave at each step. Last line of your response must be FINAL: and then number.""".replace("HINT", HINT)
 final_answer = "2.705"
 variants = ["2.7050", "2.705 renewals", "2.704", "2.706", "2.7049", "2.70496", "FINAL: 2.705"]
 solution = r"""Parameters from the figure.
@@ -33,7 +33,7 @@ Midpoint or lattice rule, arrival times rounded to nearest node, comes from abov
 
 Discrete renewal recursion is the one people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$. Each cell mass sits at right endpoint, every renewal gets delayed by up to $h$, so it comes from below at first order: $2.2395$, $2.4417$, $2.5644$, $2.6322$, $2.6679$ at same steps, all outside. At $h = 0.03125$ still $2.6863$. Richardson $2M(h/2) - M(h)$ fixes it earlier, $2.6870$ from pair $(0.5, 0.25)$ still outside, $2.7001$ from $(0.25, 0.125)$ inside.
 
-That is why interval is half per cent. One run at one step proves nothing, value has to be shown settled.
+Grading interval is half per cent each side, kept out of the question on purpose. One run at one step proves nothing, the 4th figure has to be shown settled.
 
 Check by other routes. Convolution series $M(t) = \sum_{j \ge 1} P(S_j \le t)$, each $P(S_j \le 6)$ by repeated numerical convolution of $f$, gives $2.70496$. Simulation of $400\,000$ paths gives $2.7068 \pm 0.0017$.
 
@@ -51,10 +51,10 @@ Reading curve through near misses instead of real crossings also lands elsewhere
 
 Answer: $2.705$."""
 rubric = [
-    dict(id="c1", description=r"Final value of $E[N(6)]$ lands in $2.691$ to $2.718$ inclusive. This is half per cent each side of true $2.70496$ and the question states it. Outside that interval is wrong, so coarse grid values $2.7496$ and $2.6679$ fail, extrapolated $2.6870$ and $2.7916$ fail, asymptotic $2.7535$ fails, $t/E[X] = 2.9555$ fails.", points=4, isFinalAnswer=True),
+    dict(id="c1", description=r"Final value of $E[N(6)]$ lands in $2.691$ to $2.718$ inclusive, half per cent each side of true $2.70496$. The question does not give this interval, the solver has to converge its own scheme to reach it. Outside that interval is wrong, so coarse grid values $2.7496$ and $2.6679$ fail, extrapolated $2.6870$ and $2.7916$ fail, asymptotic $2.7535$ fails, $t/E[X] = 2.9555$ fails.", points=4, isFinalAnswer=True),
     dict(id="c2", description=r"Response says which parameters it used and they are $k = 3.080$, $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, that law gives $2.8947$ which is outside interval.", points=1, isFinalAnswer=False),
     dict(id="c3", description=r"Response names its method and it is renewal equation $M = F + M * f$, or convolution series $\sum_j P(S_j \le t)$, or simulation. Not a closed form or asymptotic formula. Log-logistic renewal function has no closed form, so giving $t/\mu$ or asymptotic expansion as the method loses this point even when number happens to land inside interval.", points=2, isFinalAnswer=False),
-    dict(id="c4", description=r"Response shows its scheme converged to the accuracy asked. Two or more step sizes with value settling, or an extrapolation, or a second independent method that agrees. One run at one step size earns nothing here whatever it returns. A step too coarse for the scheme also earns nothing, for example right-endpoint recursion at $h = 0.0625$ which is still $2.6679$ and outside interval.", points=3, isFinalAnswer=False),
+    dict(id="c4", description=r"Response shows its scheme reached the 4th figure. Any one of these counts. Deterministic scheme at two or more step sizes with the value settling. An extrapolation of two steps. Two independent methods that agree. Or, for simulation, a standard error or confidence interval small enough for the 4th figure, roughly $0.003$ or below, which needs on the order of $10^5$ paths or more, with the path length long enough that truncation does not bite. One run at one step size earns nothing here whatever it returns, and a simulation quoted with no uncertainty estimate earns nothing either. A step too coarse for the scheme also fails, for example right-endpoint recursion at $h = 0.0625$ which is still at $2.6679$.", points=3, isFinalAnswer=False),
 ]
 wrong = ["2.7496", "2.6679", "2.7535", "2.9555", "2.8947", "2.6870", "2.7916", "2.4555"]
 references = r"""Renewal equation and renewal function: W. Feller, An Introduction to Probability Theory and Its Applications, vol. II, 2nd ed., Wiley, 1971, chapter XI. S. M. Ross, Stochastic Processes, 2nd ed., Wiley, 1996, sections 3.3 and 3.4, which derives the asymptotic expansion $M(t) = t/\mu + (\sigma^2 - \mu^2)/(2\mu^2) + o(1)$ and notes how slowly it comes in. Numerical solution of renewal equations by product integration: P. Linz, Analytical and Numerical Methods for Volterra Equations, SIAM, 1985, chapter 7. Moments of the log-logistic distribution through the Beta function: N. L. Johnson, S. Kotz and N. Balakrishnan, Continuous Univariate Distributions, vol. 2, 2nd ed., Wiley, 1995, chapter 23 (the Fisk distribution). Uploaded file verification_notes.txt gives the two gridline crossings the curve was drawn through, the distance from curve to nearest gridline at every other labelled abscissa, and solves $\lambda$ and $k$ from the crossings. It records that this law has no closed form renewal function, then computes $M(6)$ by three independent numerical routes, product integration of the renewal equation at four step sizes, the convolution series $\sum_j P(S_j \le 6)$ with convolutions done numerically, and a simulation of 400000 paths. After that it tables four discretisation schemes against the accepted interval, what each closed form shortcut returns, what rounding $k$ to $3$ does, and what each near miss reading of the figure would give. Program and its full output are at the end."""
@@ -63,9 +63,10 @@ task = {"schema_version": "summit-task-package-v1", "task": {
     "domain": "mathematics", "subdomain": "Probability: renewal theory (the renewal function at finite time, numerical solution of the renewal equation) with heavy-tailed inter-arrival times",
     "modality": "image_reference", "taskType": "graph_extraction_computation",
     "imageCreationTool": "matplotlib (original plot of the survival function with a 1-2-5 grid)",
-    "imageNecessityExplanation": necessity, "questionText": question, "answerType": "exact_match",
+    "imageNecessityExplanation": necessity, "questionText": question, "answerType": "numeric_tolerance",
     "finalAnswer": [final_answer], "acceptableAnswerVariants": variants, "multipleChoiceOptions": [],
-    "answerPrecision": {"kind": "significant_figures", "digits": 4}, "solution": solution, "references": references,
+    "answerPrecision": {"kind": "significant_figures", "digits": 4},
+    "graderSpec": {"kind": "numeric_tolerance", "target": 2.704964, "absoluteTolerance": 0.0135, "acceptedInterval": [2.691, 2.718], "note": "Half a per cent either side of the converged value. Not stated in the question: the solver must converge its own scheme. Grade the number on the FINAL line."}, "solution": solution, "references": references,
     "rubric": {"criteria": rubric, "commonWrongAnswers": wrong}, "image": {"entry": "image.png"},
     "referenceFile": {"entry": "reference.txt", "fileName": "verification_notes.txt"}}}
 def check():
@@ -77,7 +78,12 @@ def check():
         head = [w for w in v.replace("FINAL:", " ").split() if w[0].isdigit()][0]
         assert LO <= float(head) <= HI, f"variant {v} is outside the accepted interval"
     band = f"${LO}$ to ${HI}$"
-    assert band in question and band in rubric[0]["description"], "interval not stated in both the question and c1"
+    assert band in rubric[0]["description"], "interval must be stated in c1"
+    # The stem must NOT leak the window: its midpoint is one digit from the key.
+    for leak in (str(LO), str(HI), band, "2.70", "2.705", "half per cent", "half a per cent"):
+        assert leak not in question, f"stem leaks the answer window: {leak}"
+    mid = (LO + HI) / 2
+    assert abs(float(f"{mid:.4g}") - float(final_answer)) < 0.002, "midpoint is within a digit of the key, keep it hidden"
     globals()["_BAND"] = (LO, HI)
     for name, text in [("question", question), ("solution", solution), ("references", references), ("necessity", necessity)] + [(c["id"], c["description"]) for c in rubric]:
         for ch in ("—", "–", "’", "“", "​"): assert ch not in text, name
@@ -87,9 +93,10 @@ def build_reference():
     pyver = subprocess.run([sys.executable, "--version"], capture_output=True, text=True).stdout.strip()
     txt = f"""VERIFICATION NOTES: expected number of renewals by time 6, log-logistic renewal process
 
-Answer key: 2.705 (2.704964 exactly, to four significant figures). The question states and the rubric enforces an
-acceptance interval of 2.691 to 2.718, half a per cent either side of the true value. Every number below is
-labelled IN or OUT against that interval.
+Answer key: 2.705 (2.704964 exactly, to four significant figures).
+Grading interval is 2.691 to 2.718, half a per cent either side of the true value. It is held in the grader
+and is deliberately not stated in the question, so a solver has to converge a scheme to land inside it. Every
+number below is labelled IN or OUT against that interval.
 
 1. The figure. The vertical axis carries gridlines at 1, 2 and 5 of every decade (1e-4 to 1); the horizontal axis is
    labelled at 1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50, 60, 80, 100. The curve S(t) = 1/(1 + (t/lambda)^k) is

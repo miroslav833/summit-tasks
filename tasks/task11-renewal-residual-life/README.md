@@ -12,7 +12,7 @@ Curve passes exactly through gridline crossings at two of labelled $t$ values, a
 
 $N(t)$ counts renewals in $(0, t]$, process starts at time $0$. Find $E[N(6)]$ with the $\lambda$ and $k$ you read from figure. Give 4 significant figures.
 
-Neither parameter is round number so keep 4 figures on both. Grading interval is $2.691$ to $2.718$, half per cent each side of true value. Coarse discretisation will not reach this, so refine step or extrapolate until value stops moving. Last line of your response must be FINAL: and then number.
+Neither parameter is round number so keep 4 figures on both. This quantity has no closed form and the coarse schemes are still several per cent out at a step you would pick on a first try, so refine the step or extrapolate until the 4th figure stops moving. State which scheme you used and the values it gave at each step. Last line of your response must be FINAL: and then number.
 
 ## Answer
 
@@ -42,7 +42,7 @@ Midpoint or lattice rule, arrival times rounded to nearest node, comes from abov
 
 Discrete renewal recursion is the one people reach for, $M_i = F(t_i) + \sum_{j=1}^{i} p_j M_{i-j}$ with cell masses $p_j = F(t_j) - F(t_{j-1})$. Each cell mass sits at right endpoint, every renewal gets delayed by up to $h$, so it comes from below at first order: $2.2395$, $2.4417$, $2.5644$, $2.6322$, $2.6679$ at same steps, all outside. At $h = 0.03125$ still $2.6863$. Richardson $2M(h/2) - M(h)$ fixes it earlier, $2.6870$ from pair $(0.5, 0.25)$ still outside, $2.7001$ from $(0.25, 0.125)$ inside.
 
-That is why interval is half per cent. One run at one step proves nothing, value has to be shown settled.
+Grading interval is half per cent each side, kept out of the question on purpose. One run at one step proves nothing, the 4th figure has to be shown settled.
 
 Check by other routes. Convolution series $M(t) = \sum_{j \ge 1} P(S_j \le t)$, each $P(S_j \le 6)$ by repeated numerical convolution of $f$, gives $2.70496$. Simulation of $400\,000$ paths gives $2.7068 \pm 0.0017$.
 
@@ -62,10 +62,10 @@ Answer: $2.705$.
 
 ## Rubric
 
-- c1 (4 pts, final answer): Final value of $E[N(6)]$ lands in $2.691$ to $2.718$ inclusive. This is half per cent each side of true $2.70496$ and the question states it. Outside that interval is wrong, so coarse grid values $2.7496$ and $2.6679$ fail, extrapolated $2.6870$ and $2.7916$ fail, asymptotic $2.7535$ fails, $t/E[X] = 2.9555$ fails.
+- c1 (4 pts, final answer): Final value of $E[N(6)]$ lands in $2.691$ to $2.718$ inclusive, half per cent each side of true $2.70496$. The question does not give this interval, the solver has to converge its own scheme to reach it. Outside that interval is wrong, so coarse grid values $2.7496$ and $2.6679$ fail, extrapolated $2.6870$ and $2.7916$ fail, asymptotic $2.7535$ fails, $t/E[X] = 2.9555$ fails.
 - c2 (1 pts): Response says which parameters it used and they are $k = 3.080$, $\lambda = 1.696$ at 4 figures, taken from $(t/\lambda)^k = 1/S - 1$ at crossings $(6, 0.02)$ and $(20, 0.0005)$. Rounding $k$ to $3$ loses this point, that law gives $2.8947$ which is outside interval.
 - c3 (2 pts): Response names its method and it is renewal equation $M = F + M * f$, or convolution series $\sum_j P(S_j \le t)$, or simulation. Not a closed form or asymptotic formula. Log-logistic renewal function has no closed form, so giving $t/\mu$ or asymptotic expansion as the method loses this point even when number happens to land inside interval.
-- c4 (3 pts): Response shows its scheme converged to the accuracy asked. Two or more step sizes with value settling, or an extrapolation, or a second independent method that agrees. One run at one step size earns nothing here whatever it returns. A step too coarse for the scheme also earns nothing, for example right-endpoint recursion at $h = 0.0625$ which is still $2.6679$ and outside interval.
+- c4 (3 pts): Response shows its scheme reached the 4th figure. Any one of these counts. Deterministic scheme at two or more step sizes with the value settling. An extrapolation of two steps. Two independent methods that agree. Or, for simulation, a standard error or confidence interval small enough for the 4th figure, roughly $0.003$ or below, which needs on the order of $10^5$ paths or more, with the path length long enough that truncation does not bite. One run at one step size earns nothing here whatever it returns, and a simulation quoted with no uncertainty estimate earns nothing either. A step too coarse for the scheme also fails, for example right-endpoint recursion at $h = 0.0625$ which is still at $2.6679$.
 
 Common wrong answers: 2.7496, 2.6679, 2.7535, 2.9555, 2.8947, 2.6870, 2.7916, 2.4555
 
