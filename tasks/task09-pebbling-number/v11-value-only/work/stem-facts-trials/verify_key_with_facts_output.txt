@@ -1,0 +1,60 @@
+vertices: 14  edges: 20  target r = 1
+adjacency: {1: [2, 3], 2: [1, 5, 8], 3: [1, 4, 6, 10], 4: [3, 10, 11], 5: [2, 8, 9], 6: [3, 8, 10], 7: [9, 12], 8: [2, 5, 6, 13], 9: [5, 7, 12], 10: [3, 4, 6, 11], 11: [4, 10], 12: [7, 9, 14], 13: [8, 14], 14: [12, 13]}
+degrees: {1: 2, 2: 3, 3: 4, 4: 3, 5: 3, 6: 3, 7: 2, 8: 4, 9: 3, 10: 4, 11: 2, 12: 3, 13: 2, 14: 2}
+distances from r: {1: 0, 2: 1, 3: 1, 4: 2, 5: 2, 6: 2, 8: 2, 10: 2, 9: 3, 11: 3, 13: 3, 7: 4, 12: 4, 14: 4}  eccentricity of r: 4
+trivial lower bounds: n = 14  2^ecc = 16
+
+ROUTE A: layer sizes |U_k| for k = 0, 1, ...: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]
+ROUTE A: pi(G, 1) = 27   (36 s)
+  the 20 unreachable configurations of 26 pebbles:
+     {7: 7, 11: 7, 12: 7, 14: 5}
+     {7: 9, 11: 7, 12: 5, 14: 5}
+     {7: 5, 11: 7, 12: 9, 14: 5}
+     {7: 11, 11: 7, 12: 4, 13: 1, 14: 3}
+     {7: 3, 11: 7, 12: 11, 14: 5}
+     {7: 11, 11: 7, 12: 3, 14: 5}
+     {7: 11, 11: 7, 12: 2, 14: 6}
+     {7: 13, 11: 7, 12: 2, 13: 1, 14: 3}
+     {7: 3, 11: 7, 12: 3, 14: 13}
+     {7: 13, 11: 7, 12: 1, 13: 1, 14: 4}
+     {7: 1, 11: 7, 12: 5, 14: 13}
+     {7: 1, 11: 7, 12: 13, 14: 5}
+     {7: 5, 11: 7, 12: 1, 14: 13}
+     {7: 13, 11: 7, 12: 1, 14: 5}
+     {7: 13, 11: 7, 14: 6}
+     {7: 3, 11: 7, 12: 2, 14: 14}
+     {7: 5, 11: 7, 14: 14}
+     {7: 15, 11: 7, 13: 2, 14: 2}
+     {7: 15, 11: 7, 13: 1, 14: 3}
+     {7: 3, 9: 1, 11: 7, 14: 15}
+
+ROUTE B: layer sizes: [1, 13, 89, 424, 1564, 4714, 11984, 26227, 50076, 84113, 124960, 165021, 195106, 208549, 203602, 183222, 153277, 119824, 87410, 58994, 36112, 19351, 8710, 3193, 925, 191, 20, 0]   (49 s)
+ROUTE B: identical layer sizes, pi(G, 1) = 27
+
+CERTIFICATE (i): direct search confirms the 20 configurations of 26 pebbles are unreachable and all 253 one-pebble extensions reach 1   (5 s)
+CERTIFICATE (ii): size 25: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
+CERTIFICATE (ii): size 26: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
+CERTIFICATE (ii): size 27: 20000 random configurations, layer membership and direct search agree on 20000, disagree on 0
+   (4 s)
+
+CERTIFICATE (iii): configurations reachable from C = {7: 15, 11: 7, 14: 3, 13: 1}: 187805
+  largest number of pebbles ever on each vertex: {1: 0, 2: 1, 3: 1, 4: 3, 5: 3, 6: 2, 7: 15, 8: 2, 9: 7, 10: 3, 11: 7, 12: 8, 13: 4, 14: 6}
+  no reachable configuration has a pebble on 1, and none has two pebbles on 2 or on 3
+  maximum number of moves from the left part {7,9,12,13,14} into {5,8} over all sequences: 5
+  maximum number of moves out of 11 over all sequences: 4
+  maximum number of pebbles arriving at 2: 1  at 3: 1
+  pocket {11: 7} alone: most pebbles arriving at 2: 0  at 3: 1  moves 8->6: 0
+  left part {7: 15, 14: 3, 13: 1} alone: most pebbles arriving at 2: 1  at 3: 0  moves 8->6: 1
+  for C: moves 8->6 at most 1  moves 6->3 at most 1
+  maximum number of pebbles arriving at 5: 5  at 8: 3  at 4: 4  at 6: 3  at 10: 5
+
+CERTIFICATE (iv): largest unreachable configuration with one pile plus single pebbles has 22 pebbles: [{3: 1, 4: 1, 7: 1, 10: 1, 11: 1, 12: 15, 13: 1, 14: 1}, {3: 1, 4: 1, 7: 15, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1}, {3: 1, 4: 1, 7: 15, 8: 1, 10: 1, 11: 1, 12: 1, 14: 1}, {3: 1, 4: 1, 6: 1, 7: 15, 10: 1, 11: 1, 12: 1, 14: 1}]
+  largest unreachable configuration with at most two piles has 25 pebbles: [{7: 1, 11: 7, 12: 15, 13: 1, 14: 1}, {7: 1, 9: 1, 11: 7, 12: 1, 14: 15}, {7: 15, 11: 7, 12: 1, 13: 1, 14: 1}, {7: 15, 8: 1, 11: 7, 12: 1, 14: 1}, {6: 1, 7: 15, 11: 7, 12: 1, 14: 1}]
+  largest unreachable configuration with at most three piles has 26 pebbles
+
+CERTIFICATE (vi): left side S alone, largest configuration from which r is not reachable: 19 pebbles, 20 such configurations
+  left side S alone, largest configuration from which two pebbles can not be gathered on 8 (moves landing only on S): 18 pebbles: [{2: 1, 7: 15, 12: 1, 14: 1}, {2: 1, 7: 13, 12: 3, 14: 1}, {2: 1, 7: 15, 14: 2}]
+  right side T alone, largest configuration from which r is not reachable: 8 pebbles: [{6: 1, 11: 7}]
+  so: at least 20 pebbles on S reach r, at least 19 pebbles on S gather two pebbles on 8, at least 9 pebbles on T reach r
+
+ALL CHECKS PASSED: pi(G, 1) = 27.
