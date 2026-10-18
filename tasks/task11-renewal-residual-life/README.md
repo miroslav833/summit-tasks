@@ -12,7 +12,7 @@ That curve, which looks like any smooth bend on log paper, passes exactly throug
 
 $N(t)$ counts renewals in $(0, t]$, process having started at time $0$, and what is wanted is $\mathrm{Var}[N(3)]$, variance of number of renewals by time $3$, with $\lambda$ and $k$ as you read them from figure. Neither parameter is round number, and rounding them to 3 significant figures already moves third decimal of answer, so carry both to at least 4 significant figures through whole calculation.
 
-No usable closed form is known for this quantity, so say which method you used and show your working, and give your final answer as value rounded to 3 decimal places.
+No usable closed form is known for this quantity, so say which method you used and give the numbers which show your answer has settled, without long tables of grid values, and give your final answer as value rounded to 3 decimal places.
 
 ## Answer
 

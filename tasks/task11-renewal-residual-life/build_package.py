@@ -8,7 +8,7 @@ That curve, which looks like any smooth bend on log paper, passes exactly throug
 
 $N(t)$ counts renewals in $(0, t]$, process having started at time $0$, and what is wanted is $\mathrm{Var}[N(3)]$, variance of number of renewals by time $3$, with $\lambda$ and $k$ as you read them from figure. Neither parameter is round number, and rounding them to 3 significant figures already moves third decimal of answer, so carry both to at least 4 significant figures through whole calculation.
 
-No usable closed form is known for this quantity, so say which method you used and show your working, and give your final answer as value rounded to 3 decimal places.""".replace("HINT", HINT)
+No usable closed form is known for this quantity, so say which method you used and give the numbers which show your answer has settled, without long tables of grid values, and give your final answer as value rounded to 3 decimal places.""".replace("HINT", HINT)
 final_answer = "0.520"
 variants = ["0.520", "0.5200"]
 solution = r"""Gridlines of survival axis, which run across figure horizontally, sit at $1$, $2$ and $5$ in each decade, and when curve is checked against them at every labelled $t$ it is found to pass through a crossing at two of them only, $(6, 0.02)$ and $(20, 0.0005)$, while at others it runs between lines, being about $0.066$ at $t = 4$, about $0.0083$ at $t = 8$, about $0.0042$ at $t = 10$ and about $0.0012$ at $t = 15$.
