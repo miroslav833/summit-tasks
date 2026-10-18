@@ -1,0 +1,5 @@
+The figure shows eleven binary strings $s_1, \dots, s_{11}$ of length $10$, one per row; a filled circle is a $1$ and an open circle is a $0$.
+
+A history is a process of the following kind. It starts from a single string, which may be any binary string of length $10$. At each step one of three things happens: an existing string is copied; a mutation changes one position of one existing string; or a recombination takes two existing strings $u$ and $v$ and an index $b$ with $1 \le b \le 9$ and adds the new string $u_1 \dots u_b\, v_{b+1} \dots v_{10}$. In the whole history each of the ten positions is changed by at most one mutation. A history produces the figure if all eleven strings are present at the end.
+
+What is the smallest number of recombinations in a history that produces the figure? Give a single integer.

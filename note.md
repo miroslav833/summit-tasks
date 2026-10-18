@@ -367,6 +367,33 @@ question lim P(X_6n = 4 | X_0 = 1), key 3 pi_4 = 531/2245, textbook trap pi_4 = 
 chain P^3 on {1,4,7}. A hidden failed hypothesis is checked as routine. The lattice-renewal twin (span 2,
 answer 2/mu against 1/mu) has the same weakness and was not built. Not run on the matched pipeline.
 
+task06 v9-recombination (2026-10-18): the accepted archive shape (minimum recombinations, construction trap)
+restated as pure combinatorics: binary strings, a history of copies, single mutations per position (each position
+at most once, any ancestor) and single-crossover recombinations; question: fewest recombinations. New tools in
+v9-recombination/work: rmin.py (exact backward search with wildcards, safe reductions, iterative deepening, pruning
+by the Hudson-Kaplan bound on partially specified rows; R = 5 instances in seconds), certify.py (extracts an optimal
+history and re-checks every step with an independent implementation; also confirms k - 1 is impossible), gen.py
+(random histories; Hudson-Kaplan bound, haplotype bound over intervals AND over every subset of positions, best
+'compatible core plus mosaics' construction). Lesson: the interval-only haplotype bound misses the subset bound;
+an R = 3 instance whose subset bound was 3 was solved in a few lines (Opus 2/2, Sonnet 1/1). Always filter on the
+subset bound.
+- 10 x 10, key 5 (HK 3, subset hap 4, natural 6): cheap screen Opus 2/2 and Sonnet 1/1 correct, Opus 12 and 27 min,
+  one by an agreement-forest proof that 4 fails, one by a careful case split; Sonnet by construction only.
+- 11 x 10, key 5 (HK 4, subset hap 4, natural 7): MATCHED PIPELINE (max effort, 5 attempts) correct 3/5, cut-offs 2
+  (two runs killed at 30 min; the three correct ones used 70k, 88k and 106k output tokens in 10 to 15 min). Two
+  cut-offs make it 'unfair' by Summit's rule, but this is the first task06 version on the matched pipeline that is
+  neither 5/5 nor 0/5. The 10 x 10 instance is on the matched pipeline next: if the cut-off rate drops to one in
+  five with the rest correct, it is in band (4/5, 1 cut).
+
+2026-10-18, owner's instruction: stop the recombination work (the idea of tuning cut-offs is wrong) and start fresh
+in Probability Theory. Matched-pipeline record of the recombination family before the stop: 11 x 10 key 5 gave
+3/5 + 2 cut-offs twice (with and without the 'value only' sentence), 11 x 9 gave 2/5 + 3 cut-offs, 10 x 10 gave
+0/5 (all cut). Every finished attempt was correct; misses were only cut-offs.
+task06 v10-conditioned-chain (Probability Theory): 6-state absorbing chain as a transition table, start 1,
+question E[T | absorbed at 6]; key 5 (h-transform; simulation 5.003 over 2 million runs); trap: delete the
+forbidden state and renormalise the rows, which gives 111/8. Cheap screen: Opus 2/2 and Sonnet 1/1 correct within
+a minute, all by E[T; absorbed at 6] / P(absorbed at 6). The conditioning step is routine for both models.
+
 Submission note (2026-10-17): Summit has no task06 entry, so the owner revised SUM-MVB7DTW7 (the task05 entry,
 the only bandwidth question on the account) with this package, which also avoids a duplicate-check hit from a
 second bandwidth task. Lesson for the README of any revision: name the Summit entry id, not the local task
