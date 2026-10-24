@@ -1,0 +1,5 @@
+done #1 227s answer=10
+done #2 367s answer=10
+t06textB_sonnet #1: answer=10 stop=end_turn out_tokens=34030 thinking=33089 227s RIGHT
+t06textB_sonnet #2: answer=10 stop=end_turn out_tokens=53717 thinking=52670 367s RIGHT
+t06textB_sonnet: correct 2/2, cut-offs 0 (cap 100000)

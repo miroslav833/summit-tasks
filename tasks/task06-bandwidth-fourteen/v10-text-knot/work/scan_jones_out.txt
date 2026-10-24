@@ -1,0 +1,26 @@
+/home/Trustvs/Turing/AQ_Summit/venv/lib/python3.12/site-packages/plink/gui.py:33: UserWarning: Plink failed to import tkinter, GUI will not be available
+  warnings.warn('Plink failed to import tkinter, GUI will not be available')
+3_1
+4_1
+5_1
+6_1
+7_1
+8_1
+9_1
+10_1
+Jones collision classes to 10 crossings:
+['5_1', '10_132'] | Alexander equal: True | signatures [-4, 0] | det [5, 5] | colourings [{5: 25}, {5: 25}]
+['8_8', '10_129'] | Alexander equal: True | signatures [0, 0] | det [25, 25] | colourings [{5: 25}, {5: 25}]
+['8_16', '10_156'] | Alexander equal: True | signatures [2, -2] | det [35, 35] | colourings [{5: 25, 7: 49}, {5: 25, 7: 49}]
+['10_22', '10_35'] | Alexander equal: False | signatures [0, 0] | det [49, 49] | colourings [{7: 49}, {7: 49}]
+['10_25', '10_56'] | Alexander equal: True | signatures [-4, 4] | det [65, 65] | colourings [{5: 25}, {5: 25}]
+['10_40', '10_103'] | Alexander equal: True | signatures [2, -2] | det [75, 75] | colourings [{3: 9, 5: 25}, {3: 9, 5: 125}]
+['10_41', '10_94'] | Alexander equal: False | signatures [-2, 2] | det [71, 71] | colourings [{}, {}]
+['10_43', '10_91'] | Alexander equal: False | signatures [0, 0] | det [73, 73] | colourings [{}, {}]
+['10_59', '10_106'] | Alexander equal: False | signatures [2, 2] | det [75, 75] | colourings [{3: 9, 5: 25}, {3: 9, 5: 25}]
+['10_60', '10_83'] | Alexander equal: False | signatures [0, 0] | det [85, 85] | colourings [{5: 25}, {5: 25}]
+['10_71', '10_104'] | Alexander equal: False | signatures [0, 0] | det [77, 77] | colourings [{7: 49}, {7: 49}]
+['10_73', '10_86'] | Alexander equal: False | signatures [-2, 2] | det [83, 83] | colourings [{}, {}]
+['10_81', '10_109'] | Alexander equal: False | signatures [0, 0] | det [85, 85] | colourings [{5: 25}, {5: 25}]
+['10_137', '10_155'] | Alexander equal: False | signatures [0, 0] | det [25, 25] | colourings [{5: 25}, {5: 125}]
+['10_161', '10_162'] | Alexander equal: True | signatures [-4, 4] | det [5, 5] | colourings [{5: 25}, {5: 25}]

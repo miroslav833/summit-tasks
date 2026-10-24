@@ -1,0 +1,385 @@
+Verification notes: minimal crossing number of the closed backbone given by the crossing table (key 11)
+
+1. Data to diagram
+The 26 residues of the table are ordered along the chain; each is a passage through a crossing, over or under, and the
+closure from residue 184 to residue 1 carries no crossing. The signed Gauss code is
+  8:1U 14:2O 19:3U 26:4O 35:5U 39:6O 43:7U 53:8O 61:9U 65:10U 71:11O 79:1O 83:12U 91:11U 96:13U 100:9O 104:8U 111:7O
+  118:6U 122:3O 127:4U 131:5O 139:2U 146:13O 150:10O 160:12O
+with the signs of the table (+1 at crossings 1 to 12, -1 at 13). A signed Gauss code determines the diagram on the
+sphere. The PD code is built directly: edge k ends at passage k and starts at passage k - 1; at a crossing the under
+strand enters on edge a and leaves on edge a + 1, the over strand enters on its own edge and leaves on the next; for a
+positive crossing (under direction = over direction rotated counterclockwise) the over strand runs from the west
+position to the east position of the crossing. Face tracing gives 15 regions for 13 crossings and 26 edges, Euler
+characteristic 2: the data are planar. No Reidemeister I or II move is visible in the Gauss code.
+
+2. Classical invariants (the trap)
+Alexander polynomial from the Fox-calculus matrix, evaluated exactly at t = 2, 3, 5, 7 and compared with
+4t^4 - 10t^3 + 13t^2 - 10t + 4 (values 20, 145, 1525, 7045): equal up to a unit. Determinant 41. Signature by
+Gordon and Litherland from the Goeritz matrix of the six-region colour class: sign 3, correction mu = -1, sigma = 4
+(the nine-region class gives sign -6, mu -10, sigma 4; the Seifert-matrix signature computed by spherogram is 4).
+9_18 has the same Alexander polynomial and determinant and signature -4, so its mirror image matches all three.
+Table fact (program scan11b.py, over the Rolfsen table in spherogram): 9_18 is the only knot with at most ten
+crossings whose Alexander polynomial is 4t^4 - 10t^3 + 13t^2 - 10t + 4, and 11a246 is one of the 11-crossing knots
+sharing an Alexander polynomial with a smaller knot. The signature routine was validated against the
+Seifert-matrix signatures of all 84 prime knots with at most nine crossings (84 of 84, both colourings).
+
+3. Hidden simplification
+The region bounded by crossings 10, 11, 12 is a triangle whose side 150-160 passes over both other sides (over at
+10 and at 12). Reidemeister III across crossing 11 swaps the two passages on each side; the Gauss word becomes
+  1U 2O 3U 4O 5U 6O 7U 8O 9U 11O 10U 1O 11U 12U 13U 9O 8U 7O 6U 3O 4U 5O 2U 13O 12O 10O (planar),
+in which crossings 12 and 13 form a Reidemeister II pair (12U 13U and 13O 12O, signs +1 and -1). Removing them:
+  1U 2O 3U 4O 5U 6O 7U 8O 9U 11O 10U 1O 11U 9O 8U 7O 6U 3O 4U 5O 2U 10O, 11 crossings, all positive,
+alternating, with no nugatory crossing. By Kauffman, Murasugi and Thistlethwaite the crossing number is 11.
+
+4. Jones polynomial and identification
+Kauffman bracket state sum (8192 states for the table diagram, 2048 for the reduced one): both give
+V(t) = t^2 - t^3 + 3t^4 - 4t^5 + 5t^6 - 6t^7 + 6t^8 - 5t^9 + 4t^10 - 3t^11 + 2t^12 - t^13, span 11, so the crossing
+number is at least 11 by the span bound alone; 9_18 has a Jones polynomial of span 9. Independent identification:
+SnapPy finds the complement of the table diagram hyperbolic with volume 8.500584 and identifies it as K11a246
+(census names in section 7); the complement of 9_18 has a different volume. Key: 11.
+
+5. Program verify_key.py (python3 with numpy; reads the table embedded in the file and, if present, stem.txt)
+"""Verification for the text-only knotted-backbone task (key 11). Self-contained: python3 with numpy.
+
+Reads the crossing table from stem.txt (or the copy below), builds the signed Gauss code from the residue order,
+checks that it is a planar knot diagram, and computes
+  the Alexander polynomial (exact integer evaluations), the determinant, the signature (Gordon-Litherland formula
+  from the Goeritz matrix) and the Jones polynomial (Kauffman bracket state sum).
+Alexander polynomial, determinant and signature coincide with those of the mirror image of 9_18 (the trap answer 9).
+No Reidemeister I or II move is visible in the table, but a Reidemeister III move on the triangle bounded by
+crossings 10, 11, 12 exposes a II pair (12, 13); the resulting 11-crossing diagram is alternating and reduced, so by
+the Kauffman-Murasugi-Thistlethwaite theorem the crossing number is 11. The Jones polynomial has span 11 (that of
+9_18 has span 9), which confirms the lower bound independently. Key: 11 (the knot is 11a246)."""
+import re, sys, itertools, pathlib
+from fractions import Fraction
+import numpy as np
+
+TABLE = """1 & 79 & 8 & +1
+2 & 14 & 139 & +1
+3 & 122 & 19 & +1
+4 & 26 & 127 & +1
+5 & 131 & 35 & +1
+6 & 39 & 118 & +1
+7 & 111 & 43 & +1
+8 & 53 & 104 & +1
+9 & 100 & 61 & +1
+10 & 150 & 65 & +1
+11 & 71 & 91 & +1
+12 & 160 & 83 & +1
+13 & 146 & 96 & -1"""
+
+
+def parse(text):
+    rows = []
+    for m in re.finditer(r"^\s*(\d+)\s*&\s*(\d+)\s*&\s*(\d+)\s*&\s*([+-]?1)", text, re.M):
+        rows.append((int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))))
+    return rows
+
+def gauss_from_rows(rows):
+    ev = []
+    for lab, over, under, sign in rows:
+        ev.append((over, lab, "O", sign)); ev.append((under, lab, "U", sign))
+    ev.sort()
+    assert len(set(e[0] for e in ev)) == len(ev), "a residue appears twice"
+    return ev   # chain order from the N terminus; the closure returns from the last passage to the first
+
+def pd_from_gauss(seq):
+    """PD code X[a,b,c,d] (a incoming under edge, then counterclockwise), edge k ends at passage k and starts at passage k-1.
+    Positive crossing: the under direction is the over direction rotated counterclockwise, so the over strand
+    runs from the west edge d to the east edge b."""
+    n2 = len(seq); byc = {}
+    for k, (res, lab, o, s) in enumerate(seq): byc.setdefault(lab, {})[o] = (k, s)
+    pd, labels = [], []
+    for lab in sorted(byc):
+        (a, s), (oin, _) = byc[lab]["U"], byc[lab]["O"]
+        c, oout = (a + 1) % n2, (oin + 1) % n2
+        b, d = (oout, oin) if s == 1 else (oin, oout)
+        pd.append((a, b, c, d)); labels.append(lab)
+    return pd, labels
+
+def faces(pd):
+    n = len(pd); pos = {}
+    for x, X in enumerate(pd):
+        for p, e in enumerate(X): pos.setdefault(e, []).append((x, p))
+    seen, F = set(), []
+    for x in range(n):
+        for p in range(4):
+            if (x, p) in seen: continue
+            face, cur = [], (x, p)
+            while cur not in seen:
+                seen.add(cur); face.append(cur); cx, cp = cur; e = pd[cx][(cp + 1) % 4]
+                ends = pos[e]; cur = ends[0] if ends[1] == (cx, (cp + 1) % 4) else ends[1]
+            F.append(face)
+    return F
+
+def signs(pd):
+    n2 = 2 * len(pd); return [1 if (d + 1) % n2 == b else -1 for a, b, c, d in pd]
+
+def bareiss(M):
+    """Exact determinant of an integer matrix."""
+    M = [row[:] for row in M]; n = len(M); sign = 1; prev = 1
+    for k in range(n - 1):
+        if M[k][k] == 0:
+            sw = next((i for i in range(k + 1, n) if M[i][k] != 0), None)
+            if sw is None: return 0
+            M[k], M[sw] = M[sw], M[k]; sign = -sign
+        for i in range(k + 1, n):
+            for j in range(k + 1, n):
+                M[i][j] = (M[i][j] * M[k][k] - M[i][k] * M[k][j]) // prev
+        prev = M[k][k]
+    return sign * M[n - 1][n - 1]
+
+def alexander_at(pd, t):
+    """Alexander polynomial evaluated at the integer t, up to sign and a power of t. Arcs are the under-strand
+    segments between consecutive undercrossings; Wirtinger relation at a positive crossing x_out = x_over x_in x_over^-1
+    gives the row (1 - t) a_over + t a_in - a_out, at a negative crossing in and out swap."""
+    n = len(pd); n2 = 2 * n; sg = signs(pd)
+    under_in = [a for a, b, c, d in pd]
+    arc = [None] * n2; k = 0
+    starts = sorted(set((a + 1) % n2 for a in under_in))     # an arc starts at every outgoing under edge
+    arc_id = {}
+    for s in starts: arc_id[s] = len(arc_id)
+    cur = None
+    for step in range(2 * n2):
+        e = step % n2
+        if e in arc_id: cur = arc_id[e]
+        if cur is not None: arc[e] = cur
+    rows = []
+    for (a, b, c, d), s in zip(pd, sg):
+        over = arc[b]; assert arc[b] == arc[d]
+        ain, aout = arc[a], arc[c]
+        row = [0] * n
+        if s == 1: row[over] += 1 - t; row[ain] += t; row[aout] -= 1
+        else: row[over] += 1 - t; row[aout] += t; row[ain] -= 1
+        rows.append(row)
+    minor = [r[1:] for r in rows[1:]]
+    return bareiss(minor)
+
+def kauffman_jones(pd):
+    """Jones polynomial V(t) as {exponent: coefficient} by the Kauffman bracket state sum."""
+    n = len(pd); n2 = 2 * n; w = sum(signs(pd))
+    br = {}   # Laurent polynomial in A
+    for state in itertools.product((0, 1), repeat=n):
+        parent = list(range(n2))
+        def find(x):
+            while parent[x] != x: parent[x] = parent[parent[x]]; x = parent[x]
+            return x
+        def union(x, y): parent[find(x)] = find(y)
+        na = 0
+        for (a, b, c, d), s in zip(pd, state):
+            if s == 0: union(a, b); union(c, d); na += 1     # A smoothing joins a-b and c-d
+            else: union(a, d); union(b, c)
+        loops = len(set(find(x) for x in range(n2)))
+        # A^(na - nb) (-A^2 - A^-2)^(loops - 1)
+        term = {na - (n - na): 1}
+        for _ in range(loops - 1):
+            new = {}
+            for e, cf in term.items():
+                new[e + 2] = new.get(e + 2, 0) - cf; new[e - 2] = new.get(e - 2, 0) - cf
+            term = new
+        for e, cf in term.items(): br[e] = br.get(e, 0) + cf
+    # f = (-A^3)^(-w) <D>, then A = t^(-1/4)
+    V = {}
+    for e, cf in br.items():
+        if cf == 0: continue
+        ee = e - 3 * w; cf2 = cf * ((-1) ** (w % 2))
+        assert ee % 4 == 0; V[-ee // 4] = V.get(-ee // 4, 0) + cf2
+    return {k: v for k, v in sorted(V.items()) if v != 0}
+
+def gl_signature(pd, white_colour=0):
+    """Gordon-Litherland: sigma = sign(Goeritz) - mu. Corners (x,p) lie between positions p and p+1 of crossing x;
+    eta(c) = +1 when the white regions are at corners 1 and 3, else -1; the oriented smoothing merges corners 0 and 2
+    at a negative crossing and corners 1 and 3 at a positive one; type II crossings are those where the white
+    regions are not the merged pair."""
+    n = len(pd); n2 = 2 * n; F = faces(pd); fid = {c: k for k, f in enumerate(F) for c in f}
+    colour = {0: 0}; adj = {k: set() for k in range(len(F))}
+    for x in range(n):
+        for p in range(4):
+            f1, f2 = fid[(x, p)], fid[(x, (p - 1) % 4)]; adj[f1].add(f2); adj[f2].add(f1)
+    stack = [0]
+    while stack:
+        f = stack.pop()
+        for g in adj[f]:
+            if g not in colour: colour[g] = 1 - colour[f]; stack.append(g)
+            else: assert colour[g] != colour[f], "not checkerboard"
+    W = [k for k in range(len(F)) if colour[k] == white_colour]; widx = {k: i for i, k in enumerate(W)}
+    G = [[0] * len(W) for _ in W]; mu = 0; detail = []
+    for x, (a, b, c, d) in enumerate(pd):
+        f = [fid[(x, p)] for p in range(4)]
+        white02 = colour[f[0]] == white_colour
+        eta, wi, wj = (-1, f[0], f[2]) if white02 else (1, f[1], f[3])
+        positive = (d + 1) % n2 == b
+        typeII = white02 != (not positive)
+        if typeII: mu += eta
+        i, j = widx[wi], widx[wj]
+        if i != j: G[i][j] -= eta; G[j][i] -= eta; G[i][i] += eta; G[j][j] += eta
+        detail.append((x, eta, "II" if typeII else "I", i, j))
+    Gp = np.array([row[1:] for row in G[1:]], float)
+    ev = np.linalg.eigvalsh(Gp) if len(Gp) else np.array([])
+    assert np.all(np.abs(ev) > 1e-6), "Goeritz matrix singular?"
+    sG = int((ev > 0).sum() - (ev < 0).sum())
+    return sG - mu, dict(white=W, faces=F, colour=colour, G=np.array(G, int), mu=mu, signG=sG, detail=detail,
+                         detG=round(abs(np.linalg.det(Gp))) if len(Gp) else 1)
+
+def reduce_gauss(seq):
+    """Remove Reidemeister-1 kinks and Reidemeister-2 pairs visible in the Gauss code; returns the reduced sequence
+    and the list of moves."""
+    seq = list(seq); moves = []
+    while True:
+        n2 = len(seq); done = False
+        for k in range(n2):
+            if seq[k][1] == seq[(k + 1) % n2][1]:
+                moves.append(("R1", seq[k][1])); seq = [e for e in seq if e[1] != seq[k][1]]; done = True; break
+        if done: continue
+        for k in range(n2):
+            a, b = seq[k], seq[(k + 1) % n2]
+            if a[1] == b[1] or a[2] != b[2]: continue
+            for m in range(n2):
+                c, d = seq[m], seq[(m + 1) % n2]
+                if m != k and {c[1], d[1]} == {a[1], b[1]} and c[2] == d[2] != a[2]:
+                    moves.append(("R2", a[1], b[1])); seq = [e for e in seq if e[1] not in (a[1], b[1])]; done = True; break
+            if done: break
+        if not done: return seq, moves
+
+def poly_str(V): return " ".join(f"{'+' if c > 0 else '-'} {abs(c)}t^{e}" for e, c in sorted(V.items()))
+
+def r3_move(seq, pd, labels, triangle):
+    """Reidemeister III on the triangular face bounded by the given crossing labels: on each of the three strands the
+    two consecutive passages through the triangle swap places. Returns the new sequence (residues keep their passages)."""
+    n2 = len(seq); F = faces(pd)
+    tri = [f for f in F if sorted(labels[x] for x, p in f) == sorted(triangle)]
+    assert len(tri) == 1, "triangle not found"; f = tri[0]
+    edges = [pd[x][(p + 1) % 4] for x, p in f]
+    strands = [(seq[(e - 1) % n2], seq[e]) for e in edges]
+    kinds = ["".join(sorted((a[2], b[2]))) for a, b in strands]
+    assert any(k in ("OO", "UU") for k in kinds), "no strand passes over or under both others: not a III move"
+    new = list(seq)
+    for e in edges: a, b = (e - 1) % n2, e % n2; new[a], new[b] = new[b], new[a]
+    return new
+
+def alternating(seq):
+    w = [o for r, l, o, s in seq]; return all(w[i] != w[(i + 1) % len(w)] for i in range(len(w)))
+
+def nugatory(seq):
+    """crossing labels whose two passages cut the Gauss word into two closed halves (every crossing of one half
+    appears twice in it): such a crossing is removable."""
+    out = []
+    for lab in sorted(set(l for r, l, o, s in seq)):
+        i, j = [k for k, x in enumerate(seq) if x[1] == lab]
+        inner = [x[1] for x in seq[i + 1:j]]
+        if all(inner.count(c) == 2 for c in set(inner)): out.append(lab)
+    return out
+
+if __name__ == "__main__":
+    text = TABLE
+    p = pathlib.Path(__file__).with_name("stem.txt")
+    if p.exists():
+        rows_stem = parse(p.read_text()); assert rows_stem == parse(TABLE), "stem table differs from the embedded table"
+    rows = parse(text); assert len(rows) == 13
+    seq = gauss_from_rows(rows)
+    print("Passages along the chain (residue:crossing O/U):", " ".join(f"{r}:{l}{o}" for r, l, o, s in seq))
+    pd, labels = pd_from_gauss(seq); n = len(pd)
+    F = faces(pd); assert len(F) == n + 2, "not a planar diagram"
+    print(f"13-crossing diagram: {len(F)} faces = n + 2, planar; writhe {sum(signs(pd))}; alternating: {alternating(seq)}")
+    A918 = lambda t: 4 * t**4 - 10 * t**3 + 13 * t**2 - 10 * t + 4
+    vals = {t: alexander_at(pd, t) for t in (2, 3, 5, 7)}; ok = True
+    for t, v in vals.items():
+        q = Fraction(abs(v), A918(t)); ok &= (q.denominator == 1 and q.numerator in [t**k for k in range(14)]) or (q.numerator == 1 and q.denominator in [t**k for k in range(14)])
+    det = abs(alexander_at(pd, -1))
+    print(f"Alexander polynomial at t = 2, 3, 5, 7: {vals}; {'equals' if ok else 'DIFFERS FROM'} 4t^4 - 10t^3 + 13t^2 - 10t + 4 (the polynomial of 9_18) up to a unit; determinant {det}")
+    assert ok and det == 41
+    s0, i0 = gl_signature(pd, 0); s1, i1 = gl_signature(pd, 1)
+    print(f"Signature (Gordon-Litherland): colour class 0 ({len(i0['white'])} regions): sign(G') {i0['signG']}, mu {i0['mu']}, sigma {s0}; class 1 ({len(i1['white'])} regions): sign(G') {i1['signG']}, mu {i1['mu']}, sigma {s1}")
+    print("Goeritz matrix (class 1, first region deleted):"); print(i1["G"][1:, 1:])
+    print("Crossing data (label, eta, type, regions):", [(labels[x], e, ty, i, j) for x, e, ty, i, j in i1["detail"]])
+    assert s0 == s1 == 4
+    print("9_18 has signature -4 and its mirror image +4: Alexander polynomial, determinant and signature all agree with the mirror image of 9_18. This is the trap (answer 9).")
+    red, moves = reduce_gauss(seq); print("Reidemeister I/II moves visible in the table:", moves, "(none)" if not moves else "")
+    assert not moves
+    new = r3_move(seq, pd, labels, (10, 11, 12))
+    new_idx = [(k, l, o, s) for k, (r, l, o, s) in enumerate(new)]
+    pd2, lab2 = pd_from_gauss(new_idx); assert len(faces(pd2)) == n + 2
+    print("After the Reidemeister III move on the triangle of crossings 10, 11, 12 (strand 150-160 passes over both 10 and 12, so it slides across crossing 11):")
+    print("   Gauss word", " ".join(f"{l}{o}" for r, l, o, s in new), "(planar)")
+    red2, moves2 = reduce_gauss(new_idx); print("   visible moves now:", moves2, "-> crossings", len(red2) // 2)
+    assert moves2 == [("R2", 12, 13)] and len(red2) == 22
+    pdr, labr = pd_from_gauss(red2); assert len(faces(pdr)) == len(pdr) + 2
+    print("Reduced 11-crossing diagram:", " ".join(f"{l}{o}" for r, l, o, s in red2))
+    print(f"   alternating: {alternating(red2)}; nugatory crossings: {nugatory(red2)}; writhe {sum(signs(pdr))}")
+    assert alternating(red2) and not nugatory(red2)
+    for name, P in (("13-crossing diagram", pd), ("11-crossing diagram", pdr)):
+        V = kauffman_jones(P); print(f"Jones polynomial of the {name}: {poly_str(V)}; span {max(V) - min(V)}")
+        assert max(V) - min(V) == 11
+    print("Jones polynomial of 9_18: -t^-11 + 2t^-10 - 4t^-9 + 6t^-8 - 7t^-7 + 7t^-6 - 6t^-5 + 5t^-4 - 2t^-3 + t^-2 (span 9); the knot is not 9_18 or its mirror image.")
+    print("A reduced alternating diagram has the minimal number of crossings (Kauffman, Murasugi, Thistlethwaite 1987), so the crossing number is 11; the Jones span 11 gives the lower bound 11 independently (span V <= crossing number for every knot).")
+    print("KEY: minimal crossing number 11 (the knot is 11a246).")
+
+
+6. Output of verify_key.py
+Passages along the chain (residue:crossing O/U): 8:1U 14:2O 19:3U 26:4O 35:5U 39:6O 43:7U 53:8O 61:9U 65:10U 71:11O 79:1O 83:12U 91:11U 96:13U 100:9O 104:8U 111:7O 118:6U 122:3O 127:4U 131:5O 139:2U 146:13O 150:10O 160:12O
+13-crossing diagram: 15 faces = n + 2, planar; writhe 11; alternating: False
+Alexander polynomial at t = 2, 3, 5, 7: {2: 320, 3: 11745, 5: 955625, 7: 16194745}; equals 4t^4 - 10t^3 + 13t^2 - 10t + 4 (the polynomial of 9_18) up to a unit; determinant 41
+Signature (Gordon-Litherland): colour class 0 (9 regions): sign(G') -6, mu -10, sigma 4; class 1 (6 regions): sign(G') 3, mu -1, sigma 4
+Goeritz matrix (class 1, first region deleted):
+[[ 1  0  0  0  1]
+ [ 0  7 -1  0 -1]
+ [ 0 -1  2 -1  0]
+ [ 0  0 -1  2  0]
+ [ 1 -1  0  0 -1]]
+Crossing data (label, eta, type, regions): [(1, 1, 'I', 0, 1), (2, 1, 'I', 2, 0), (3, 1, 'I', 3, 2), (4, 1, 'I', 4, 3), (5, 1, 'I', 0, 4), (6, 1, 'I', 2, 0), (7, 1, 'I', 0, 2), (8, 1, 'I', 2, 0), (9, 1, 'I', 0, 2), (10, -1, 'II', 0, 5), (11, -1, 'II', 1, 5), (12, 1, 'I', 1, 0), (13, 1, 'II', 2, 5)]
+9_18 has signature -4 and its mirror image +4: Alexander polynomial, determinant and signature all agree with the mirror image of 9_18. This is the trap (answer 9).
+Reidemeister I/II moves visible in the table: [] (none)
+After the Reidemeister III move on the triangle of crossings 10, 11, 12 (strand 150-160 passes over both 10 and 12, so it slides across crossing 11):
+   Gauss word 1U 2O 3U 4O 5U 6O 7U 8O 9U 11O 10U 1O 11U 12U 13U 9O 8U 7O 6U 3O 4U 5O 2U 13O 12O 10O (planar)
+   visible moves now: [('R2', 12, 13)] -> crossings 11
+Reduced 11-crossing diagram: 1U 2O 3U 4O 5U 6O 7U 8O 9U 11O 10U 1O 11U 9O 8U 7O 6U 3O 4U 5O 2U 10O
+   alternating: True; nugatory crossings: []; writhe 11
+Jones polynomial of the 13-crossing diagram: + 1t^2 - 1t^3 + 3t^4 - 4t^5 + 5t^6 - 6t^7 + 6t^8 - 5t^9 + 4t^10 - 3t^11 + 2t^12 - 1t^13; span 11
+Jones polynomial of the 11-crossing diagram: + 1t^2 - 1t^3 + 3t^4 - 4t^5 + 5t^6 - 6t^7 + 6t^8 - 5t^9 + 4t^10 - 3t^11 + 2t^12 - 1t^13; span 11
+Jones polynomial of 9_18: -t^-11 + 2t^-10 - 4t^-9 + 6t^-8 - 7t^-7 + 7t^-6 - 6t^-5 + 5t^-4 - 2t^-3 + t^-2 (span 9); the knot is not 9_18 or its mirror image.
+A reduced alternating diagram has the minimal number of crossings (Kauffman, Murasugi, Thistlethwaite 1987), so the crossing number is 11; the Jones span 11 gives the lower bound 11 independently (span V <= crossing number for every knot).
+KEY: minimal crossing number 11 (the knot is 11a246).
+
+7. Program verify_snappy.py (needs snappy and spherogram) and its output
+"""Independent identification of the knot in the stem's table with SnapPy (hyperbolic census) and knot Floer homology."""
+import sys, snappy, spherogram, numpy as np
+sys.path.insert(0, ".."); import verify_key as V
+rows = V.parse(V.TABLE); seq = V.gauss_from_rows(rows); pd, labels = V.pd_from_gauss(seq)
+L = spherogram.Link([list(x) for x in pd]); print("crossings", len(L.crossings))
+M = L.exterior(); print("identify:", M.identify(), "volume", round(M.volume(), 6))
+M9 = spherogram.Link("9_18").exterior(); print("9_18 for comparison: identify", M9.identify(), "volume", round(M9.volume(), 6))
+
+Vm = np.array(L.seifert_matrix(), float); ev = np.linalg.eigvalsh(Vm + Vm.T); print("signature from Seifert matrix:", int((ev > 1e-9).sum() - (ev < -1e-9).sum()))
+
+
+crossings 13
+identify: [o10_122936(0,0), 11_514(0,0), K10_1286(0,0), K11a246(0,0)] volume 8.500584
+9_18 for comparison: identify [9_18(0,0), K9a24(0,0)] volume 10.05773
+signature from Seifert matrix: 4
+
+8. Table scan scan11b.py (11-crossing knots sharing an Alexander polynomial with a knot of at most ten crossings) and the lines of its output for this polynomial
+"""11-crossing knots whose Alexander polynomial equals that of a knot with at most 10 crossings; signatures."""
+import spherogram, numpy as np, knotlib as K, sympy as sp, pickle
+t = sp.symbols("t")
+def norm_alex(expr):
+    P = sp.Poly(sp.expand(expr), t); c = P.all_coeffs()
+    while c and c[-1] == 0: c.pop()
+    if c[0] < 0: c = [-x for x in c]
+    return tuple(int(x) for x in c)
+A, Jn = pickle.load(open("tables.pkl", "rb")); byA = {}
+for nm, a in A.items(): byA.setdefault(a, []).append(nm)
+sigs = {}
+def sig_of(L):
+    V = np.array(L.seifert_matrix(), float); ev = np.linalg.eigvalsh(V + V.T); return int((ev > 1e-9).sum() - (ev < -1e-9).sum())
+hits = []
+for nm in [f"K11a{k}" for k in range(1, 368)] + [f"K11n{k}" for k in range(1, 186)]:
+    L = spherogram.Link(nm); pd = [tuple(x) for x in L.PD_code()]; a = norm_alex(K.alexander(pd, K.signs_from_pd(pd)).as_expr())
+    if a in byA:
+        s = sig_of(L); partners = byA[a]; ps = [(p, sig_of(spherogram.Link(p))) for p in partners]
+        print(nm, "alexander", a, "det", abs(sum(c * (-1) ** i for i, c in enumerate(a))), "sigma", s, "| partners", ps, flush=True)
+        hits.append((nm, pd, a, s, ps))
+pickle.dump(hits, open("scan11b.pkl", "wb")); print("done", len(hits))
+
+
+K11a246 alexander (4, -10, 13, -10, 4) det 41 sigma 4 | partners [('9_18', -4)]
+done 122

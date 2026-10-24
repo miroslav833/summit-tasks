@@ -1,0 +1,5 @@
+Alexander of 5_1: (1, -1, 1, -1, 1)
+prime knots to 10 crossings sharing it: ['5_1', '10_132']
+Jones of 5_1 shared (either chirality) among knots to 9 crossings: []
+Jones classes with more than one knot (to 9 crossings): []
+composites to 10 crossings checked

@@ -1,0 +1,23 @@
+Passages along the chain (residue:crossing O/U): 8:1U 14:2O 19:3U 26:4O 35:5U 39:6O 43:7U 53:8O 61:9U 65:10U 71:11O 79:1O 83:12U 91:11U 96:13U 100:9O 104:8U 111:7O 118:6U 122:3O 127:4U 131:5O 139:2U 146:13O 150:10O 160:12O
+13-crossing diagram: 15 faces = n + 2, planar; writhe 11; alternating: False
+Alexander polynomial at t = 2, 3, 5, 7: {2: 320, 3: 11745, 5: 955625, 7: 16194745}; equals 4t^4 - 10t^3 + 13t^2 - 10t + 4 (the polynomial of 9_18) up to a unit; determinant 41
+Signature (Gordon-Litherland): colour class 0 (9 regions): sign(G') -6, mu -10, sigma 4; class 1 (6 regions): sign(G') 3, mu -1, sigma 4
+Goeritz matrix (class 1, first region deleted):
+[[ 1  0  0  0  1]
+ [ 0  7 -1  0 -1]
+ [ 0 -1  2 -1  0]
+ [ 0  0 -1  2  0]
+ [ 1 -1  0  0 -1]]
+Crossing data (label, eta, type, regions): [(1, 1, 'I', 0, 1), (2, 1, 'I', 2, 0), (3, 1, 'I', 3, 2), (4, 1, 'I', 4, 3), (5, 1, 'I', 0, 4), (6, 1, 'I', 2, 0), (7, 1, 'I', 0, 2), (8, 1, 'I', 2, 0), (9, 1, 'I', 0, 2), (10, -1, 'II', 0, 5), (11, -1, 'II', 1, 5), (12, 1, 'I', 1, 0), (13, 1, 'II', 2, 5)]
+9_18 has signature -4 and its mirror image +4: Alexander polynomial, determinant and signature all agree with the mirror image of 9_18. This is the trap (answer 9).
+Reidemeister I/II moves visible in the table: [] (none)
+After the Reidemeister III move on the triangle of crossings 10, 11, 12 (strand 150-160 passes over both 10 and 12, so it slides across crossing 11):
+   Gauss word 1U 2O 3U 4O 5U 6O 7U 8O 9U 11O 10U 1O 11U 12U 13U 9O 8U 7O 6U 3O 4U 5O 2U 13O 12O 10O (planar)
+   visible moves now: [('R2', 12, 13)] -> crossings 11
+Reduced 11-crossing diagram: 1U 2O 3U 4O 5U 6O 7U 8O 9U 11O 10U 1O 11U 9O 8U 7O 6U 3O 4U 5O 2U 10O
+   alternating: True; nugatory crossings: []; writhe 11
+Jones polynomial of the 13-crossing diagram: + 1t^2 - 1t^3 + 3t^4 - 4t^5 + 5t^6 - 6t^7 + 6t^8 - 5t^9 + 4t^10 - 3t^11 + 2t^12 - 1t^13; span 11
+Jones polynomial of the 11-crossing diagram: + 1t^2 - 1t^3 + 3t^4 - 4t^5 + 5t^6 - 6t^7 + 6t^8 - 5t^9 + 4t^10 - 3t^11 + 2t^12 - 1t^13; span 11
+Jones polynomial of 9_18: -t^-11 + 2t^-10 - 4t^-9 + 6t^-8 - 7t^-7 + 7t^-6 - 6t^-5 + 5t^-4 - 2t^-3 + t^-2 (span 9); the knot is not 9_18 or its mirror image.
+A reduced alternating diagram has the minimal number of crossings (Kauffman, Murasugi, Thistlethwaite 1987), so the crossing number is 11; the Jones span 11 gives the lower bound 11 independently (span V <= crossing number for every knot).
+KEY: minimal crossing number 11 (the knot is 11a246).

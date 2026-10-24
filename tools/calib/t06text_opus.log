@@ -1,0 +1,11 @@
+done #2 179s answer=5
+done #5 218s answer=10
+done #1 222s answer=10
+done #4 222s answer=10
+done #3 228s answer=10
+t06text_opus #2: answer=5 stop=end_turn out_tokens=20055 thinking=19096 179s WRONG
+t06text_opus #5: answer=10 stop=end_turn out_tokens=23981 thinking=22777 218s RIGHT
+t06text_opus #1: answer=10 stop=end_turn out_tokens=21504 thinking=20516 222s RIGHT
+t06text_opus #4: answer=10 stop=end_turn out_tokens=24749 thinking=23674 222s RIGHT
+t06text_opus #3: answer=10 stop=end_turn out_tokens=25268 thinking=24196 228s RIGHT
+t06text_opus: correct 4/5, cut-offs 0 (cap 100000)

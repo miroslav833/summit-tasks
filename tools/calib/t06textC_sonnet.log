@@ -1,0 +1,5 @@
+done #2 256s answer=9
+done #1 403s answer=11
+t06textC_sonnet #2: answer=9 stop=end_turn out_tokens=35836 thinking=34848 256s WRONG
+t06textC_sonnet #1: answer=11 stop=end_turn out_tokens=54120 thinking=53090 403s RIGHT
+t06textC_sonnet: correct 1/2, cut-offs 0 (cap 100000)

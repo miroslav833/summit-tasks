@@ -1,0 +1,4 @@
+crossings 13
+identify: [o10_122936(0,0), 11_514(0,0), K10_1286(0,0), K11a246(0,0)] volume 8.500584
+9_18 for comparison: identify [9_18(0,0), K9a24(0,0)] volume 10.05773
+signature from Seifert matrix: 4

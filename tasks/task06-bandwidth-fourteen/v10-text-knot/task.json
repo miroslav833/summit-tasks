@@ -1,0 +1,63 @@
+{
+  "schema_version": "summit-task-package-v1",
+  "task": {
+    "domain": "mathematics",
+    "subdomain": "Low-dimensional topology: knot theory, crossing number of a knot given by a crossing table (Reidemeister moves, alternating diagrams, Alexander polynomial and signature)",
+    "modality": "text_only",
+    "taskType": "not_applicable",
+    "questionText": "A structure prediction model returned a model of a $184$-residue protein. To examine its topology, the $C_\\alpha$ trace was coarse-grained (each helix replaced by its axis, each strand and loop by a smooth curve through its residues) and projected onto a plane. The direction of projection was chosen so that the straight segment joining the two termini crosses no part of the chain. That segment is added to close the chain into a closed curve, which therefore consists of the chain from residue $1$ to residue $184$ followed by the segment back to residue $1$.\n\nIn the projection the chain crosses itself exactly $13$ times. Every crossing is listed in the table below by the two residues at which the two parts of the chain meet, the residue on the part in front (over) and the residue on the part behind (under). The chain is oriented from residue $1$ to residue $184$. The sign of a crossing is $+1$ when the direction of the under strand is obtained from the direction of the over strand by a counterclockwise rotation of less than $180$ degrees, and $-1$ otherwise. There are no other crossings.\n\n\\begin{tabular}{cccc}\ncrossing & over (residue) & under (residue) & sign \\\\\n\\hline\n1 & 79 & 8 & +1 \\\\\n2 & 14 & 139 & +1 \\\\\n3 & 122 & 19 & +1 \\\\\n4 & 26 & 127 & +1 \\\\\n5 & 131 & 35 & +1 \\\\\n6 & 39 & 118 & +1 \\\\\n7 & 111 & 43 & +1 \\\\\n8 & 53 & 104 & +1 \\\\\n9 & 100 & 61 & +1 \\\\\n10 & 150 & 65 & +1 \\\\\n11 & 71 & 91 & +1 \\\\\n12 & 160 & 83 & +1 \\\\\n13 & 146 & 96 & -1 \\\\\n\\end{tabular}\n\nThe closed curve is a knot. What is the minimal crossing number of this knot, that is, the smallest number of crossings in any diagram of its knot type? Give a single integer.",
+    "answerType": "exact_match",
+    "finalAnswer": [
+      "11"
+    ],
+    "acceptableAnswerVariants": [
+      "$11$",
+      "crossing number 11",
+      "eleven"
+    ],
+    "multipleChoiceOptions": [],
+    "answerPrecision": {
+      "kind": "none"
+    },
+    "solution": "Step 1: Read the diagram off the table.\nOrder the 26 residues of the table along the chain. Each residue is one passage through a crossing, over (O) or under (U), and the straight closure from residue $184$ back to residue $1$ adds nothing. In that order the passages are the following.\n8:1U, 14:2O, 19:3U, 26:4O, 35:5U, 39:6O, 43:7U, 53:8O, 61:9U, 65:10U, 71:11O, 79:1O, 83:12U, 91:11U, 96:13U, 100:9O, 104:8U, 111:7O, 118:6U, 122:3O, 127:4U, 131:5O, 139:2U, 146:13O, 150:10O, 160:12O,\nThis is the Gauss word 1U 2O 3U 4O 5U 6O 7U 8O 9U 10U 11O 1O 12U 11U 13U 9O 8U 7O 6U 3O 4U 5O 2U 13O 10O 12O with the signs of the table ($+1$ at crossings $1$ to $12$, $-1$ at crossing $13$, writhe $11$). A signed Gauss code determines the diagram on the sphere, and with it the knot. The diagram is planar (13 crossings, 26 edges, 15 regions by face tracing, $13 - 26 + 15 = 2$), it is not alternating (for example 10U is followed by 11O and then 1O), and no Reidemeister move of type I or II is visible, because no crossing is met twice in a row and no two crossings are met consecutively on both of their strands.\n\nStep 2: The classical invariants point at $9_{18}$.\nLabel the thirteen arcs between consecutive undercrossings and write at each crossing the Fox relation $(1 - t)\\,a_{\\rm over} + t\\,a_{\\rm in} - a_{\\rm out} = 0$ (with in and out swapped at the negative crossing $13$). Deleting one relation and one arc, the determinant is, up to a unit, $\\Delta(t) = 4t^4 - 10t^3 + 13t^2 - 10t + 4$, equivalently the Conway polynomial $\\nabla(z) = 1 + 6z^2 + 4z^4$, with knot determinant $|\\Delta(-1)| = 41$. The signature follows from the Goeritz matrix of the checkerboard colouring (Gordon and Litherland). The colour class with six regions $W_0, \\dots, W_5$, where $W_0$ is bounded by crossings $1, 2, 5, 6, 7, 8, 9, 10, 12$, $W_1$ by $1, 12, 11$, $W_2$ by $2, 13, 9, 8, 7, 6, 3$, $W_3$ by $3, 4$, $W_4$ by $4, 5$ and $W_5$ by $10, 13, 11$, has $\\eta(c) = -1$ at crossings $10$ and $11$ and $\\eta(c) = +1$ elsewhere ($\\eta(c) = +1$ when a small counterclockwise rotation of the over strand sweeps it into the two regions of the class). With $g_{ij} = -\\sum \\eta(c)$ over the crossings between $W_i$ and $W_j$ and zero row sums, deleting $W_0$ leaves\n$G = \\begin{pmatrix} 1 & 0 & 0 & 0 & 1 \\\\ 0 & 7 & -1 & 0 & -1 \\\\ 0 & -1 & 2 & -1 & 0 \\\\ 0 & 0 & -1 & 2 & 0 \\\\ 1 & -1 & 0 & 0 & -1 \\end{pmatrix},$\n$\\det G = -41$, four positive and one negative eigenvalue, $\\operatorname{sign} G = 3$. The crossings of type II (where the smoothing consistent with the orientation of the chain does not merge the two regions of the class) are $10, 11, 13$ with $\\eta = -1, -1, +1$, so $\\mu = -1$ and $\\sigma = 3 - (-1) = 4$. The alternating knot $9_{18}$ has exactly this Alexander polynomial, determinant $41$ and signature $-4$, so its mirror image has $\\Delta$, determinant and signature equal to those found here, and no other knot with at most ten crossings has this Alexander polynomial. The diagram, with twelve positive crossings and one negative, even looks like a positive 9-crossing knot drawn with two kinks and one cancelling pair. The conclusion \"$9_{18}$, crossing number $9$\" is the natural one, and it is wrong. The Alexander polynomial and the signature do not identify a knot, and the diagram has not been shown to reduce to nine crossings.\n\nStep 3: The hidden simplification.\nThe region bounded by crossings $10$, $11$ and $12$ is a triangle whose three sides are the chain segments $65$ to $71$ (under at $10$, then over at $11$), $83$ to $91$ (under at $12$, then under at $11$) and $150$ to $160$ (over at $10$, then over at $12$). The segment $150$ to $160$ passes over both other sides, so it can be slid across crossing $11$, which is a Reidemeister move of type III. On each of the three sides the two passages exchange their order, and the Gauss word becomes 1U 2O 3U 4O 5U 6O 7U 8O 9U 11O 10U 1O 11U 12U 13U 9O 8U 7O 6U 3O 4U 5O 2U 13O 12O 10O. Now crossings $12$ and $13$ are met consecutively under (12U 13U) and consecutively over (13O 12O), with opposite signs, and a Reidemeister move of type II removes both. The remaining diagram has $11$ crossings and the Gauss word\n1U 2O 3U 4O 5U 6O 7U 8O 9U 11O 10U 1O 11U 9O 8U 7O 6U 3O 4U 5O 2U 10O,\nall eleven crossings positive. Over and under alternate along the whole word, so the diagram is alternating, and no crossing is nugatory, since for no crossing do its two passages cut the word into two halves each containing complete pairs only. The diagram is therefore a reduced alternating diagram.\n\nStep 4: Crossing number.\nBy the theorem of Kauffman, Murasugi and Thistlethwaite (the first Tait conjecture), a reduced alternating diagram has the minimal number of crossings of its knot type. The crossing number is therefore $11$, and the knot is the alternating knot $11a_{246}$, whose Alexander polynomial and signature coincide with those of the mirror image of $9_{18}$. As a check without the theorem, the Kauffman bracket state sum of either diagram gives the Jones polynomial $V(t) = t^2 - t^3 + 3t^4 - 4t^5 + 5t^6 - 6t^7 + 6t^8 - 5t^9 + 4t^{10} - 3t^{11} + 2t^{12} - t^{13}$, of span $11$. The span of the Jones polynomial is at most the crossing number for every knot, so the crossing number is at least $11$ (and the Jones polynomial of $9_{18}$, of span $9$, differs). The eleven-crossing diagram shows it is at most $11$.\n\nAnswer: $11$.",
+    "references": "The minimality of reduced alternating diagrams was proved in L. H. Kauffman, State models and the Jones polynomial, Topology 26 (1987), 395-407, in K. Murasugi, Jones polynomials and classical conjectures in knot theory, Topology 26 (1987), 187-194, and in M. B. Thistlethwaite, A spanning tree expansion of the Jones polynomial, Topology 26 (1987), 297-309. The signature formula from the Goeritz matrix is C. McA. Gordon and R. A. Litherland, On the signature of a link, Inventiones Mathematicae 47 (1978), 53-69. The Alexander polynomial from Fox calculus is in R. H. Fox, A quick trip through knot theory, in Topology of 3-manifolds, Prentice-Hall, 1962. Knot tables with Alexander and Jones polynomials and signatures are D. Rolfsen, Knots and Links, AMS Chelsea, 2003, Appendix C, and the KnotInfo table (knotinfo.math.indiana.edu), entries 9_18 and 11a_246. For knots in protein backbones and the closure of the chain see W. R. Taylor, A deeply knotted protein structure and how it might fold, Nature 406 (2000), 916-919. The uploaded file verification_notes.txt contains the signed Gauss code built from the table, the planarity check, the Alexander polynomial by exact integer evaluation, the Goeritz matrix with the correction term and the signature, the Reidemeister III and II moves with the Gauss words after each, the alternation and nugatory checks on the 11-crossing diagram, the Jones polynomials of both diagrams by the state sum, the table facts (9_18 is the only knot with at most ten crossings having this Alexander polynomial, checked over the Rolfsen table), and an independent identification of the knot as 11a_246 by its hyperbolic structure (SnapPy census). The programs are embedded with their output.",
+    "rubric": {
+      "criteria": [
+        {
+          "id": "c1",
+          "description": "Gives $11$ as the final answer.",
+          "points": 5,
+          "isFinalAnswer": true
+        },
+        {
+          "id": "c2",
+          "description": "Builds the diagram from the table (passages in residue order, signed Gauss code) and finds the hidden simplification, a Reidemeister III move on the triangle of crossings 10, 11, 12 followed by the Reidemeister II removal of crossings 12 and 13, giving an 11-crossing diagram (or an equivalent explicit sequence of moves to 11 crossings).",
+          "points": 2,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c3",
+          "description": "Proves the lower bound, either because the 11-crossing diagram is alternating and reduced and so minimal by the Kauffman-Murasugi-Thistlethwaite theorem, or because the Jones polynomial has span 11, which bounds the crossing number from below.",
+          "points": 2,
+          "isFinalAnswer": false
+        },
+        {
+          "id": "c4",
+          "description": "Notes that the Alexander polynomial $4t^4 - 10t^3 + 13t^2 - 10t + 4$ (determinant 41) and the signature $\\pm 4$ coincide with those of $9_{18}$ and explains why this does not identify the knot or its crossing number.",
+          "points": 1,
+          "isFinalAnswer": false
+        }
+      ],
+      "commonWrongAnswers": [
+        "9",
+        "13",
+        "12",
+        "10"
+      ]
+    },
+    "referenceFile": {
+      "entry": "reference.txt",
+      "fileName": "verification_notes.txt"
+    }
+  }
+}

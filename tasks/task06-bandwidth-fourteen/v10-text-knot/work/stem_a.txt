@@ -1,0 +1,23 @@
+A structure prediction model returned a model of a $192$-residue protein. To examine its topology, the $C_\alpha$ trace was coarse-grained (each helix replaced by its axis, each strand and loop by a smooth curve through its residues) and projected onto a plane. The direction of projection was chosen so that the straight segment joining the two termini crosses no part of the chain; that segment is added to close the chain into a closed curve, so the closed curve consists of the chain from residue $1$ to residue $192$ followed by the segment back to residue $1$.
+
+In the projection the chain crosses itself exactly $13$ times. Every crossing is listed in the table below by the two residues at which the two parts of the chain meet: the residue on the part in front (over) and the residue on the part behind (under). The chain is oriented from residue $1$ to residue $192$. The sign of a crossing is $+1$ when the direction of the under strand is obtained from the direction of the over strand by a counterclockwise rotation of less than $180$ degrees, and $-1$ otherwise. There are no other crossings.
+
+\begin{tabular}{cccc}
+crossing & over (residue) & under (residue) & sign \\
+\hline
+1 & 9 & 72 & -1 \\
+2 & 96 & 16 & -1 \\
+3 & 24 & 123 & -1 \\
+4 & 31 & 157 & -1 \\
+5 & 38 & 46 & -1 \\
+6 & 112 & 54 & -1 \\
+7 & 144 & 59 & -1 \\
+8 & 64 & 101 & -1 \\
+9 & 79 & 179 & -1 \\
+10 & 88 & 172 & +1 \\
+11 & 135 & 105 & +1 \\
+12 & 118 & 153 & +1 \\
+13 & 165 & 127 & +1 \\
+\end{tabular}
+
+The closed curve is a knot. What is the minimal crossing number of this knot, that is, the smallest number of crossings in any diagram of its knot type? Give a single integer.

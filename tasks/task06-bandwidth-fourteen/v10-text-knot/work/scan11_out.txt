@@ -1,0 +1,3 @@
+/home/Trustvs/Turing/AQ_Summit/venv/lib/python3.12/site-packages/plink/gui.py:33: UserWarning: Plink failed to import tkinter, GUI will not be available
+  warnings.warn('Plink failed to import tkinter, GUI will not be available')
+done 0

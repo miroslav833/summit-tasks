@@ -1,0 +1,375 @@
+{
+ "seed": 22,
+ "n": 13,
+ "nres": 184,
+ "pd": [
+  [
+   22,
+   2,
+   23,
+   1
+  ],
+  [
+   0,
+   12,
+   1,
+   11
+  ],
+  [
+   9,
+   25,
+   10,
+   24
+  ],
+  [
+   4,
+   22,
+   5,
+   21
+  ],
+  [
+   20,
+   4,
+   21,
+   3
+  ],
+  [
+   2,
+   20,
+   3,
+   19
+  ],
+  [
+   18,
+   6,
+   19,
+   5
+  ],
+  [
+   6,
+   18,
+   7,
+   17
+  ],
+  [
+   16,
+   8,
+   17,
+   7
+  ],
+  [
+   8,
+   16,
+   9,
+   15
+  ],
+  [
+   13,
+   11,
+   14,
+   10
+  ],
+  [
+   12,
+   0,
+   13,
+   25
+  ],
+  [
+   14,
+   23,
+   15,
+   24
+  ]
+ ],
+ "events": [
+  {
+   "pos": 0,
+   "crossing": 1,
+   "over": false,
+   "sign": 1,
+   "residue": 8
+  },
+  {
+   "pos": 1,
+   "crossing": 0,
+   "over": true,
+   "sign": 1,
+   "residue": 14
+  },
+  {
+   "pos": 2,
+   "crossing": 5,
+   "over": false,
+   "sign": 1,
+   "residue": 19
+  },
+  {
+   "pos": 3,
+   "crossing": 4,
+   "over": true,
+   "sign": 1,
+   "residue": 26
+  },
+  {
+   "pos": 4,
+   "crossing": 3,
+   "over": false,
+   "sign": 1,
+   "residue": 35
+  },
+  {
+   "pos": 5,
+   "crossing": 6,
+   "over": true,
+   "sign": 1,
+   "residue": 39
+  },
+  {
+   "pos": 6,
+   "crossing": 7,
+   "over": false,
+   "sign": 1,
+   "residue": 43
+  },
+  {
+   "pos": 7,
+   "crossing": 8,
+   "over": true,
+   "sign": 1,
+   "residue": 53
+  },
+  {
+   "pos": 8,
+   "crossing": 9,
+   "over": false,
+   "sign": 1,
+   "residue": 61
+  },
+  {
+   "pos": 9,
+   "crossing": 2,
+   "over": false,
+   "sign": 1,
+   "residue": 65
+  },
+  {
+   "pos": 10,
+   "crossing": 10,
+   "over": true,
+   "sign": 1,
+   "residue": 71
+  },
+  {
+   "pos": 11,
+   "crossing": 1,
+   "over": true,
+   "sign": 1,
+   "residue": 79
+  },
+  {
+   "pos": 12,
+   "crossing": 11,
+   "over": false,
+   "sign": 1,
+   "residue": 83
+  },
+  {
+   "pos": 13,
+   "crossing": 10,
+   "over": false,
+   "sign": 1,
+   "residue": 91
+  },
+  {
+   "pos": 14,
+   "crossing": 12,
+   "over": false,
+   "sign": -1,
+   "residue": 96
+  },
+  {
+   "pos": 15,
+   "crossing": 9,
+   "over": true,
+   "sign": 1,
+   "residue": 100
+  },
+  {
+   "pos": 16,
+   "crossing": 8,
+   "over": false,
+   "sign": 1,
+   "residue": 104
+  },
+  {
+   "pos": 17,
+   "crossing": 7,
+   "over": true,
+   "sign": 1,
+   "residue": 111
+  },
+  {
+   "pos": 18,
+   "crossing": 6,
+   "over": false,
+   "sign": 1,
+   "residue": 118
+  },
+  {
+   "pos": 19,
+   "crossing": 5,
+   "over": true,
+   "sign": 1,
+   "residue": 122
+  },
+  {
+   "pos": 20,
+   "crossing": 4,
+   "over": false,
+   "sign": 1,
+   "residue": 127
+  },
+  {
+   "pos": 21,
+   "crossing": 3,
+   "over": true,
+   "sign": 1,
+   "residue": 131
+  },
+  {
+   "pos": 22,
+   "crossing": 0,
+   "over": false,
+   "sign": 1,
+   "residue": 139
+  },
+  {
+   "pos": 23,
+   "crossing": 12,
+   "over": true,
+   "sign": -1,
+   "residue": 146
+  },
+  {
+   "pos": 24,
+   "crossing": 2,
+   "over": true,
+   "sign": 1,
+   "residue": 150
+  },
+  {
+   "pos": 25,
+   "crossing": 11,
+   "over": true,
+   "sign": 1,
+   "residue": 160
+  }
+ ],
+ "rows": [
+  {
+   "id": 1,
+   "over": 79,
+   "under": 8,
+   "sign": 1,
+   "first": 8,
+   "label": 1
+  },
+  {
+   "id": 0,
+   "over": 14,
+   "under": 139,
+   "sign": 1,
+   "first": 14,
+   "label": 2
+  },
+  {
+   "id": 5,
+   "over": 122,
+   "under": 19,
+   "sign": 1,
+   "first": 19,
+   "label": 3
+  },
+  {
+   "id": 4,
+   "over": 26,
+   "under": 127,
+   "sign": 1,
+   "first": 26,
+   "label": 4
+  },
+  {
+   "id": 3,
+   "over": 131,
+   "under": 35,
+   "sign": 1,
+   "first": 35,
+   "label": 5
+  },
+  {
+   "id": 6,
+   "over": 39,
+   "under": 118,
+   "sign": 1,
+   "first": 39,
+   "label": 6
+  },
+  {
+   "id": 7,
+   "over": 111,
+   "under": 43,
+   "sign": 1,
+   "first": 43,
+   "label": 7
+  },
+  {
+   "id": 8,
+   "over": 53,
+   "under": 104,
+   "sign": 1,
+   "first": 53,
+   "label": 8
+  },
+  {
+   "id": 9,
+   "over": 100,
+   "under": 61,
+   "sign": 1,
+   "first": 61,
+   "label": 9
+  },
+  {
+   "id": 2,
+   "over": 150,
+   "under": 65,
+   "sign": 1,
+   "first": 65,
+   "label": 10
+  },
+  {
+   "id": 10,
+   "over": 71,
+   "under": 91,
+   "sign": 1,
+   "first": 71,
+   "label": 11
+  },
+  {
+   "id": 11,
+   "over": 160,
+   "under": 83,
+   "sign": 1,
+   "first": 83,
+   "label": 12
+  },
+  {
+   "id": 12,
+   "over": 146,
+   "under": 96,
+   "sign": -1,
+   "first": 96,
+   "label": 13
+  }
+ ]
+}

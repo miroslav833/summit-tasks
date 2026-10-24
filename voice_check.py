@@ -37,7 +37,7 @@ def check(name, text):
 
 t = json.load(sys.stdin if sys.argv[1] == "-" else open(sys.argv[1]))["task"]
 fields = {"questionText": t["questionText"], "solution": t["solution"],
-          "references": t["references"], "imageNecessity": t["imageNecessityExplanation"]}
+          "references": t["references"], "imageNecessity": t.get("imageNecessityExplanation", "")}
 for c in t["rubric"]["criteria"]: fields[f"rubric {c['id']}"] = c["description"]
 fail = False
 for n, v in fields.items():
